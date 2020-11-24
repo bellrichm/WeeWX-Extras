@@ -41,9 +41,11 @@ class ReplicateDB(weewx.engine.StdService):
 
     def new_archive_record(self, event): # Need to match signature pylint: disable=unused-argument
         """ WeeWX new archive record event. """
-        # todo, use the record on the event
         for database in self.databases:
-            self._replicate(database['primary_binding'], database['secondary_dbm'])
+            if database['event_catchup']:
+                database['secondary_dbm'].addRecord(event.record)
+            else:
+                self._replicate(database['primary_binding'], database['secondary_dbm'])
 
     def _create_events(self, primarydb_binding, secondary_dbm):
         last_good_time = secondary_dbm.lastGoodStamp()
