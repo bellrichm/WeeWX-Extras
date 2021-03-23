@@ -30,6 +30,8 @@ Configuration:
             expires_after = None
 """
 
+# need to be python 2 compatible pylint: disable=bad-option-value, raise-missing-from, super-with-arguments
+# pylint: enable=bad-option-value
 import time
 import configobj
 import weewx

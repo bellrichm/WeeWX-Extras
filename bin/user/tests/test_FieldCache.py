@@ -1,6 +1,12 @@
+#
+#    Copyright (c) 2020-2021 Rich Bell <bellrichm@gmail.com>
+#
+#    See the file LICENSE.txt for your full rights.
+#
 # pylint: disable=wrong-import-order
 # pylint: disable=missing-docstring
 # pylint: disable=invalid-name
+# pylint: disable=too-few-public-methods
 
 import configobj
 import random
@@ -25,7 +31,8 @@ class Event(object):
             setattr(self, key, argv[key])
 
 class Test_new_archive_record(unittest.TestCase):
-    def test_field_missing(self):
+    @staticmethod
+    def test_field_missing():
         mock_StdEngine = mock.Mock()
         fieldname = ''.join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
         config_dict = {
@@ -48,7 +55,8 @@ class Test_new_archive_record(unittest.TestCase):
             SUT.new_archive_record(event)
             SUT.cache.get_value.assert_called_once()
 
-    def test_field_exists(self):
+    @staticmethod
+    def test_field_exists():
         # pylint: disable=no-member
         mock_StdEngine = mock.Mock()
         fieldname = ''.join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
