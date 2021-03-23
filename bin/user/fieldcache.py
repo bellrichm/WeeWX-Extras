@@ -1,3 +1,8 @@
+#
+#    Copyright (c) 2020-2021 Rich Bell <bellrichm@gmail.com>
+#
+#    See the file LICENSE.txt for your full rights.
+#
 """
 WeeWX service that will cache archive record field values.
 If the next archive record is missing the value, the cached value is used.
