@@ -1,3 +1,8 @@
+#
+#    Copyright (c) 2020-2021 Rich Bell <bellrichm@gmail.com>
+#
+#    See the file LICENSE.txt for your full rights.
+#
 """ Replicate a SQLite DB. """
 
 # todo - mainline routine to fill in 'holes' of secondary db
