@@ -24,6 +24,7 @@ Configuration:
 """
 
 # todo - rename table
+# todo - change dbm to 'Manager' and/or eliminate dependency on weewx for dbm
 
 # need to be python 2 compatible pylint: disable=bad-option-value, raise-missing-from, super-with-arguments
 # pylint: enable=bad-option-value
@@ -110,6 +111,7 @@ class ExternalQueue(StdService):
         super(ExternalQueue, self).__init__(engine, config_dict)
 
         service_dict = config_dict.get('ExternalQueue', {})
+        self.dbm = None
 
         self.enable = to_bool(service_dict.get('enable', True))
         if not self.enable:
@@ -131,11 +133,12 @@ class ExternalQueue(StdService):
 
     def shutDown(self): # need to override parent - pylint: disable=invalid-name
         """Run when an engine shutdown is requested."""
-        try:
-            self.dbm.close()
-        except Exception as exception: # pylint: disable=broad-except
-            logerr("Close queue dbm failed %s" %exception)
-            logerr(traceback.format_exc())
+        if self.dbm:
+            try:
+                self.dbm.close()
+            except Exception as exception: # pylint: disable=broad-except
+                logerr("Close queue dbm failed %s" %exception)
+                logerr(traceback.format_exc())
 
     def new_loop_packet(self, event):
         """ Handle loop packets. """
