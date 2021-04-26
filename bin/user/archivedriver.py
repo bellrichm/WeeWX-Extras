@@ -97,6 +97,7 @@ class ArchiveDriver(weewx.drivers.AbstractDevice): # (methods not used) pylint: 
         self.engine = engine
         self._archive_interval = to_int(stn_dict.get('archive_interval', 300))
         self.delay = to_int(stn_dict.get('delay', 0))
+        self.units = to_int(stn_dict.get('units', 1))
 
     def closePort(self):
         pass
@@ -112,6 +113,7 @@ class ArchiveDriver(weewx.drivers.AbstractDevice): # (methods not used) pylint: 
 
     def genLoopPackets(self):
         while True:
+            data = {'usUnits': self.units, 'interval': self._archive_interval, 'dateTime': 0}
             current_time = int(time.time() + 0.5)
             end_period_ts = (int(current_time / self._archive_interval) + 1) * self._archive_interval
             end_delay_ts = end_period_ts + self.delay
@@ -121,7 +123,8 @@ class ArchiveDriver(weewx.drivers.AbstractDevice): # (methods not used) pylint: 
             time.sleep(sleep_amount)
             print(int(time.time()))
 
-            new_archive_record_event = weewx.Event(weewx.NEW_ARCHIVE_RECORD, record={})
+            data['dateTime'] = end_period_ts
+            new_archive_record_event = weewx.Event(weewx.NEW_ARCHIVE_RECORD, origin='software', record=data)
             self.engine.dispatchEvent(new_archive_record_event)
 
 def main():
