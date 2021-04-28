@@ -57,10 +57,17 @@ class ReplicateDB(weewx.engine.StdService):
     def _create_events(self, primarydb_binding, secondary_dbm):
         last_good_time = secondary_dbm.lastGoodStamp()
         primary_dbm = weewx.manager.open_manager_with_config(self.config_dict, primarydb_binding)
+        # retrieve the records into storage in hopes that it will eliminate the database locking
+        records = []
         for record in primary_dbm.genBatchRecords(last_good_time):
+            records.append(record)
+
+        for record in records:
             self.engine.dispatchEvent(weewx.Event(weewx.NEW_ARCHIVE_RECORD,
                                                   record=record,
                                                   origin='hardware'))
+
+        # ToDo - need to call it again, incase new records appear
 
     def _replicate(self, primarydb_binding, secondary_dbm):
         last_good_time = secondary_dbm.lastGoodStamp()
