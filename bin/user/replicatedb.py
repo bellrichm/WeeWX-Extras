@@ -35,7 +35,6 @@ class ReplicateDB(weewx.engine.StdService):
         self.bind(weewx.STARTUP, self.startup)
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
 
-        print("catching up")
         for database in self.databases:
             if not database['event_catchup']:
                 self._replicate(database['primary_binding'], database['secondary_dbm'])
@@ -46,8 +45,6 @@ class ReplicateDB(weewx.engine.StdService):
             if database['event_catchup']:
                 self._create_events(database['primary_binding'], database['secondary_dbm'])
 
-    # ToDo - move the logic to update the db to a different event?
-    # ToDo - in the new event, perform a 'catchup' if necessary?
     def new_archive_record(self, event): # Need to match signature pylint: disable=unused-argument
         """ WeeWX new archive record event. """
         for database in self.databases:
@@ -59,26 +56,21 @@ class ReplicateDB(weewx.engine.StdService):
     def _create_events(self, primarydb_binding, secondary_dbm):
         primary_dbm = weewx.manager.open_manager_with_config(self.config_dict, primarydb_binding)
 
-        while True:
-            last_good_time = secondary_dbm.lastGoodStamp()
-            # retrieve the records into storage in hopes that it will eliminate the database locking
-            records = []
-            for record in primary_dbm.genBatchRecords(last_good_time):
-                records.append(record)
+        last_good_time = secondary_dbm.lastGoodStamp()
+        # retrieve the records into storage in hopes that it will eliminate the database locking
+        records = []
+        for record in primary_dbm.genBatchRecords(last_good_time):
+            records.append(record)
 
-            if not records:
-                break
-            for record in records:
-                self.engine.dispatchEvent(weewx.Event(weewx.NEW_ARCHIVE_RECORD,
-                                                      record=record,
-                                                      origin='hardware'))
-
-        print("ToDo - leaving")
+        for record in records:
+            self.engine.dispatchEvent(weewx.Event(weewx.NEW_ARCHIVE_RECORD,
+                                                  record=record,
+                                                  origin='hardware'))
 
     def _replicate(self, primarydb_binding, secondary_dbm):
         last_good_time = secondary_dbm.lastGoodStamp()
+        # ToDo - next line sometimes fails with: sqlite3.OperationalError: attempt to write a readonly database
         primary_dbm = weewx.manager.open_manager_with_config(self.config_dict, primarydb_binding)
         records = primary_dbm.genBatchRecords(last_good_time)
         secondary_dbm.addRecord(records)
         primary_dbm.close()
-        print("done")
