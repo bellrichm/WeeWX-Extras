@@ -11,7 +11,7 @@
 # pylint: enable=bad-option-value
 import weewx
 
-class ReplicateDB(weewx.engine.StdService):
+class ReplicateDB(weewx.engine.StdArchive):
     """ Replicate a SQLite db. """
     def __init__(self, engine, config_dict):
         super(ReplicateDB, self).__init__(engine, config_dict)
@@ -32,9 +32,6 @@ class ReplicateDB(weewx.engine.StdService):
                 initialize=True)
             self.databases.append(database)
 
-        self.bind(weewx.STARTUP, self.startup)
-        self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
-
         print("catching up")
         for database in self.databases:
             if not database['event_catchup']:
@@ -42,12 +39,32 @@ class ReplicateDB(weewx.engine.StdService):
 
     def startup(self, event): # Need to match signature pylint: disable=unused-argument
         """ WeeWX startup event. """
+        print("replicatedb startup")
         for database in self.databases:
             if database['event_catchup']:
                 self._create_events(database['primary_binding'], database['secondary_dbm'])
 
+        super(ReplicateDB, self).startup(event)
+
     def new_archive_record(self, event): # Need to match signature pylint: disable=unused-argument
         """ WeeWX new archive record event. """
+        print("replicatedb new_archive_record")
+
+        # If requested, extract any extra information we can out of the accumulator and put it in
+        # the record. Not necessary in the case of software record generation because it has
+        # already been done.
+        if self.record_augmentation \
+                and self.old_accumulator \
+                and event.record['dateTime'] == self.old_accumulator.timespan.stop \
+                and event.origin != 'software':
+            self.old_accumulator.augmentRecord(event.record)
+
+        #dbmanager = self.engine.db_binder.get_manager(self.data_binding)
+        #dbmanager.addRecord(event.record,
+        #                    accumulator=self.old_accumulator,
+        #                    log_success=self.log_success,
+        #                    log_failure=self.log_failure)
+
         for database in self.databases:
             if database['event_catchup']:
                 database['secondary_dbm'].addRecord(event.record)
