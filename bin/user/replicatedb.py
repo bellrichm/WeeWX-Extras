@@ -72,17 +72,23 @@ class ReplicateDB(weewx.engine.StdArchive):
                 self._replicate(database['primary_binding'], database['secondary_dbm'])
 
     def _create_events(self, primarydb_binding, secondary_dbm):
-        last_good_time = secondary_dbm.lastGoodStamp()
         primary_dbm = weewx.manager.open_manager_with_config(self.config_dict, primarydb_binding)
+
+        last_good_time = secondary_dbm.lastGoodStamp()
+        # retrieve the records into storage in hopes that it will eliminate the database locking
+        records = []
         for record in primary_dbm.genBatchRecords(last_good_time):
+            records.append(record)
+
+        for record in records:
             self.engine.dispatchEvent(weewx.Event(weewx.NEW_ARCHIVE_RECORD,
                                                   record=record,
                                                   origin='hardware'))
 
     def _replicate(self, primarydb_binding, secondary_dbm):
         last_good_time = secondary_dbm.lastGoodStamp()
+        # ToDo - next line sometimes fails with: sqlite3.OperationalError: attempt to write a readonly database
         primary_dbm = weewx.manager.open_manager_with_config(self.config_dict, primarydb_binding)
         records = primary_dbm.genBatchRecords(last_good_time)
         secondary_dbm.addRecord(records)
         primary_dbm.close()
-        print("done")
