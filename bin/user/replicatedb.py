@@ -18,6 +18,7 @@ class ReplicateDB(weewx.engine.StdArchive):
 
         self.config_dict = config_dict
         service_dict = config_dict.get('ReplicateDB', {})
+        self.store_archive_event_record = service_dict.get('store_archive_event_record', False)
         self.databases = []
         for section in service_dict.sections:
             db_dict = service_dict.get(section, {})
@@ -59,11 +60,12 @@ class ReplicateDB(weewx.engine.StdArchive):
                 and event.origin != 'software':
             self.old_accumulator.augmentRecord(event.record)
 
-        #dbmanager = self.engine.db_binder.get_manager(self.data_binding)
-        #dbmanager.addRecord(event.record,
-        #                    accumulator=self.old_accumulator,
-        #                    log_success=self.log_success,
-        #                    log_failure=self.log_failure)
+        if self.store_archive_event_record:
+            dbmanager = self.engine.db_binder.get_manager(self.data_binding)
+            dbmanager.addRecord(event.record,
+                                accumulator=self.old_accumulator,
+                                log_success=self.log_success,
+                                log_failure=self.log_failure)
 
         for database in self.databases:
             if database['event_catchup']:
