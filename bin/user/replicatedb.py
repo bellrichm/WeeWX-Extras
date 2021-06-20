@@ -12,7 +12,7 @@ Installation:
     3. Replace weewx.engine.StdArchive with user.replicatedb.ReplicateDB in the [engine] stanza.
 
 Overview:
-Replicate the SQLite DBs by inserting any records from the secondary binding 
+Replicate the SQLite DBs by inserting any records from the secondary binding
 that have a dateTime greater than the last dateTime in the primary bindng.
 The main WeeWX database has additional options. Instead of directly inserting the data into the primary DB,
 a new archive record event can be created. This allows the WeeWX pipeline to run as normal.
@@ -55,8 +55,9 @@ Configuration:
 # need to be python 2 compatible pylint: disable=bad-option-value, raise-missing-from, super-with-arguments
 # pylint: enable=bad-option-value
 import weewx
+from weewx.engine import StdArchive
 
-class ReplicateDB(weewx.engine.StdArchive):
+class ReplicateDB(StdArchive):
     """ Replicate a SQLite db. """
     def __init__(self, engine, config_dict):
         super(ReplicateDB, self).__init__(engine, config_dict)
@@ -139,3 +140,45 @@ class ReplicateDB(weewx.engine.StdArchive):
         records = primary_dbm.genBatchRecords(last_good_time)
         secondary_dbm.addRecord(records)
         primary_dbm.close()
+
+def main():
+    """ Mainline function """
+    import os
+    import configobj
+
+    print("main")
+    config_file = 'weewx.raspberrypi.conf'
+    database = 'weewx'
+    config_path = os.path.abspath(config_file)
+    config_dict = configobj.ConfigObj(config_path, file_error=True)
+    service_dict = config_dict.get('ReplicateDB', {})
+    for section in service_dict.sections:
+        if section == database:
+            db_dict = service_dict.get(section, {})
+            primary_dbm = weewx.manager.open_manager_with_config(config_dict, db_dict['primary_binding'])
+            secondary_dbm = weewx.manager.open_manager_with_config(config_dict, db_dict['secondary_binding'])
+            break
+
+    # ToDo - convert to sql to get list of timestamps
+    print("get secondary timestamps")
+    secondary_records = secondary_dbm.genBatchRecords(startstamp=None, stopstamp=None)
+    #secondary_timestamps = []
+    secondary_timestamps = set()
+    for record in secondary_records:
+        #secondary_timestamps.append(record['dateTime'])
+        secondary_timestamps.add(record['dateTime'])
+
+    print("start compare")
+    primary_records = primary_dbm.genBatchRecords(startstamp=None, stopstamp=None)
+    missing_records = []
+    for record in primary_records:
+        if record['dateTime'] not in secondary_timestamps:
+            missing_records.append(record)
+
+    secondary_dbm.addRecord(missing_records)
+
+    print("done")
+
+
+if __name__ == "__main__":
+    main()
