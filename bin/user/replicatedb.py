@@ -3,7 +3,52 @@
 #
 #    See the file LICENSE.txt for your full rights.
 #
-""" Replicate a SQLite DB. """
+"""
+Replicate SQLite DB(s) by pulling data from the primary/source and updating the secondary/target.
+
+Installation:
+    1. Put this file in the bin/user directory.
+    2. Update weewx.conf [ReplicateDB] as needed to configure the service.
+    3. Replace weewx.engine.StdArchive with user.replicatedb.ReplicateDB in the [engine] stanza.
+
+Overview:
+Replicate the SQLite DBs by inserting any records from the secondary binding 
+that have a dateTime greater than the last dateTime in the primary bindng.
+The main WeeWX database has additional options. Instead of directly inserting the data into the primary DB,
+a new archive record event can be created. This allows the WeeWX pipeline to run as normal.
+The other option is to add the new archive event record to the database, like StdArchive would.
+
+Note: Currently there is no error checking that these options are configured correctly.
+
+Configuration:
+[ReplicateDB]
+    # When set to True, the archive event record is stored in the DB (ala StdArchive processing.)
+    # When set to False, the archive event record is ignored and therefore the DB must be configured below.
+    # Currently there is no checking that when the value is False that the DB is configued below.
+    # Nor is there any checking that when the fslue us True that the DB is NOT configued below.
+    # Default is False.
+    store_archive_event_record = True
+
+    # The databases to replicate.
+    # Each section [[DBn]] identifies a database pair, primary and secondary.
+    # The section name can be any value.
+    [[db01]]
+        # When set to True, an archive event is raised enabling processing that listens on this event to happen.
+        # When set to False, the data is added directly to the secondary DB.
+        # Default is False.
+        event_catchup = True
+        # The WeeWX database binding of the primary DB.
+        # The WeeWX database binding of the secondary DB.
+        primary_binding = primary_db_binding
+        secondary_binding = secondary_db_binding
+
+    # Additional databases to replicate
+    [[db02]]
+        primary_binding = primary_db02_binding
+        secondary_binding = secondary_db02_binding
+    [[db03]]
+        ...
+"""
 
 # todo - mainline routine to fill in 'holes' of secondary db
 
