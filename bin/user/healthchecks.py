@@ -104,7 +104,7 @@ class HealthChecks(StdService):
         self._thread = HealthChecksThread(host, uuid, timeout)
         self._thread.start()
 
-    def new_archive_record(self):
+    def new_archive_record(self, event):
         """The new archive record event."""
         self._thread.threading_event.set()
 
