@@ -19,7 +19,7 @@ Configuration:
     # host = hc-ping.com
 
     # The HealthChecks uuid
-    uuid = 
+    uuid =
 
     # The http request timeout
     # The default is 10
@@ -28,6 +28,7 @@ Configuration:
 
 import socket
 import urllib.request
+import threading
 
 import weewx
 from weewx.engine import StdService
@@ -91,7 +92,7 @@ class HealthChecks(StdService):
         if not self.enable:
             loginf("Not enabled, exiting.")
             return
-            
+
         host = service_dict.get('host', 'hc-ping.com')
         timeout = to_int(service_dict.get('timeout', 10))
         uuid = service_dict.get('uuid')
@@ -100,38 +101,40 @@ class HealthChecks(StdService):
 
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
 
-        self._thread = HealthChecksThread(host, url, timeout)
+        self._thread = HealthChecksThread(host, uuid, timeout)
         self._thread.start()
 
-    def new_archive_record(self) 
+    def new_archive_record(self):
+        """The new archive record event."""
         self._thread.threading_event.set()
 
-     def shutDown(self):
+    def shutDown(self):
         """Run when an engine shutdown is requested."""
-        loginf(self.publish_type, "SHUTDOWN - initiated")
+        loginf("SHUTDOWN - initiated")
         if self._thread:
-            loginf(self.publish_type, "SHUTDOWN - thread initiated")
+            loginf("SHUTDOWN - thread initiated")
             self._thread.running = False
             self._thread.threading_event.set()
             self._thread.join(20.0)
             if self._thread.is_alive():
-                logerr(self.publish_type, "Unable to shut down %s thread" %self._thread.name)
+                logerr("Unable to shut down %s thread" %self._thread.name)
 
             self._thread = None
 
 class HealthChecksThread(threading.Thread):
-    def __init__(self, host, url, timeout):
+    """A service to send 'pings' to a HealthChecks server. """
+    def __init__(self, host, uuid, timeout):
         threading.Thread.__init__(self)
 
         self.running = False
-        
+
         self.host = host
-        self.url = url
+        self.uuid = uuid
         self.timeout = timeout
-        
+
         self.threading_event = threading.Event()
- 
-     def run(self):
+
+    def run(self):
         self.running = True
 
         while self.running:
@@ -139,8 +142,8 @@ class HealthChecksThread(threading.Thread):
 
             try:
                 urllib.request.urlopen("https://%s/%s" %(self.host, self.uuid), timeout=self.timeout)
-            except socket.error as e:
-                logerr("Ping failed: %s" % e)
+            except socket.error as exception:
+                logerr("Ping failed: %s" % exception)
 
             self.threading_event.clear()
 
