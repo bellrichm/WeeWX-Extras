@@ -136,16 +136,26 @@ class HealthChecksThread(threading.Thread):
 
     def run(self):
         self.running = True
+        self._send_ping("start")
 
         while self.running:
             self.threading_event.wait()
-
-            try:
-                urllib.request.urlopen("https://%s/%s" %(self.host, self.uuid), timeout=self.timeout)
-            except socket.error as exception:
-                logerr("Ping failed: %s" % exception)
+            self._send_ping()
 
             self.threading_event.clear()
+
+        self._send_ping("fail")
+
+    def _send_ping(self, ping_type=None):
+        if ping_type:
+            url = "https://%s/%s/%s" %(self.host, self.uuid, ping_type)
+        else:
+            url = "https://%s/%s" %(self.host, self.uuid)
+
+        try:
+            urllib.request.urlopen(url, timeout=self.timeout)
+        except socket.error as exception:
+            logerr("Ping failed: %s" % exception)
 
 if __name__ == "__main__":
     pass
