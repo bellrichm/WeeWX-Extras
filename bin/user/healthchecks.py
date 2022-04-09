@@ -38,6 +38,7 @@ except ImportError:
 
 import weewx
 from weewx.engine import StdService
+from weewx.reportengine import ReportGenerator
 
 from weeutil.weeutil import to_bool, to_int
 
@@ -87,28 +88,43 @@ except ImportError:
         """ Log error level. """
         logmsg(syslog.LOG_ERR, msg)
 
-class HealthChecks(StdService):
+def send_ping(host, uuid, timeout, ping_type=None):
+    """Send the HealthChecks 'ping'."""
+    if ping_type:
+        url = "https://%s/%s/%s" %(host, uuid, ping_type)
+    else:
+        url = "https://%s/%s" %(host, uuid)
+
+    try:
+        urlopen(url, timeout=timeout)
+    except socket.error as exception:
+        logerr("Ping failed: %s" % exception)
+
+class HealthChecksService(StdService):
     """ A service to ping a healthchecks server.. """
     def __init__(self, engine, config_dict):
-        super(HealthChecks, self).__init__(engine, config_dict)
+        super(HealthChecksService, self).__init__(engine, config_dict)
 
-        service_dict = config_dict.get('HealthChecks', {})
+        # service_dict = config_dict.get('HealthChecks', {})
+        skin_dict = self.config_dict.get('StdReport', {}).get('HealthChecks', {})
 
-        self.enable = to_bool(service_dict.get('enable', True))
+        self.enable = to_bool(skin_dict.get('enable', True))
         if not self.enable:
             loginf("Not enabled, exiting.")
             return
 
-        host = service_dict.get('host', 'hc-ping.com')
-        timeout = to_int(service_dict.get('timeout', 10))
-        uuid = service_dict.get('uuid')
-        if not uuid:
+        self.host = skin_dict.get('host', 'hc-ping.com')
+        self.timeout = to_int(skin_dict.get('timeout', 10))
+        self.uuid = skin_dict.get('uuid')
+        if not self.uuid:
             raise ValueError("uuid option is required.")
 
-        self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
+        send_ping(self.host, self.uuid, self.timeout, "start")
 
-        self._thread = HealthChecksThread(host, uuid, timeout)
-        self._thread.start()
+        # possible option to run as a service only
+        # self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
+        # self._thread = HealthChecksServiceThread(self.host, self.uuid, self.timeout)
+        # self._thread.start()
 
     def new_archive_record(self, event):
         """The new archive record event."""
@@ -117,6 +133,10 @@ class HealthChecks(StdService):
     def shutDown(self):
         """Run when an engine shutdown is requested."""
         loginf("SHUTDOWN - initiated")
+
+        send_ping(self.host, self.uuid, self.timeout, "fail")
+        loginf("fail ping sent")
+
         if self._thread:
             loginf("SHUTDOWN - thread initiated")
             self._thread.running = False
@@ -127,7 +147,7 @@ class HealthChecks(StdService):
 
             self._thread = None
 
-class HealthChecksThread(threading.Thread):
+class HealthChecksServiceThread(threading.Thread):
     """A service to send 'pings' to a HealthChecks server. """
     def __init__(self, host, uuid, timeout):
         threading.Thread.__init__(self)
@@ -142,26 +162,28 @@ class HealthChecksThread(threading.Thread):
 
     def run(self):
         self.running = True
-        self._send_ping("start")
 
         while self.running:
             self.threading_event.wait()
-            self._send_ping()
-
+            send_ping(self.host, self.uuid, self.timeout)
             self.threading_event.clear()
 
-        self._send_ping("fail")
+        loginf("exited loop")
 
-    def _send_ping(self, ping_type=None):
-        if ping_type:
-            url = "https://%s/%s/%s" %(self.host, self.uuid, ping_type)
-        else:
-            url = "https://%s/%s" %(self.host, self.uuid)
+class HealthChecksGenerator(ReportGenerator):
+    """Class for managing the healthchecks generator."""
+    def __init__(self, config_dict, skin_dict, *args, **kwargs):
+        """Initialize an instance of HealthChecksGenerator"""
+        weewx.reportengine.ReportGenerator.__init__(self, config_dict, skin_dict, *args, **kwargs)
 
-        try:
-            urlopen(url, timeout=self.timeout)
-        except socket.error as exception:
-            logerr("Ping failed: %s" % exception)
+        self.host = skin_dict.get('host', 'hc-ping.com')
+        self.timeout = to_int(skin_dict.get('timeout', 10))
+        self.uuid = skin_dict.get('uuid')
+        if not self.uuid:
+            raise ValueError("uuid option is required.")
+
+    def run(self):
+        send_ping(self.host, self.uuid, self.timeout)
 
 if __name__ == "__main__":
     pass
