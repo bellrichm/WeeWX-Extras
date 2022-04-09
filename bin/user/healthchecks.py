@@ -27,8 +27,14 @@ Configuration:
 """
 
 import socket
-import urllib.request
 import threading
+
+try:
+    # Python 3
+    from urllib.request import urlopen
+except ImportError:
+    # Python 2
+    from urllib2 import urlopen
 
 import weewx
 from weewx.engine import StdService
@@ -153,7 +159,7 @@ class HealthChecksThread(threading.Thread):
             url = "https://%s/%s" %(self.host, self.uuid)
 
         try:
-            urllib.request.urlopen(url, timeout=self.timeout)
+            urlopen(url, timeout=self.timeout)
         except socket.error as exception:
             logerr("Ping failed: %s" % exception)
 
