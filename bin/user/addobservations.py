@@ -113,7 +113,7 @@ class AddObservations(StdService):
 
         enable = to_bool(service_dict.get('enable', True))
         if not enable:
-            loginf("Not enabled, exiting.")
+            loginf("AddObservations", "Not enabled, exiting.")
             return
 
         weewx_config = service_dict.get('weewx')
