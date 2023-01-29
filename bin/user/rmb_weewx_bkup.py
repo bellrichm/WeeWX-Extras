@@ -1,5 +1,6 @@
 # to use add the following to the report services, user.rmb_weewx_bkup.MyBackup
 
+import configobj
 import time
 import datetime
 #import smtplib
@@ -11,6 +12,7 @@ import subprocess
 import weewx
 from weewx.wxengine import StdService
 #from weeutil.weeutil import timestamp_to_string, option_as_list
+from weeutil.weeutil import to_bool
 
 def get_curr_time():
     curr_hr = time.strftime("%H")
@@ -52,7 +54,14 @@ class MyBackup(StdService):
         # Pass the initialization information on to my superclass:
         super(MyBackup, self).__init__(engine, config_dict)
 
-        #syslog.syslog(syslog.LOG_INFO, "*** Backup intializing 1")
+	service_dict = config_dict.get('MyBackup', {})
+
+	enable = to_bool(service_dict.get('enable', True))
+        if not enable:
+            syslog.syslog(syslog.LOG_INFO, "MyBackup is not enabled, exiting")
+            return
+
+        syslog.syslog(syslog.LOG_INFO, "*** Backup intializing 1")
         self.home_dir = '/home/weewx/'        
 
         # keep track of last backup in this file
