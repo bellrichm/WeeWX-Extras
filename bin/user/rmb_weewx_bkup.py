@@ -54,9 +54,9 @@ class MyBackup(StdService):
         # Pass the initialization information on to my superclass:
         super(MyBackup, self).__init__(engine, config_dict)
 
-	service_dict = config_dict.get('MyBackup', {})
+        service_dict = config_dict.get('MyBackup', {})
 
-	enable = to_bool(service_dict.get('enable', True))
+        enable = to_bool(service_dict.get('enable', True))
         if not enable:
             syslog.syslog(syslog.LOG_INFO, "MyBackup is not enabled, exiting")
             return
