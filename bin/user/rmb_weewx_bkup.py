@@ -4,13 +4,64 @@
 import time
 import datetime
 
-import syslog
 import subprocess
 
 import weewx
 from weewx.wxengine import StdService
-#from weeutil.weeutil import timestamp_to_string, option_as_list
 from weeutil.weeutil import to_bool
+
+try:
+    # Test for new-style weewx logging by trying to import weeutil.logger
+    import weeutil.logger
+    import logging
+    log = logging.getLogger(__name__) # confirm to standards pylint: disable=invalid-name
+    def setup_logging(logging_level, config_dict):
+        """ Setup logging for running in standalone mode."""
+        if logging_level:
+            weewx.debug = logging_level
+
+        weeutil.logger.setup('wee_MQTTSS', config_dict)
+
+    def logdbg(msg):
+        """ Log debug level. """
+        log.debug(msg)
+
+    def loginf(msg):
+        """ Log informational level. """
+        log.info(msg)
+
+    def logerr(msg):
+        """ Log error level. """
+        log.error(msg)
+
+except ImportError:
+    # Old-style weewx logging
+    import syslog
+    def setup_logging(logging_level, config_dict): # Need to match signature pylint: disable=unused-argument
+        """ Setup logging for running in standalone mode."""
+        syslog.openlog('wee_MQTTSS', syslog.LOG_PID | syslog.LOG_CONS)
+        if logging_level:
+            syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_DEBUG))
+        else:
+            syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_INFO))
+
+    def logmsg(level, msg):
+        """ Log the message at the designated level. """
+        # Replace '__name__' with something to identify your application.
+        syslog.syslog(level, '__name__: %s' % (msg))
+
+    def logdbg(msg):
+        """ Log debug level. """
+        logmsg(syslog.LOG_DEBUG, msg)
+
+    def loginf(msg):
+        """ Log informational level. """
+        logmsg(syslog.LOG_INFO, msg)
+
+    def logerr(msg):
+        """ Log error level. """
+        logmsg(syslog.LOG_ERR, msg)
+
 
 def get_curr_time():
     """" Get the current time. """
@@ -22,11 +73,11 @@ def get_curr_time():
 
 def time_in_range(start, end, value):
     """Return true if value is in the range [start, end]"""
-    # syslog.syslog(syslog.LOG_INFO, ' **** Backup date check %s %s %s' % (start, end ,x))
+    logdbg(' **** Backup date check %s %s %s' % (start, end, value))
     if start <= end:
         return start <= value <= end
-    else:
-        return start <= value or value <= end
+
+    return start <= value or value <= end
 
 def save_last_run(save_file, last_run):
     """ Save date/time of last backup. """
@@ -56,10 +107,10 @@ class MyBackup(StdService):
 
         enable = to_bool(service_dict.get('enable', True))
         if not enable:
-            syslog.syslog(syslog.LOG_INFO, "MyBackup is not enabled, exiting")
+            loginf("MyBackup is not enabled, exiting")
             return
 
-        syslog.syslog(syslog.LOG_INFO, "*** Backup intializing 1")
+        loginf("*** Backup intializing 1")
         self.home_dir = '/home/weewx/'
 
         # keep track of last backup in this file
@@ -71,8 +122,7 @@ class MyBackup(StdService):
         self.last_run = get_last_run(save_file)
         if not self.last_run:
             self.last_run = datetime.date.today()
-            syslog.syslog(
-                syslog.LOG_INFO, "Lastrun not found, settng to today: %s" % self.last_run)
+            loginf("Lastrun not found, settng to today: %s" % self.last_run)
         # backup will only run between 3 and 3:30
         self.start = datetime.time(3, 0, 0)
         self.end = datetime.time(3, 30, 0)
@@ -91,15 +141,11 @@ class MyBackup(StdService):
         # AND if the backup has not run on this date, then do it
         # if True:
         if time_in_range(self.start, self.end, curr_time) and self.last_run != curr_date:
-            syslog.syslog(syslog.LOG_INFO, ' **** do Backup now')
-            print('do Backup now\n')
+            loginf(' **** do Backup now')
             self.last_run = curr_date
             save_last_run(self.save_file, self.last_run)
             # the perl file that performs the backup
             var = self.home_dir + "thebells/weewxaddons/tools/bin/weewx_bkup.pl"
             retcode = subprocess.call(["/usr/bin/perl", var])
         else:
-            # syslog.syslog(syslog.LOG_INFO, ' **** no Backup needed')
-            print('no Backup needed\n')
-
-# print last_run
+            loginf(' **** no Backup needed')
