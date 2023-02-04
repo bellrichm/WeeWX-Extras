@@ -3,12 +3,14 @@
 
 import time
 import datetime
-
-import subprocess
+import os
+#import subprocess
 
 import weewx
 from weewx.wxengine import StdService
 from weeutil.weeutil import to_bool
+
+VERSION = "0.0.1"
 
 try:
     # Test for new-style weewx logging by trying to import weeutil.logger
@@ -89,8 +91,10 @@ def get_last_run(save_file):
     """ Get date of last backup. """
     try:
         file_ptr = open(save_file, "r")
-    except Exception as exception:
-        return ""
+    except FileNotFoundError:
+        last_run = datetime.date.today()
+        loginf("Lastrun not found, setting to today: %s" %last_run)
+        return last_run
     line = file_ptr.read()
     file_ptr.close()
     temp = line.split('-')
@@ -103,6 +107,8 @@ class MyBackup(StdService):
         # Pass the initialization information on to my superclass:
         super(MyBackup, self).__init__(engine, config_dict)
 
+        loginf("Version is %s" % VERSION)
+
         service_dict = config_dict.get('MyBackup', {})
 
         enable = to_bool(service_dict.get('enable', True))
@@ -110,22 +116,13 @@ class MyBackup(StdService):
             loginf("MyBackup is not enabled, exiting")
             return
 
-        loginf("*** Backup intializing 1")
-        self.home_dir = '/home/weewx/'
+        backup_file = service_dict.get('backup_file', 'run/last_backup.txt')
 
-        # keep track of last backup in this file
-        # This file must exist!!
-        # and have one line with the format of YYYY-MM-DD
-        save_file = self.home_dir + 'thebells/weewx_bkup/last_backup.txt'
-        self.save_file = save_file
-        self.last_msg_ts = 0
-        self.last_run = get_last_run(save_file)
-        if not self.last_run:
-            self.last_run = datetime.date.today()
-            loginf("Lastrun not found, settng to today: %s" % self.last_run)
-        # backup will only run between 3 and 3:30
-        self.start = datetime.time(3, 0, 0)
-        self.end = datetime.time(3, 30, 0)
+        self.save_file = os.path.join(self.config_dict['WEEWX_ROOT'], backup_file)
+        self.last_run = get_last_run(self.save_file)
+
+        self.start = datetime.datetime.strptime('3:00', '%H:%M').time()
+        self.end = datetime.datetime.strptime('3:30', '%H:%M').time()
 
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
 
@@ -139,13 +136,15 @@ class MyBackup(StdService):
 
         # if the current time is within the start and end range
         # AND if the backup has not run on this date, then do it
-        # if True:
-        if time_in_range(self.start, self.end, curr_time) and self.last_run != curr_date:
+        if True:
+        #if time_in_range(self.start, self.end, curr_time) and self.last_run != curr_date:
             loginf(' **** do Backup now')
             self.last_run = curr_date
             save_last_run(self.save_file, self.last_run)
             # the perl file that performs the backup
-            var = self.home_dir + "thebells/weewxaddons/tools/bin/weewx_bkup.pl"
-            retcode = subprocess.call(["/usr/bin/perl", var])
+            ##var = self.home_dir + "thebells/weewxaddons/tools/bin/weewx_bkup.pl"
+            #retcode = subprocess.call(["/usr/bin/perl", var])
         else:
             loginf(' **** no Backup needed')
+
+        print("done")
