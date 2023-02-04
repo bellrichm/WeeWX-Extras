@@ -147,4 +147,7 @@ class MyBackup(StdService):
         else:
             loginf(' **** no Backup needed')
 
+        # Proof of Concept - backing up DBs
+        # sqlite3 -cmd 'attach /home/fork.weewx/archive/weather.sdb as weather;' -cmd '.backup weather /home/fork.weewx/run/tempd.sdb' -cmd  'detach database weather;'
+
         print("done")
