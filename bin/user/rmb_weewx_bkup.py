@@ -182,6 +182,7 @@ class MyBackup(StdService):
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print("start")
         stdout, stderr = process.communicate()
+        print(process.returncode)
         print(stdout)
         print(stderr)
         print("done")
