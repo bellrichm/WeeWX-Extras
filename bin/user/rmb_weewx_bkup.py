@@ -128,6 +128,8 @@ class MyBackup(StdService):
 
         #self.check_db()
 
+        #self.backup()
+
     def new_archive_record(self, event): # Need to match signature pylint: disable=unused-argument
         """Gets called on a new archive record event."""
         curr_date = datetime.date.today()
@@ -162,6 +164,22 @@ class MyBackup(StdService):
 
         backup_db = '/home/fork.weewx/run/tempd.sdb'
         process = subprocess.Popen(['sqlite3', '-cmd', 'attach "' + db + '" as monitor', '-cmd', '.backup monitor ' + backup_db, '-cmd', 'detach monitor'], stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print("start")
+        stdout, stderr = process.communicate()
+        print(stdout)
+        print(stderr)
+        print("done")
+
+    def backup(self):
+        source_dir = '/home/fork.weewx/'
+        dest_dir = '/home/fork.weewx/run/bkup'
+        verbose = '-v'
+        process = subprocess.Popen(['rsync',
+                                    '-p',
+                                    '-a', '-L', verbose,
+                                    '--exclude=.Trash*/',
+                                    '--exclude=weewx_bkup/', '--exclude=archive/', '--exclude=run/', '--exclude=lost+found/', '--exclude=.git/', source_dir, dest_dir], 
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print("start")
         stdout, stderr = process.communicate()
         print(stdout)
