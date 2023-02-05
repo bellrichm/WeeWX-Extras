@@ -4,7 +4,7 @@
 import time
 import datetime
 import os
-#import subprocess
+import subprocess
 
 import weewx
 from weewx.wxengine import StdService
@@ -126,6 +126,8 @@ class MyBackup(StdService):
 
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
 
+        #self.check_db()
+
     def new_archive_record(self, event): # Need to match signature pylint: disable=unused-argument
         """Gets called on a new archive record event."""
         curr_date = datetime.date.today()
@@ -147,7 +149,21 @@ class MyBackup(StdService):
         else:
             loginf(' **** no Backup needed')
 
-        # Proof of Concept - backing up DBs
-        # sqlite3 -cmd 'attach /home/fork.weewx/archive/weather.sdb as weather;' -cmd '.backup weather /home/fork.weewx/run/tempd.sdb' -cmd  'detach database weather;'
+        print("done")
 
+    def check_db(self):
+        db = '/home/fork.weewx/archive-replica/monitor.sdb'
+        process = subprocess.Popen(['sqlite3', '-line', db, 'pragma integrity_check'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print("start")
+        stdout, stderr = process.communicate()
+        print(stdout)
+        print(stderr)
+        print("done")
+
+        backup_db = '/home/fork.weewx/run/tempd.sdb'
+        process = subprocess.Popen(['sqlite3', '-cmd', 'attach "' + db + '" as monitor', '-cmd', '.backup monitor ' + backup_db, '-cmd', 'detach monitor'], stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print("start")
+        stdout, stderr = process.communicate()
+        print(stdout)
+        print(stderr)
         print("done")
