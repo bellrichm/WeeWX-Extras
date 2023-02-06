@@ -124,6 +124,8 @@ class MyBackup(StdService):
         if not os.path.exists(self.working_dir):
             os.makedirs(self.working_dir)
 
+        self.db_names = ['archive-replica/monitor.sdb']
+
         # my $logfile = $workingdir . '/backup.txt';
         # my $errfile = $workingdir . '/backup_err.txt';
         self.log_file = os.path.join(self.working_dir, 'backup.txt')
@@ -139,7 +141,6 @@ class MyBackup(StdService):
 
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
 
-        #self.check_db()
 
         #self.backup()
         now = datetime.datetime.now()
@@ -157,6 +158,15 @@ class MyBackup(StdService):
 
         self.rotate_dirs(prev_dir, curr_dir)
         self.backup_code(self.weewx_root, curr_dir, log_file_ptr, err_file_ptr)
+
+        # ToDo - need to figur out how to handle
+        os.makedirs(os.path.join(curr_dir, 'fork.weewx/archive-replica'))
+        for db_name in self.db_names:
+            print(db_name)
+            self.check_db(os.path.join(self.weewx_root, db_name), log_file_ptr, err_file_ptr)
+            self.backup_db(os.path.join(self.weewx_root, db_name), os.path.join(curr_dir, 'fork.weewx', db_name), log_file_ptr, err_file_ptr)
+            self.check_db(os.path.join(curr_dir, 'fork.weewx', db_name), log_file_ptr, err_file_ptr)
+            print("done")
 
         os.chdir(cwd)
 
@@ -187,16 +197,21 @@ class MyBackup(StdService):
 
         print("done")
 
-    def check_db(self):
-        db_file = '/home/fork.weewx/archive-replica/monitor.sdb'
-        process = subprocess.Popen(['sqlite3', '-line', db_file, 'pragma integrity_check'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print("start")
+    def check_db(self, db_file, log_file_ptr, err_file_ptr):
+        """ Check the database. """
+        process = subprocess.Popen(['sqlite3', '-line', db_file, 'pragma integrity_check'],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
-        print(stdout)
-        print(stderr)
+
+        log_file_ptr.write("%s\n" % db_file)
+        log_file_ptr.write(stdout.decode("utf-8"))
+        err_file_ptr.write("%s\n" % db_file)
+        err_file_ptr.write(stderr.decode("utf-8"))
+
         print("done")
 
-        backup_db = '/home/fork.weewx/run/tempd.sdb'
+    def backup_db(self, db_file, backup_db, log_file_ptr, err_file_ptr):
+        #backup_db = '/home/fork.weewx/run/tempd.sdb'
         process = subprocess.Popen(['sqlite3',
                                     '-cmd', 'attach "' + db_file + '" as monitor',
                                     '-cmd', '.backup monitor ' + backup_db,
@@ -204,6 +219,7 @@ class MyBackup(StdService):
                                    stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print("start")
         stdout, stderr = process.communicate()
+
         print(stdout)
         print(stderr)
         print("done")
