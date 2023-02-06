@@ -4,6 +4,7 @@
 import time
 import datetime
 import os
+import shutil
 import subprocess
 
 import weewx
@@ -130,6 +131,8 @@ class MyBackup(StdService):
 
         #self.backup()
 
+        self.do_backup()
+
     def new_archive_record(self, event): # Need to match signature pylint: disable=unused-argument
         """Gets called on a new archive record event."""
         curr_date = datetime.date.today()
@@ -170,9 +173,9 @@ class MyBackup(StdService):
         print(stderr)
         print("done")
 
-    def backup(self):
+    def backup(self, dest_dir):
         source_dir = '/home/fork.weewx/'
-        dest_dir = '/home/fork.weewx/run/bkup'
+        #dest_dir = '/home/fork.weewx/run/bkup'
         verbose = '-v'
         process = subprocess.Popen(['rsync',
                                     '-p',
@@ -185,4 +188,36 @@ class MyBackup(StdService):
         print(process.returncode)
         print(stdout)
         print(stderr)
+        print("done")
+
+    def do_backup(self):
+        print("start")
+
+        working_dir = '/home/fork.weewx/run/weewx_bkup'
+
+        cwd = os.getcwd()
+
+        # ToDo: This directory needs to exist-
+        os.chdir(working_dir)
+
+        day_of_week = str(datetime.datetime.today().weekday())
+        curr_dir = os.path.join(working_dir, 'bkup' + day_of_week)
+        prev_dir = os.path.join(working_dir, 'prevbkup' + day_of_week)
+
+        try:
+            shutil.rmtree(prev_dir)
+        except FileNotFoundError as exception:
+            loginf("Directory %s does not exist," % prev_dir)
+            logdbg("Directory delete failed : (%d) %s\n" % (exception.errno, exception.strerror))
+        
+        try:
+            shutil.move(curr_dir, prev_dir)
+        except FileNotFoundError as exception:
+            loginf("Directory %s does not exist," % prev_dir)
+            logdbg("Directory delete failed : (%d) %s\n" % (exception.errno, exception.strerror))        
+        
+        self.backup(curr_dir)
+
+        os.chdir(cwd)
+
         print("done")
