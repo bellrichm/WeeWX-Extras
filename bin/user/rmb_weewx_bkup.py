@@ -112,14 +112,26 @@ class MyBackup(StdService):
 
         service_dict = config_dict.get('MyBackup', {})
 
+        self.weewx_root = self.config_dict['WEEWX_ROOT']
+        self.verbose = '-v'
+
         enable = to_bool(service_dict.get('enable', True))
         if not enable:
             loginf("MyBackup is not enabled, exiting")
             return
 
+        self.working_dir = '/home/fork.weewx/run/weewx_bkup'
+        if not os.path.exists(self.working_dir):
+            os.makedirs(self.working_dir)
+
+        # my $logfile = $workingdir . '/backup.txt';
+        # my $errfile = $workingdir . '/backup_err.txt';
+        self.log_file = os.path.join(self.working_dir, 'backup.txt')
+        self.err_file = os.path.join(self.working_dir, 'backup_err.txt')
+
         backup_file = service_dict.get('backup_file', 'run/last_backup.txt')
 
-        self.save_file = os.path.join(self.config_dict['WEEWX_ROOT'], backup_file)
+        self.save_file = os.path.join(self.weewx_root, backup_file)
         self.last_run = get_last_run(self.save_file)
 
         self.start = datetime.datetime.strptime('3:00', '%H:%M').time()
@@ -130,8 +142,27 @@ class MyBackup(StdService):
         #self.check_db()
 
         #self.backup()
+        now = datetime.datetime.now()
+        day_of_week = str(datetime.datetime.today().weekday())
+        curr_dir = os.path.join(self.working_dir, 'bkup' + day_of_week)
+        prev_dir = os.path.join(self.working_dir, 'prevbkup' + day_of_week)
 
-        self.do_backup()
+        log_file_ptr = open(self.log_file, "w")
+        log_file_ptr.write("%s\n" % now)
+        err_file_ptr = open(self.err_file, "w")
+        err_file_ptr.write("%s\n" % now)
+
+        cwd = os.getcwd()
+        os.chdir(self.working_dir)
+
+        self.rotate_dirs(prev_dir, curr_dir)
+        self.backup_code(self.weewx_root, curr_dir, log_file_ptr, err_file_ptr)
+
+        os.chdir(cwd)
+
+        log_file_ptr.close()
+        err_file_ptr.close()
+        print("exit")
 
     def new_archive_record(self, event): # Need to match signature pylint: disable=unused-argument
         """Gets called on a new archive record event."""
@@ -157,8 +188,8 @@ class MyBackup(StdService):
         print("done")
 
     def check_db(self):
-        db = '/home/fork.weewx/archive-replica/monitor.sdb'
-        process = subprocess.Popen(['sqlite3', '-line', db, 'pragma integrity_check'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        db_file = '/home/fork.weewx/archive-replica/monitor.sdb'
+        process = subprocess.Popen(['sqlite3', '-line', db_file, 'pragma integrity_check'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print("start")
         stdout, stderr = process.communicate()
         print(stdout)
@@ -166,58 +197,44 @@ class MyBackup(StdService):
         print("done")
 
         backup_db = '/home/fork.weewx/run/tempd.sdb'
-        process = subprocess.Popen(['sqlite3', '-cmd', 'attach "' + db + '" as monitor', '-cmd', '.backup monitor ' + backup_db, '-cmd', 'detach monitor'], stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(['sqlite3',
+                                    '-cmd', 'attach "' + db_file + '" as monitor',
+                                    '-cmd', '.backup monitor ' + backup_db,
+                                    '-cmd', 'detach monitor'],
+                                   stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print("start")
         stdout, stderr = process.communicate()
         print(stdout)
         print(stderr)
         print("done")
 
-    def backup(self, dest_dir):
-        source_dir = '/home/fork.weewx/'
-        #dest_dir = '/home/fork.weewx/run/bkup'
-        verbose = '-v'
-        process = subprocess.Popen(['rsync',
-                                    '-p',
-                                    '-a', '-L', verbose,
+    def backup_code(self, source_dir, dest_dir, log_file_ptr, err_file_ptr):
+        """ Backup the code."""
+        process = subprocess.Popen(['rsync', '-p', '-a', '-L', self.verbose,
                                     '--exclude=.Trash*/',
-                                    '--exclude=weewx_bkup/', '--exclude=archive/', '--exclude=run/', '--exclude=lost+found/', '--exclude=.git/', source_dir, dest_dir], 
-                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print("start")
+                                    '--exclude=weewx_bkup/',
+                                    '--exclude=archive*/',
+                                    '--exclude=run/',
+                                    '--exclude=lost+found/',
+                                    '--exclude=.git/', source_dir, dest_dir],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
         stdout, stderr = process.communicate()
-        print(process.returncode)
-        print(stdout)
-        print(stderr)
-        print("done")
+        return_code = process.returncode
+        log_file_ptr.write(stdout.decode("utf-8"))
+        err_file_ptr.write(stderr.decode("utf-8"))
+        print(return_code)
 
-    def do_backup(self):
-        print("start")
-
-        working_dir = '/home/fork.weewx/run/weewx_bkup'
-
-        cwd = os.getcwd()
-
-        # ToDo: This directory needs to exist-
-        os.chdir(working_dir)
-
-        day_of_week = str(datetime.datetime.today().weekday())
-        curr_dir = os.path.join(working_dir, 'bkup' + day_of_week)
-        prev_dir = os.path.join(working_dir, 'prevbkup' + day_of_week)
-
+    def rotate_dirs(self, prev_dir, curr_dir):
+        """ Rotate the backup directories."""
         try:
             shutil.rmtree(prev_dir)
         except FileNotFoundError as exception:
             loginf("Directory %s does not exist," % prev_dir)
             logdbg("Directory delete failed : (%d) %s\n" % (exception.errno, exception.strerror))
-        
+
         try:
             shutil.move(curr_dir, prev_dir)
         except FileNotFoundError as exception:
             loginf("Directory %s does not exist," % prev_dir)
-            logdbg("Directory delete failed : (%d) %s\n" % (exception.errno, exception.strerror))        
-        
-        self.backup(curr_dir)
-
-        os.chdir(cwd)
-
-        print("done")
+            logdbg("Directory delete failed : (%d) %s\n" % (exception.errno, exception.strerror))
