@@ -106,7 +106,6 @@ class MyBackup(StdService):
     """Custom service that sounds an alarm if an arbitrary expression evaluates true"""
 
     def __init__(self, engine, config_dict):
-        # Pass the initialization information on to my superclass:
         super(MyBackup, self).__init__(engine, config_dict)
 
         loginf("Version is %s" % VERSION)
@@ -115,6 +114,11 @@ class MyBackup(StdService):
 
         self.weewx_root = self.config_dict['WEEWX_ROOT']
         self.verbose = '-v'
+
+        self.start = datetime.datetime.strptime('3:00', '%H:%M').time()
+        self.end = datetime.datetime.strptime('3:30', '%H:%M').time()
+
+        self.backup_file = service_dict.get('backup_file', 'run/last_backup.txt')
 
         enable = to_bool(service_dict.get('enable', True))
         if not enable:
@@ -128,31 +132,45 @@ class MyBackup(StdService):
         self.db_names = ['monitor.sdb']
         self.db_location = 'archive-replica'
 
-        # my $logfile = $workingdir . '/backup.txt';
-        # my $errfile = $workingdir . '/backup_err.txt';
-        self.log_file = os.path.join(self.working_dir, 'backup.txt')
-        self.err_file = os.path.join(self.working_dir, 'backup_err.txt')
-
-        backup_file = service_dict.get('backup_file', 'run/last_backup.txt')
-
-        self.save_file = os.path.join(self.weewx_root, backup_file)
-        self.last_run = get_last_run(self.save_file)
-
-        self.start = datetime.datetime.strptime('3:00', '%H:%M').time()
-        self.end = datetime.datetime.strptime('3:30', '%H:%M').time()
-
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
 
+        print("exit")
 
-        #self.backup()
+    def new_archive_record(self, event): # Need to match signature pylint: disable=unused-argument
+        """Gets called on a new archive record event."""
+        curr_date = datetime.date.today()
+        print(curr_date)
+
+        curr_time = get_curr_time()
+        print(curr_time)
+
+        save_file = os.path.join(self.weewx_root, self.backup_file)
+        last_run = get_last_run(save_file)
+
+        # if the current time is within the start and end range
+        # AND if the backup has not run on this date, then do it
+        if True:
+        #if time_in_range(self.start, self.end, curr_time) and last_run != curr_date:
+            loginf(' **** do Backup now')
+            save_last_run(save_file, curr_date)
+            self.do_backup()
+        else:
+            loginf(' **** no Backup needed')
+
+        print("done")
+
+    def do_backup(self):
+        log_file = os.path.join(self.working_dir, 'backup.txt')
+        err_file = os.path.join(self.working_dir, 'backup_err.txt')
+
         now = datetime.datetime.now()
         day_of_week = str(datetime.datetime.today().weekday())
         curr_dir = os.path.join(self.working_dir, 'bkup' + day_of_week)
         prev_dir = os.path.join(self.working_dir, 'prevbkup' + day_of_week)
 
-        log_file_ptr = open(self.log_file, "w")
+        log_file_ptr = open(log_file, "w")
         log_file_ptr.write("%s\n" % now)
-        err_file_ptr = open(self.err_file, "w")
+        err_file_ptr = open(err_file, "w")
         err_file_ptr.write("%s\n" % now)
 
         cwd = os.getcwd()
@@ -161,7 +179,6 @@ class MyBackup(StdService):
         self.rotate_dirs(prev_dir, curr_dir)
         self.backup_code(os.path.join(self.weewx_root, '*'), curr_dir, log_file_ptr, err_file_ptr)
 
-        # ToDo - need to figur out how to handle
         os.makedirs(os.path.join(curr_dir, self.db_location))
         for db_name in self.db_names:
             print(db_name)
@@ -175,30 +192,6 @@ class MyBackup(StdService):
 
         log_file_ptr.close()
         err_file_ptr.close()
-        print("exit")
-
-    def new_archive_record(self, event): # Need to match signature pylint: disable=unused-argument
-        """Gets called on a new archive record event."""
-        curr_date = datetime.date.today()
-        print(curr_date)
-
-        curr_time = get_curr_time()
-        print(curr_time)
-
-        # if the current time is within the start and end range
-        # AND if the backup has not run on this date, then do it
-        if True:
-        #if time_in_range(self.start, self.end, curr_time) and self.last_run != curr_date:
-            loginf(' **** do Backup now')
-            self.last_run = curr_date
-            save_last_run(self.save_file, self.last_run)
-            # the perl file that performs the backup
-            ##var = self.home_dir + "thebells/weewxaddons/tools/bin/weewx_bkup.pl"
-            #retcode = subprocess.call(["/usr/bin/perl", var])
-        else:
-            loginf(' **** no Backup needed')
-
-        print("done")
 
     def check_db(self, db_file, log_file_ptr, err_file_ptr):
         """ Check the database. """
@@ -213,6 +206,7 @@ class MyBackup(StdService):
 
         print("done")
 
+    # ToDo - handle db name 'as monitor'
     def backup_db(self, db_file, backup_db, log_file_ptr, err_file_ptr):
         process = subprocess.Popen(['sqlite3',
                                     '-cmd', 'attach "' + db_file + '" as monitor',
