@@ -125,7 +125,8 @@ class MyBackup(StdService):
         if not os.path.exists(self.working_dir):
             os.makedirs(self.working_dir)
 
-        self.db_names = ['archive-replica/monitor.sdb']
+        self.db_names = ['monitor.sdb']
+        self.db_location = 'archive-replica'
 
         # my $logfile = $workingdir . '/backup.txt';
         # my $errfile = $workingdir . '/backup_err.txt';
@@ -161,12 +162,13 @@ class MyBackup(StdService):
         self.backup_code(os.path.join(self.weewx_root, '*'), curr_dir, log_file_ptr, err_file_ptr)
 
         # ToDo - need to figur out how to handle
-        os.makedirs(os.path.join(curr_dir, 'fork.weewx/archive-replica'))
+        os.makedirs(os.path.join(curr_dir, self.db_location))
         for db_name in self.db_names:
             print(db_name)
-            self.check_db(os.path.join(self.weewx_root, db_name), log_file_ptr, err_file_ptr)
-            self.backup_db(os.path.join(self.weewx_root, db_name), os.path.join(curr_dir, 'fork.weewx', db_name), log_file_ptr, err_file_ptr)
-            self.check_db(os.path.join(curr_dir, 'fork.weewx', db_name), log_file_ptr, err_file_ptr)
+            db_file_name = os.path.join(self.weewx_root, self.db_location, db_name)
+            self.check_db(db_file_name, log_file_ptr, err_file_ptr)
+            self.backup_db(db_file_name, os.path.join(curr_dir, self.db_location, db_name), log_file_ptr, err_file_ptr)
+            self.check_db(os.path.join(curr_dir, self.db_location, db_name), log_file_ptr, err_file_ptr)
             print("done")
 
         os.chdir(cwd)
@@ -212,7 +214,6 @@ class MyBackup(StdService):
         print("done")
 
     def backup_db(self, db_file, backup_db, log_file_ptr, err_file_ptr):
-        #backup_db = '/home/fork.weewx/run/tempd.sdb'
         process = subprocess.Popen(['sqlite3',
                                     '-cmd', 'attach "' + db_file + '" as monitor',
                                     '-cmd', '.backup monitor ' + backup_db,
