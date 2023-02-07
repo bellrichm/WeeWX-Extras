@@ -3,6 +3,7 @@
 
 import time
 import datetime
+import glob
 import os
 import shutil
 import subprocess
@@ -157,7 +158,7 @@ class MyBackup(StdService):
         os.chdir(self.working_dir)
 
         self.rotate_dirs(prev_dir, curr_dir)
-        self.backup_code(self.weewx_root, curr_dir, log_file_ptr, err_file_ptr)
+        self.backup_code(os.path.join(self.weewx_root, '*'), curr_dir, log_file_ptr, err_file_ptr)
 
         # ToDo - need to figur out how to handle
         os.makedirs(os.path.join(curr_dir, 'fork.weewx/archive-replica'))
@@ -226,14 +227,18 @@ class MyBackup(StdService):
 
     def backup_code(self, source_dir, dest_dir, log_file_ptr, err_file_ptr):
         """ Backup the code."""
-        process = subprocess.Popen(['rsync', '-p', '-a', '-L', self.verbose,
-                                    '--exclude=.Trash*/',
-                                    '--exclude=weewx_bkup/',
-                                    '--exclude=archive*/',
-                                    '--exclude=run/',
-                                    '--exclude=lost+found/',
-                                    '--exclude=.git/', source_dir, dest_dir],
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        cmd = ['rsync', '-p', '-a', '-L', self.verbose]
+        cmd.extend(['-n'])
+        cmd.extend(['--exclude=.Trash*/',
+                    '--exclude=weewx_bkup/',
+                    '--exclude=archive*/',
+                    '--exclude=run/',
+                    '--exclude=lost+found/',
+                    '--exclude=.git/'])
+        cmd.extend(glob.glob(source_dir))
+        cmd.extend([dest_dir])
+        print(cmd)
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         stdout, stderr = process.communicate()
         return_code = process.returncode
