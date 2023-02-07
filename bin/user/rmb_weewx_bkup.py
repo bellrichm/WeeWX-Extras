@@ -228,7 +228,6 @@ class MyBackup(StdService):
     def backup_code(self, source_dir, dest_dir, log_file_ptr, err_file_ptr):
         """ Backup the code."""
         cmd = ['rsync', '-p', '-a', '-L', self.verbose]
-        cmd.extend(['-n'])
         cmd.extend(['--exclude=.Trash*/',
                     '--exclude=weewx_bkup/',
                     '--exclude=archive*/',
