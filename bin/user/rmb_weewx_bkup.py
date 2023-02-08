@@ -269,4 +269,29 @@ class MyBackup(StdService):
             loginf("Directory %s does not exist," % prev_dir)
             logdbg("Directory delete failed : (%d) %s\n" % (exception.errno, exception.strerror))
 
-#if __name__ == "__main__":
+if __name__ == "__main__":
+    import configobj
+    import argparse
+    def main():
+        usage = ""
+
+        parser = argparse.ArgumentParser(usage=usage)
+        parser.add_argument("config_file")
+
+        options = parser.parse_args()
+
+        config_path = os.path.abspath(options.config_file)
+        config_dict = configobj.ConfigObj(config_path, file_error=True)
+
+        weeutil.logger.setup('wee_backup', config_dict)
+
+        config_dict['Engine']['Services'] = {}
+        engine = weewx.engine.DummyEngine(config_dict)
+
+        backup = MyBackup(engine, config_dict)
+
+        event = weewx.Event(weewx.NEW_ARCHIVE_RECORD, record={'dateTime': int(time.time())})
+
+        backup.new_archive_record(event)
+
+    main()
