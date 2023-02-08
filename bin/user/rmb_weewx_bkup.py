@@ -67,40 +67,6 @@ except ImportError:
         logmsg(syslog.LOG_ERR, msg)
 
 
-def get_curr_time():
-    """" Get the current time. """
-    curr_hr = time.strftime("%H")
-    curr_min = time.strftime("%M")
-    curr_sec = time.strftime("%S")
-    curr_time = datetime.time(int(curr_hr), int(curr_min), int(curr_sec))
-    return curr_time
-
-def time_in_range(start, end, value):
-    """Return true if value is in the range [start, end]"""
-    logdbg(' **** Backup date check %s %s %s' % (start, end, value))
-    if start <= end:
-        return start <= value <= end
-
-    return start <= value or value <= end
-
-def save_last_run(save_file, last_run):
-    """ Save date/time of last backup. """
-    file_ptr = open(save_file, "w")
-    file_ptr.write(str(last_run))
-    file_ptr.close()
-
-def get_last_run(save_file):
-    """ Get date of last backup. """
-    try:
-        file_ptr = open(save_file, "r")
-    except FileNotFoundError:
-        last_run = datetime.date.today()
-        loginf("Lastrun not found, setting to today: %s" %last_run)
-        return last_run
-    line = file_ptr.read()
-    file_ptr.close()
-    temp = line.split('-')
-    return datetime.date(int(temp[0]), int(temp[1]), int(temp[2]))
 
 class MyBackup(StdService):
     """Custom service that sounds an alarm if an arbitrary expression evaluates true"""
@@ -152,19 +118,54 @@ class MyBackup(StdService):
     def new_archive_record(self, event): # Need to match signature pylint: disable=unused-argument
         """Gets called on a new archive record event."""
         curr_date = datetime.date.today()
-        curr_time = get_curr_time()
+        curr_time = self.get_curr_time()
 
         save_file = os.path.join(self.working_dir, self.backup_file)
-        last_run = get_last_run(save_file)
+        last_run = self.get_last_run(save_file)
 
         # if the current time is within the start and end range
         # AND if the backup has not run on this date, then do it
-        if (time_in_range(self.start, self.end, curr_time) and last_run != curr_date) or self.force_backup:
+        if (self.time_in_range(self.start, self.end, curr_time) and last_run != curr_date) or self.force_backup:
             loginf(' **** do Backup now')
-            save_last_run(save_file, curr_date)
+            self.save_last_run(save_file, curr_date)
             self.do_backup()
         else:
             loginf(' **** no Backup needed')
+
+    def get_curr_time(self):
+        """" Get the current time. """
+        curr_hr = time.strftime("%H")
+        curr_min = time.strftime("%M")
+        curr_sec = time.strftime("%S")
+        curr_time = datetime.time(int(curr_hr), int(curr_min), int(curr_sec))
+        return curr_time
+
+    def time_in_range(self, start, end, value):
+        """Return true if value is in the range [start, end]"""
+        logdbg(' **** Backup date check %s %s %s' % (start, end, value))
+        if start <= end:
+            return start <= value <= end
+
+        return start <= value or value <= end
+
+    def save_last_run(self, save_file, last_run):
+        """ Save date/time of last backup. """
+        file_ptr = open(save_file, "w")
+        file_ptr.write(str(last_run))
+        file_ptr.close()
+
+    def get_last_run(self, save_file):
+        """ Get date of last backup. """
+        try:
+            file_ptr = open(save_file, "r")
+        except FileNotFoundError:
+            last_run = datetime.date.today()
+            loginf("Lastrun not found, setting to today: %s" %last_run)
+            return last_run
+        line = file_ptr.read()
+        file_ptr.close()
+        temp = line.split('-')
+        return datetime.date(int(temp[0]), int(temp[1]), int(temp[2]))
 
     def do_backup(self):
         log_file = os.path.join(self.working_dir, 'backup.txt')
@@ -213,7 +214,7 @@ class MyBackup(StdService):
 
     # ToDo - handle db name 'as monitor'
     def backup_db(self, db_file, backup_db, log_file_ptr, err_file_ptr):
-        cmd = {['sqlite3']}
+        cmd = ['sqlite3']
         cmd.extend([ '-cmd', 'attach "' + db_file + '" as monitor'])
         cmd.extend(['-cmd', '.backup monitor ' + backup_db])
         cmd.extend(['-cmd', 'detach monitor'])
