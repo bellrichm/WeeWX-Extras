@@ -149,30 +149,22 @@ class MyBackup(StdService):
 
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
 
-        print("exit")
-
     def new_archive_record(self, event): # Need to match signature pylint: disable=unused-argument
         """Gets called on a new archive record event."""
         curr_date = datetime.date.today()
-        print(curr_date)
-
         curr_time = get_curr_time()
-        print(curr_time)
 
         save_file = os.path.join(self.working_dir, self.backup_file)
         last_run = get_last_run(save_file)
 
         # if the current time is within the start and end range
         # AND if the backup has not run on this date, then do it
-        #if True:
         if (time_in_range(self.start, self.end, curr_time) and last_run != curr_date) or self.force_backup:
             loginf(' **** do Backup now')
             save_last_run(save_file, curr_date)
             self.do_backup()
         else:
             loginf(' **** no Backup needed')
-
-        print("done")
 
     def do_backup(self):
         log_file = os.path.join(self.working_dir, 'backup.txt')
@@ -196,12 +188,10 @@ class MyBackup(StdService):
 
         os.makedirs(os.path.join(curr_dir, self.db_location))
         for db_name in self.db_names:
-            print(db_name)
             db_file_name = os.path.join(self.weewx_root, self.db_location, db_name)
             self.check_db(db_file_name, log_file_ptr, err_file_ptr)
             self.backup_db(db_file_name, os.path.join(curr_dir, self.db_location, db_name), log_file_ptr, err_file_ptr)
             self.check_db(os.path.join(curr_dir, self.db_location, db_name), log_file_ptr, err_file_ptr)
-            print("done")
 
         os.chdir(cwd)
 
@@ -219,8 +209,6 @@ class MyBackup(StdService):
         err_file_ptr.write("%s\n" % db_file)
         err_file_ptr.write(stderr.decode("utf-8"))
 
-        print("done")
-
     # ToDo - handle db name 'as monitor'
     def backup_db(self, db_file, backup_db, log_file_ptr, err_file_ptr):
         process = subprocess.Popen(['sqlite3',
@@ -228,12 +216,10 @@ class MyBackup(StdService):
                                     '-cmd', '.backup monitor ' + backup_db,
                                     '-cmd', 'detach monitor'],
                                    stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print("start")
+
         stdout, stderr = process.communicate()
         log_file_ptr.write(stdout.decode("utf-8"))
         err_file_ptr.write(stderr.decode("utf-8"))
-
-        print("done")
 
     def backup_code(self, source_dir, dest_dir, log_file_ptr, err_file_ptr):
         """ Backup the code."""
@@ -246,14 +232,12 @@ class MyBackup(StdService):
                     '--exclude=.git/'])
         cmd.extend(glob.glob(source_dir))
         cmd.extend([dest_dir])
-        print(cmd)
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         stdout, stderr = process.communicate()
         return_code = process.returncode
         log_file_ptr.write(stdout.decode("utf-8"))
         err_file_ptr.write(stderr.decode("utf-8"))
-        print(return_code)
 
     def rotate_dirs(self, prev_dir, curr_dir):
         """ Rotate the backup directories."""
