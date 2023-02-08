@@ -273,15 +273,21 @@ if __name__ == "__main__":
     import configobj
     import argparse
     def main():
+        """ Run the service 'standalone'. """
         usage = ""
 
         parser = argparse.ArgumentParser(usage=usage)
+        parser.add_argument("--force-backup", action="store_true", dest="force_backup",
+                            help="Force the backup to run.")
         parser.add_argument("config_file")
 
         options = parser.parse_args()
 
         config_path = os.path.abspath(options.config_file)
         config_dict = configobj.ConfigObj(config_path, file_error=True)
+
+        if options.force_backup:
+            config_dict.merge({'Backup': {'force_backup': True}})
 
         weeutil.logger.setup('wee_backup', config_dict)
 
