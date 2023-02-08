@@ -200,8 +200,10 @@ class MyBackup(StdService):
 
     def check_db(self, db_file, log_file_ptr, err_file_ptr):
         """ Check the database. """
-        process = subprocess.Popen(['sqlite3', '-line', db_file, 'pragma integrity_check'],
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        cmd = ['sqlite3', '-line']
+        cmd.extend([db_file])
+        cmd.extend(['pragma integrity_check'])
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
 
         log_file_ptr.write("%s\n" % db_file)
@@ -211,11 +213,11 @@ class MyBackup(StdService):
 
     # ToDo - handle db name 'as monitor'
     def backup_db(self, db_file, backup_db, log_file_ptr, err_file_ptr):
-        process = subprocess.Popen(['sqlite3',
-                                    '-cmd', 'attach "' + db_file + '" as monitor',
-                                    '-cmd', '.backup monitor ' + backup_db,
-                                    '-cmd', 'detach monitor'],
-                                   stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        cmd = {['sqlite3']}
+        cmd.extend([ '-cmd', 'attach "' + db_file + '" as monitor'])
+        cmd.extend(['-cmd', '.backup monitor ' + backup_db])
+        cmd.extend(['-cmd', 'detach monitor'])
+        process = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         stdout, stderr = process.communicate()
         log_file_ptr.write(stdout.decode("utf-8"))
