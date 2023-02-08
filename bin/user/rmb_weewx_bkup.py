@@ -1,5 +1,5 @@
 """ Backup WeeWx."""
-# to use add the following to the report services, user.rmb_weewx_bkup.MyBackup
+# to use add the following to the report services, user.rmb_weewx_bkup.Backup
 
 import time
 import datetime
@@ -67,11 +67,11 @@ except ImportError:
         """ Log error level. """
         logmsg(syslog.LOG_ERR, msg)
 
-class MyBackup(StdService):
+class Backup(StdService):
     """Custom service that sounds an alarm if an arbitrary expression evaluates true"""
 
     def __init__(self, engine, config_dict):
-        super(MyBackup, self).__init__(engine, config_dict)
+        super(Backup, self).__init__(engine, config_dict)
 
         loginf("Version is %s" % VERSION)
 
@@ -80,7 +80,7 @@ class MyBackup(StdService):
 
         enable = to_bool(service_dict.get('enable', True))
         if not enable:
-            loginf("MyBackup is not enabled, exiting")
+            loginf("Backup is not enabled, exiting")
             return
 
         self.working_dir = service_dict.get('working_dir', None)
@@ -313,7 +313,7 @@ if __name__ == "__main__":
         config_dict['Engine']['Services'] = {}
         engine = weewx.engine.DummyEngine(config_dict)
 
-        backup = MyBackup(engine, config_dict)
+        backup = Backup(engine, config_dict)
 
         event = weewx.Event(weewx.NEW_ARCHIVE_RECORD, record={'dateTime': int(time.time())})
 
