@@ -204,6 +204,11 @@ class MyBackup(StdService):
 
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
+        return_code = process.returncode
+
+        if return_code != 0:
+            logerr("%s had a return code of %s" % (cmd, return_code))
+            logerr("%s" % stderr)
 
         log_file_ptr.write("%s\n" % db_file)
         log_file_ptr.write(stdout.decode("utf-8"))
@@ -220,6 +225,11 @@ class MyBackup(StdService):
 
         process = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
+        return_code = process.returncode
+
+        if return_code != 0:
+            logerr("%s had a return code of %s" % (cmd, return_code))
+            logerr("%s" % stderr)
 
         log_file_ptr.write(stdout.decode("utf-8"))
         err_file_ptr.write(stderr.decode("utf-8"))
@@ -239,6 +249,10 @@ class MyBackup(StdService):
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
         return_code = process.returncode
+
+        if return_code != 0:
+            logerr("%s had a return code of %s" % (cmd, return_code))
+            logerr("%s" % stderr)
 
         log_file_ptr.write(stdout.decode("utf-8"))
         err_file_ptr.write(stderr.decode("utf-8"))
