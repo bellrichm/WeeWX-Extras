@@ -4,6 +4,7 @@
 import time
 import datetime
 import glob
+import json
 import os
 import shutil
 import subprocess
@@ -75,6 +76,8 @@ class MyBackup(StdService):
         loginf("Version is %s" % VERSION)
 
         service_dict = config_dict.get('Backup', {})
+        logdbg("Configuration is %s" % json.dumps(service_dict, default=str))
+
         enable = to_bool(service_dict.get('enable', True))
         if not enable:
             loginf("MyBackup is not enabled, exiting")
@@ -83,26 +86,32 @@ class MyBackup(StdService):
         self.working_dir = service_dict.get('working_dir', None)
         if self.working_dir is None:
             raise ValueError("A value for 'working_dir' is required.")
+        loginf("Working dir is %s." % self.working_dir)
 
         start = service_dict.get('start', None)
         if start is None:
             raise ValueError("A value for 'start' is required.")
         self.start = datetime.datetime.strptime(start, '%H:%M').time()
+        loginf("Start of backup window is %s." % self.start)
 
         end = service_dict.get('end', None)
         if end is None:
             raise ValueError("A value for 'end' is required.")
         self.end = datetime.datetime.strptime(end, '%H:%M').time()
+        loginf("End of backup window is %s." % self.end)
 
         self.db_names = option_as_list(service_dict.get('db_names', None))
         if self.db_names is None:
             raise ValueError("A value for 'db_names' is required.")
+        loginf("Backing up databases: %s." % self.db_names)
 
         self.db_location = service_dict.get('db_location', 'archive')
+        loginf("Database location: %s." % self.db_location)
 
         self.verbose = service_dict.get('verbose', '')
 
         self.backup_file = service_dict.get('backup_file', 'last_backup.txt')
+        loginf("'backup file': %s." % self.backup_file)
 
         self.force_backup = to_bool(service_dict.get('force_backup', False))
 
@@ -110,6 +119,11 @@ class MyBackup(StdService):
 
         if not os.path.exists(self.working_dir):
             os.makedirs(self.working_dir)
+
+        self.log_file = os.path.join(self.working_dir, 'backup.txt')
+        loginf("'backup log file': %s." % self.log_file)
+        self.err_file = os.path.join(self.working_dir, 'backup_err.txt')
+        loginf("'backup error file': %s." % self.err_file)
 
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
 
@@ -124,11 +138,10 @@ class MyBackup(StdService):
         # if the current time is within the start and end range
         # AND if the backup has not run on this date, then do it
         if (self.time_in_range(self.start, self.end, curr_time) and last_run != curr_date) or self.force_backup:
-            loginf(' **** do Backup now')
+            loginf('Backup started.')
             self.save_last_run(save_file, curr_date)
             self.do_backup()
-        else:
-            loginf(' **** no Backup needed')
+            loginf('Backup completed..')
 
     def get_curr_time(self):
         """" Get the current time. """
@@ -169,13 +182,13 @@ class MyBackup(StdService):
         now = datetime.datetime.now()
         day_of_week = str(datetime.datetime.today().weekday())
         curr_dir = os.path.join(self.working_dir, 'bkup' + day_of_week)
+        logdbg("Current backup directory %s." % curr_dir)
         prev_dir = os.path.join(self.working_dir, 'prevbkup' + day_of_week)
+        logdbg("Previous backup directory %s." % prev_dir)
 
-        log_file = os.path.join(self.working_dir, 'backup.txt')
-        err_file = os.path.join(self.working_dir, 'backup_err.txt')
-        log_file_ptr = open(log_file, "w")
+        log_file_ptr = open(self.log_file, "w")
         log_file_ptr.write("%s\n" % now)
-        err_file_ptr = open(err_file, "w")
+        err_file_ptr = open(self.err_file, "w")
         err_file_ptr.write("%s\n" % now)
 
         # ToDo - eliminate directory change?
@@ -202,6 +215,7 @@ class MyBackup(StdService):
         cmd = ['sqlite3', '-line']
         cmd.extend([db_file])
         cmd.extend(['pragma integrity_check'])
+        logdbg("%s" % cmd)
 
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
@@ -223,6 +237,7 @@ class MyBackup(StdService):
         cmd.extend([ '-cmd', 'attach "' + db_file + '" as monitor'])
         cmd.extend(['-cmd', '.backup monitor ' + backup_db])
         cmd.extend(['-cmd', 'detach monitor'])
+        logdbg("%s" % cmd)
 
         process = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
@@ -246,6 +261,7 @@ class MyBackup(StdService):
                     '--exclude=.git/'])
         cmd.extend(glob.glob(source_dir))
         cmd.extend([dest_dir])
+        logdbg("%s" % cmd)
 
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
