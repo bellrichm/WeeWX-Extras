@@ -10,7 +10,7 @@ import subprocess
 
 import weewx
 from weewx.wxengine import StdService
-from weeutil.weeutil import to_bool
+from weeutil.weeutil import to_bool, option_as_list
 
 VERSION = "0.0.1"
 
@@ -110,27 +110,40 @@ class MyBackup(StdService):
 
         loginf("Version is %s" % VERSION)
 
-        service_dict = config_dict.get('MyBackup', {})
-
-        self.weewx_root = self.config_dict['WEEWX_ROOT']
-        self.verbose = '-v'
-
-        self.start = datetime.datetime.strptime('3:00', '%H:%M').time()
-        self.end = datetime.datetime.strptime('3:30', '%H:%M').time()
-
-        self.backup_file = service_dict.get('backup_file', 'run/last_backup.txt')
-
+        service_dict = config_dict.get('Backup', {})
         enable = to_bool(service_dict.get('enable', True))
         if not enable:
             loginf("MyBackup is not enabled, exiting")
             return
 
-        self.working_dir = '/home/fork.weewx/run/weewx_bkup'
+        self.working_dir = service_dict.get('working_dir', None)
+        if self.working_dir is None:
+            raise ValueError("A value for 'working_dir' is required.")
+
+        start = service_dict.get('start', None)
+        if start is None:
+            raise ValueError("A value for 'start' is required.")
+        self.start = datetime.datetime.strptime(start, '%H:%M').time()
+
+        end = service_dict.get('end', None)
+        if end is None:
+            raise ValueError("A value for 'end' is required.")
+        self.end = datetime.datetime.strptime(end, '%H:%M').time()
+
+        self.db_names = option_as_list(service_dict.get('db_names', None))
+        if self.db_names is None:
+            raise ValueError("A value for 'db_names' is required.")
+
+        self.db_location = service_dict.get('db_location', 'archive')
+
+        self.verbose = service_dict.get('verbose', '')
+
+        self.backup_file = service_dict.get('backup_file', 'last_backup.txt')
+
+        self.weewx_root = self.config_dict['WEEWX_ROOT']
+
         if not os.path.exists(self.working_dir):
             os.makedirs(self.working_dir)
-
-        self.db_names = ['monitor.sdb']
-        self.db_location = 'archive-replica'
 
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
 
@@ -144,7 +157,7 @@ class MyBackup(StdService):
         curr_time = get_curr_time()
         print(curr_time)
 
-        save_file = os.path.join(self.weewx_root, self.backup_file)
+        save_file = os.path.join(self.working_dir, self.backup_file)
         last_run = get_last_run(save_file)
 
         # if the current time is within the start and end range
@@ -215,9 +228,9 @@ class MyBackup(StdService):
                                    stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print("start")
         stdout, stderr = process.communicate()
+        log_file_ptr.write(stdout.decode("utf-8"))
+        err_file_ptr.write(stderr.decode("utf-8"))
 
-        print(stdout)
-        print(stderr)
         print("done")
 
     def backup_code(self, source_dir, dest_dir, log_file_ptr, err_file_ptr):
