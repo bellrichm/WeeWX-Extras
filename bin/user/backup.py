@@ -1,5 +1,5 @@
 """ Backup WeeWx."""
-# to use add the following to the report services, user.rmb_weewx_bkup.Backup
+# to use add the following to the report services, user.backup.Backup
 
 import time
 import datetime
