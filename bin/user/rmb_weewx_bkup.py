@@ -178,6 +178,7 @@ class MyBackup(StdService):
         err_file_ptr = open(err_file, "w")
         err_file_ptr.write("%s\n" % now)
 
+        # ToDo - eliminate directory change?
         cwd = os.getcwd()
         os.chdir(self.working_dir)
 
@@ -215,7 +216,7 @@ class MyBackup(StdService):
         err_file_ptr.write("%s\n" % db_file)
         err_file_ptr.write(stderr.decode("utf-8"))
 
-    # ToDo - handle db name 'as monitor'
+    # ToDo - handle db name 'as monitor', perhaps just use a 'hard coded' value, 'working_db'?
     def backup_db(self, db_file, backup_db, log_file_ptr, err_file_ptr):
         """" Backup a WeeWX database. """
         cmd = ['sqlite3']
