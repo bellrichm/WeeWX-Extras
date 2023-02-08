@@ -66,8 +66,6 @@ except ImportError:
         """ Log error level. """
         logmsg(syslog.LOG_ERR, msg)
 
-
-
 class MyBackup(StdService):
     """Custom service that sounds an alarm if an arbitrary expression evaluates true"""
 
@@ -145,7 +143,6 @@ class MyBackup(StdService):
         logdbg(' **** Backup date check %s %s %s' % (start, end, value))
         if start <= end:
             return start <= value <= end
-
         return start <= value or value <= end
 
     def save_last_run(self, save_file, last_run):
@@ -168,14 +165,14 @@ class MyBackup(StdService):
         return datetime.date(int(temp[0]), int(temp[1]), int(temp[2]))
 
     def do_backup(self):
-        log_file = os.path.join(self.working_dir, 'backup.txt')
-        err_file = os.path.join(self.working_dir, 'backup_err.txt')
-
+        """ Backup WeeWX configuration, data (DB), and code. """
         now = datetime.datetime.now()
         day_of_week = str(datetime.datetime.today().weekday())
         curr_dir = os.path.join(self.working_dir, 'bkup' + day_of_week)
         prev_dir = os.path.join(self.working_dir, 'prevbkup' + day_of_week)
 
+        log_file = os.path.join(self.working_dir, 'backup.txt')
+        err_file = os.path.join(self.working_dir, 'backup_err.txt')
         log_file_ptr = open(log_file, "w")
         log_file_ptr.write("%s\n" % now)
         err_file_ptr = open(err_file, "w")
@@ -204,6 +201,7 @@ class MyBackup(StdService):
         cmd = ['sqlite3', '-line']
         cmd.extend([db_file])
         cmd.extend(['pragma integrity_check'])
+
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
 
@@ -214,13 +212,15 @@ class MyBackup(StdService):
 
     # ToDo - handle db name 'as monitor'
     def backup_db(self, db_file, backup_db, log_file_ptr, err_file_ptr):
+        """" Backup a WeeWX database. """
         cmd = ['sqlite3']
         cmd.extend([ '-cmd', 'attach "' + db_file + '" as monitor'])
         cmd.extend(['-cmd', '.backup monitor ' + backup_db])
         cmd.extend(['-cmd', 'detach monitor'])
-        process = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
+        process = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
+
         log_file_ptr.write(stdout.decode("utf-8"))
         err_file_ptr.write(stderr.decode("utf-8"))
 
@@ -235,10 +235,11 @@ class MyBackup(StdService):
                     '--exclude=.git/'])
         cmd.extend(glob.glob(source_dir))
         cmd.extend([dest_dir])
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
         return_code = process.returncode
+
         log_file_ptr.write(stdout.decode("utf-8"))
         err_file_ptr.write(stderr.decode("utf-8"))
 
