@@ -140,6 +140,8 @@ class MyBackup(StdService):
 
         self.backup_file = service_dict.get('backup_file', 'last_backup.txt')
 
+        self.force_backup = to_bool(service_dict.get('force_backup', False))
+
         self.weewx_root = self.config_dict['WEEWX_ROOT']
 
         if not os.path.exists(self.working_dir):
@@ -162,8 +164,8 @@ class MyBackup(StdService):
 
         # if the current time is within the start and end range
         # AND if the backup has not run on this date, then do it
-        if True:
-        #if time_in_range(self.start, self.end, curr_time) and last_run != curr_date:
+        #if True:
+        if (time_in_range(self.start, self.end, curr_time) and last_run != curr_date) or self.force_backup:
             loginf(' **** do Backup now')
             save_last_run(save_file, curr_date)
             self.do_backup()
@@ -266,3 +268,5 @@ class MyBackup(StdService):
         except FileNotFoundError as exception:
             loginf("Directory %s does not exist," % prev_dir)
             logdbg("Directory delete failed : (%d) %s\n" % (exception.errno, exception.strerror))
+
+#if __name__ == "__main__":
