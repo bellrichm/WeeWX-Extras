@@ -298,6 +298,8 @@ if __name__ == "__main__":
         parser = argparse.ArgumentParser(usage=usage)
         parser.add_argument("--force-backup", action="store_true", dest="force_backup",
                             help="Force the backup to run.")
+        parser.add_argument("--enable", action="store_true", dest="enable",
+                            help="Override the configuration'enable' flag.")
         parser.add_argument("config_file")
 
         options = parser.parse_args()
@@ -307,6 +309,8 @@ if __name__ == "__main__":
 
         if options.force_backup:
             config_dict.merge({'Backup': {'force_backup': True}})
+        if options.enable:
+            config_dict.merge({'Backup': {'enable': True}})
 
         weeutil.logger.setup('wee_backup', config_dict)
 
