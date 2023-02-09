@@ -315,8 +315,8 @@ if __name__ == "__main__":
 
         backup = Backup(engine, config_dict)
 
-        event = weewx.Event(weewx.NEW_ARCHIVE_RECORD, record={'dateTime': int(time.time())})
-
-        backup.new_archive_record(event)
+        if to_bool(config_dict['Backup'].get('enable', False)):
+            event = weewx.Event(weewx.NEW_ARCHIVE_RECORD, record={'dateTime': int(time.time())})
+            backup.new_archive_record(event)
 
     main()
