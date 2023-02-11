@@ -1,6 +1,10 @@
 #!/usr/bin/python
 
 import argparse
+import os
+import shutil
+import time
+
 import configobj
 
 if __name__ == '__main__': # pragma: no cover
@@ -17,6 +21,12 @@ if __name__ == '__main__': # pragma: no cover
                             help="The WeeWX config file.")
 
         options = parser.parse_args()
+
+        if os.path.exists(options.config_file + ".bkup"):
+            shutil.move(options.config_file + ".bkup", options.config_file + time.strftime(".bkup%Y%m%d%H%M%S"))
+
+        if os.path.exists(options.config_file):
+            shutil.move(options.config_file, options.config_file + ".bkup")
 
         secrets_config = configobj.ConfigObj(options.secrets_config_file, encoding='utf-8', interpolation=False, file_error=True)
         template_config = configobj.ConfigObj(options.template_config_file, encoding='utf-8', interpolation=False, file_error=True)
