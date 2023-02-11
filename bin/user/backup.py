@@ -153,7 +153,7 @@ class Backup(StdService):
 
     def time_in_range(self, start, end, value):
         """Return true if value is in the range [start, end]"""
-        logdbg(' **** Backup date check %s %s %s' % (start, end, value))
+        #logdbg(' **** Backup date check %s %s %s' % (start, end, value))
         if start <= end:
             return start <= value <= end
         return start <= value or value <= end
