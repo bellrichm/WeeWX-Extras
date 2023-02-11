@@ -17,8 +17,9 @@ if __name__ == '__main__': # pragma: no cover
                             help="The secrets file (password, API keys, etc).")
         parser.add_argument("--template", required=True, dest="template_config_file",
                             help="The template file.")
-        parser.add_argument("--config", required=True, dest="config_file",
-                            help="The WeeWX config file.")
+        #parser.add_argument("--config", required=True, dest="config_file",
+        #                    help="The WeeWX config file.")
+        parser.add_argument("config_file")
 
         options = parser.parse_args()
 
