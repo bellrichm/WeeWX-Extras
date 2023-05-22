@@ -1,0 +1,331 @@
+body,
+	html {
+		margin:0;
+		/*padding:0;*/
+		color:#333333;
+		background:#D8D8D8;	
+		
+
+	}
+
+	
+	
+	#wrap {
+		width:980px;
+		margin:0 auto;
+		background:#FFFFFF;
+		border-right-style: solid;
+		border-left-style: solid;
+		border-width: 1px;
+		border-color: #666666;
+	}
+	
+
+	
+	#header {
+    			
+		background:#EDEBD5;
+			
+	}	
+	
+	th {
+		color: #FFFFFF;
+		background-color: #666666;
+		
+	}
+	
+	tr.header{
+		font-size:1.4em;
+	}
+	
+	td {
+		font-size: 1.2em;
+		width: 50%;
+		padding: 5px;
+	}
+
+	h1 {
+	    margin:0;
+    }
+	
+	table.gauges, td.gauges {
+		border-style: none;
+		 
+	}
+	
+	#nav {
+		padding:5px;
+		background:#FBFAF4;
+		text-align: center;
+		font-size: 1.25em;
+		font-family:"Georgia", "Times New Roman", serif;
+		color: #333333;
+		border-bottom-style: solid;
+		border-bottom-width: 1px;
+		border-bottom-color: #666666;
+		
+	}
+	
+	#nav ul {
+		margin:0;
+		padding:0;
+		list-style:none;
+	}
+	
+
+	
+	#nav li {
+		display:inline;
+		margin:0;
+		padding:10px;
+	}
+	
+
+	
+	#nav  a {
+		color: #333333;	
+		text-decoration: none;
+	}
+	/*
+	#nav  a:visited  {
+		color: #333333;	
+		text-decoration: none;
+	}
+	*/
+	#main {
+		float:left;
+		width:275px;
+		padding:10px;
+		background:#FFFFFF;
+		font-size: 0.9em;
+		font-family: "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+		font-weight: normal;
+		color: #333333;
+				
+	}
+	
+/****** Styles below are only for the almanac page ******/	
+		#almanac {
+		float:left;
+		width:970px;
+		padding:10px 0px 10px 5px;
+		background:#FFFFFF;
+		font-size: 0.9em;
+		font-family: "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+		font-weight: normal;
+		color: #333333;
+				
+	}
+	
+/*****  End Almanac Styles **********/	
+	
+	td {
+		border-collapse:collapse;
+		border: 1px solid #666666;
+		text-align: left;
+		font-size: .9em;
+		
+	}
+
+	table {
+		
+		border-collapse:collapse;
+		border: 1px solid #666666;
+	}
+	
+	h2 {
+		margin:0 0 1em;
+	}
+	#sidebar {
+		float:right;
+		width:665px;
+		padding:10px;
+		background:#FFFFFF;
+		text-align: center;
+		font-family:"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+		color: #333333;
+	
+		
+		
+	}
+	#footer {
+		clear:both;
+		padding:5px 10px;
+		background:#EDEBD5;
+		text-align: center;
+		font-size: 0.7em;
+		font-family:"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+		border-top-width: 1px;
+		border-top-style: solid;
+	}
+	#footer p {
+		margin:0;
+		
+    }
+	* html #footer {
+		height:1px;
+	}
+	
+/*Custom Menu CSS */
+
+/*Credits: Dynamic Drive CSS Library */
+/*URL: http://www.dynamicdrive.com/style/ */
+
+#underlinemenu{
+margin: 0;
+padding: 0;
+text-align: center;
+
+}
+
+#underlinemenu ul{
+margin: 0;
+margin-bottom: 1em;
+padding-left: 0;
+float: left;
+font-weight: bold;
+width: 100%;
+border-bottom: 1px solid #DFDFDF;
+border-width: 1px 0;
+text-align: center;
+}
+
+* html #underlinemenu ul{ /*IE only rule. Delete extra margin-bottom*/
+margin-bottom: 0;
+}
+
+#underlinemenu ul li{
+display: inline;
+background-color: #EDEBD5;
+width: 100%;
+}
+
+
+#underlinemenu ul li a{
+float: left;
+color: gray;
+font-weight: bold;
+padding: 2px 10px 0px 10px;
+text-decoration: none;
+font-size: 1em;
+font-family:"Georgia", "Times New Roman", serif;
+color: #333333;
+background: white url(media/menudivide.gif) top right repeat-y;
+width: 22%;
+}
+
+#underlinemenu ul li a.active{
+color: #333333;
+background-color: #EDEBD5;
+border-bottom: 1px solid black;
+padding-bottom: 0;
+}
+
+#underlinemenu ul li a:hover{
+color: #333333;
+background-color:  #EDEBD5;
+border-bottom: 1px solid black;
+padding-bottom: 0;
+}
+
+/**
+ * jQuery lightBox plugin
+ * This jQuery plugin was inspired and based on Lightbox 2 by Lokesh Dhakar (http://www.huddletogether.com/projects/lightbox2/)
+ * and adapted to me for use like a plugin from jQuery.
+ * @name jquery-lightbox-0.5.css
+ * @author Leandro Vieira Pinho - http://leandrovieira.com
+ * @version 0.5
+ * @date April 11, 2008
+ * @category jQuery plugin
+ * @copyright (c) 2008 Leandro Vieira Pinho (leandrovieira.com)
+ * @license CC Attribution-No Derivative Works 2.5 Brazil - http://creativecommons.org/licenses/by-nd/2.5/br/deed.en_US
+ * @example Visit http://leandrovieira.com/projects/jquery/lightbox/ for more informations about this jQuery plugin
+ */
+#jquery-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 90;
+	width: 100%;
+	height: 500px;
+}
+#jquery-lightbox {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: 100;
+	text-align: center;
+	line-height: 0;
+}
+#jquery-lightbox a img { border: none; }
+#lightbox-container-image-box {
+	position: relative;
+	background-color: #fff;
+	width: 250px;
+	height: 250px;
+	margin: 0 auto;
+}
+#lightbox-container-image { padding: 10px; }
+#lightbox-loading {
+	position: absolute;
+	top: 40%;
+	left: 0%;
+	height: 25%;
+	width: 100%;
+	text-align: center;
+	line-height: 0;
+}
+#lightbox-nav {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	z-index: 10;
+}
+#lightbox-container-image-box > #lightbox-nav { left: 0; }
+#lightbox-nav a { outline: none;}
+#lightbox-nav-btnPrev, #lightbox-nav-btnNext {
+	width: 49%;
+	height: 100%;
+	zoom: 1;
+	display: block;
+}
+#lightbox-nav-btnPrev { 
+	left: 0; 
+	float: left;
+}
+#lightbox-nav-btnNext { 
+	right: 0; 
+	float: right;
+}
+#lightbox-container-image-data-box {
+	font: 10px Verdana, Helvetica, sans-serif;
+	background-color: #fff;
+	margin: 0 auto;
+	line-height: 1.4em;
+	overflow: auto;
+	width: 100%;
+	padding: 0 10px 0;
+}
+#lightbox-container-image-data {
+	padding: 0 10px; 
+	color: #666; 
+}
+#lightbox-container-image-data #lightbox-image-details { 
+	width: 70%; 
+	float: left; 
+	text-align: left; 
+}	
+#lightbox-image-details-caption { font-weight: bold; }
+#lightbox-image-details-currentNumber {
+	display: block; 
+	clear: left; 
+	padding-bottom: 1.0em;	
+}			
+#lightbox-secNav-btnClose {
+	width: 66px; 
+	float: right;
+	padding-bottom: 0.7em;	
+}

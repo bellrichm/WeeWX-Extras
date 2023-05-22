@@ -1,0 +1,496 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link href="favicon.ico" rel="icon" type="image/x-icon" />
+	<title>Essex Vermont Weather | Weekly </title>
+	<script language="javascript" src="scripts/common.js"></script>
+	<link type="text/css" href="styles/main.css" rel="stylesheet" />
+</head>
+
+<body>
+<div id="wrap">
+	<div id="header"><img src="images/headerx.jpg"/></div>
+		<div id="underlinemenu"><center>	
+		<ul>
+			<li><a href="index.html">Current Conditions</a></li>
+			<li><a class="active" href="week.html">Week</a></li>
+			<li><a href="month.html">Month</a></li>
+			<li><a href="year.html">Year</a></li>
+		</ul>
+		</center>
+	</div>
+	<div id="main">
+		<p></p>
+		<table cellspacing="1" cellpadding="0" width="100%" align="left" border="0">
+<tbody>
+  <tr height="20" class="header">
+    <th colspan=2> Weekly Highs/Lows</th>
+	</tr>
+       <tr height="20">
+          <td width="50%">
+            
+            <strong>High Temperature:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+		$week.outTemp.max at $week.outTemp.maxtime
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Low Temperature:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+          $week.outTemp.min at $week.outTemp.mintime
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>High Humidity:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $week.outHumidity.max at $week.outHumidity.maxtime
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Low Humidity:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+           $week.outHumidity.min at $week.outHumidity.mintime
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>High Dewpoint:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $week.dewpoint.max at $week.dewpoint.maxtime
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Low Dewpoint:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $week.dewpoint.min at $week.dewpoint.mintime
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>High Wind Speed:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+
+		$week.wind.max at $week.wind.maxtime
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>High Barometer:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $week.barometer.max at $week.barometer.maxtime
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Low Barometer:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+          $week.barometer.min at $week.barometer.mintime
+            
+          </td>
+        </tr>
+		<tr height="20">
+          <td width="50%">
+            
+            <strong>Rain Total:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $week.rain.sum
+            
+          </td>
+        </tr>
+        
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>High Rain Rate:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+             $week.rainRate.max at $week.rainRate.maxtime
+            
+          </td>
+        </tr>
+       <tr height="20">
+          <td width="50%">
+            
+            <strong>Low Wind Chill:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+			$week.windchill.min at $week.windchill.mintime
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>High Heat Index:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+           $week.heatindex.max at $week.heatindex.maxtime
+            
+          </td>
+        </tr>
+        
+       <tr height="20">
+          <td width="50%">
+            
+            <strong>High UV:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $week.UV.max at $week.UV.maxtime
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong> Low UV:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $week.UV.min at $week.UV.mintime
+            
+          </td>
+        </tr>
+
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>High ET:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $week.ET.max at $week.ET.maxtime
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong> Low ET:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $week.ET.min at $week.ET.mintime
+            
+          </td>
+        </tr>
+
+
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>High Radiation:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $week.radiation.max at $week.radiation.maxtime
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong> Low Radiation:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $week.radiation.min at $week.radiation.mintime
+            
+          </td>
+        </tr>
+
+
+
+
+      </tbody>
+      </table>
+	  
+		<p>&nbsp;</p>
+		
+			<!--<table cellspacing="1" cellpadding="0" width="100%" align="left" border="0">
+<tbody>
+  <tr height="20" class="header">
+    <th colspan=2> Yearly Highs/Lows</th>
+	</tr>
+       <tr height="20">
+          <td width="50%">
+            
+            <strong>High Temperature:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+		
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Low Temperature:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+         
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>High Humidity:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Low Humidity:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+          
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>High Dewpoint:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+          
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Low Dewpoint:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+          
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>High Wind Speed:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>High Barometer:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+           
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Low Barometer:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Rain Total:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+           
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>High Rain Rate:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+           
+            
+          </td>
+        </tr>
+       <tr height="20">
+          <td width="50%">
+            
+            <strong>Low Wind Chill:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+			
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>High Heat Index:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+      
+            
+          </td>
+        </tr>
+        
+      </tbody>
+      </table>-->
+
+	  <p> &nbsp; </p>
+		
+  
+
+	</div>
+	<div id="sidebar">
+		<p>Observations for the Last Week</p>
+		
+		 <p align="center">
+        <img src="weektempdew.png" alt="temperatures" />
+        &nbsp;&nbsp;&nbsp;
+        <img src="weektempchill.png" alt="heatchill" />
+    </p>
+    <p align="center">
+       <img src="weekhilow.png" alt="Weekly high/low" />          
+        &nbsp;&nbsp;&nbsp;
+
+    </p>
+
+    <p align="center">
+        <img src="weekrain.png" alt="rain" />
+          
+        &nbsp;&nbsp;&nbsp;
+        <img src="weekwind.png" alt="wind" />
+    </p>
+    <p align="center">
+        <img src="weekbarometer.png" alt="barometer"/>
+        &nbsp;&nbsp;&nbsp;
+        <img src="weekwinddir.png" alt="Hi Wind" />
+    </p>
+    <p align="center">
+         <img src="weekwindvec.png" alt="Wind Vector" />
+        &nbsp;&nbsp;&nbsp;        
+    </p>
+    <p align="center">
+         <img src="weekradiation.png" alt="Radiation" />
+        &nbsp;&nbsp;&nbsp;        
+    </p>
+    <p align="center">
+         <img src="weekuv.png" alt="UV Index" />
+        &nbsp;&nbsp;&nbsp;        
+    </p>
+
+    </font>
+</td>
+
+		 
+	</div>
+
+	<div id="footer">
+		<p>Weather Data Provided by weewx <a href="http://www.weewx.com/"> www.weewx.com</a></p>
+		<p>Weewx Version: $station.version</p>
+	</div>
+
+</div>
+
+
+
+</body>
+</html>

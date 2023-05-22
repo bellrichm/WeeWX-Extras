@@ -1,0 +1,752 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link href="favicon.ico" rel="icon" type="image/x-icon" />
+	<title>Essex Vermont Weather</title>
+	
+	<script src="scripts/gauge.js"></script>
+	<link type="text/css" href="styles/main.css" rel="stylesheet" />
+<meta http-equiv="refresh" content="300">
+</head>
+
+<body>
+<div id="wrap">
+	<div id="header"><img src="images/headerx.jpg" alt="Essex Vermont"/></div>
+		<div id="underlinemenu"><center>	
+		<ul>
+			<li><a class="active" href="index.html">Current Conditions</a></li>
+			<li><a href="week.html">Week</a></li>
+			<li><a href="month.html">Month</a></li>
+			<li><a href="year.html">Year</a></li>
+		</ul>
+		</center>
+	</div>
+	<div id="main">
+	
+		
+<table cellspacing="1" cellpadding="0" width="100%" align="left" border="0">
+<tbody>
+  <tr height="20" class="header">
+    <th colspan=2>$current.dateTime</th>
+</tbody>
+</table>		
+<table cellspacing="1" cellpadding="0" width="100%" align="left" border="0">
+<tbody>
+  <tr height="20" class="header">
+    <th colspan=2> Current Weather</th>
+	</tr>
+	
+	<tr height="20">
+	<td width="50%">      
+           <strong> Temperature:</strong>
+            </td>
+          <td width="50%" align="left">
+             $current.outTemp
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+          <strong> Wind Chill:            </strong>
+          </td>
+          <td width="50%" align="left">
+            $current.windchill
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+           <strong>Heat Index:</strong>
+             </td>
+          <td width="50%" align="left">
+           $current.heatindex
+         </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Dewpoint:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            $current.dewpoint
+            
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Humidity:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $current.outHumidity
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Barometer:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $current.barometer
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Wind Speed:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $current.windSpeed
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Today's High Wind Speed</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $day.wind.max at $day.wind.maxtime
+            
+          </td>
+        </tr>
+        <!--<tr height="20">
+          <td width="50%">
+            
+            <strong>Recent Avg Wind:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            0  mph
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Recent Beaufort Scale:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            
+            
+          </td>
+        </tr>-->
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Current Rain:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+           $current.rain
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Rain Rate:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $current.rainRate
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Today's High Rain Rate:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+             $day.rainRate.max at $day.rainRate.maxtime
+            
+            
+          </td>
+        </tr>
+       <!-- <tr height="20">
+          <td width="50%">
+            
+            <strong>Storm Total:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Monthly Rain:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Yearly Rain (JUL):</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            
+            
+          </td>
+        </tr>-->
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Air Density:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $current.pressure
+            
+          </td>
+        </tr>
+       
+
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>UV:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $current.UV
+            
+          </td>
+        </tr>
+
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>ET:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $current.ET
+            
+          </td>
+        </tr>
+
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Solar Radiation:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $current.radiation
+            
+          </td>
+        </tr>
+
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Today's High Temperature:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $day.outTemp.max at $day.outTemp.maxtime
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Today's Low Temperature:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $day.outTemp.min at $day.outTemp.mintime
+            
+          </td>
+        </tr>
+       <!-- <tr height="20">
+          <td width="50%">
+            
+            <strong>Today's High Heat Index:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+           $day.heatindex.max at $day.heatindex.maxtime
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Today's Low Wind Chill:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $day.windchill.min at $day.windchill.mintime
+            
+          </td>
+        </tr>-->
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Today's High Humidity:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $day.outHumidity.max at $day.outHumidity.maxtime
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Today's Low Humidity:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+           $day.outHumidity.min at $day.outHumidity.mintime
+            
+          </td>
+        </tr>
+       <!-- <tr height="20">
+          <td width="50%">
+            
+            <strong>High Dewpoint:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+           
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Low Dewpoint:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            
+            
+          </td>
+        </tr>-->
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Today's High Barometer:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $day.barometer.max at $day.barometer.maxtime
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong> Today's Low Barometer:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $day.barometer.min at $day.barometer.mintime
+            
+          </td>
+        </tr>
+
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Today's High UV:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $day.UV.max at $day.UV.maxtime
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong> Today's Low UV:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $day.UV.min at $day.UV.mintime
+            
+          </td>
+        </tr>
+
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Today's High ET:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $day.ET.max at $day.ET.maxtime
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong> Today's Low ET:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $day.ET.min at $day.ET.mintime
+            
+          </td>
+        </tr>
+
+
+        <tr height="20">
+          <td width="50%">
+            
+            <strong>Today's High Radiation:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $day.radiation.max at $day.radiation.maxtime
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">
+            
+            <strong> Today's Low Radiation:</strong>
+            
+          </td>
+          <td width="50%" align="left">
+            
+            $day.radiation.min at $day.radiation.mintime
+            
+          </td>
+        </tr>
+        <tr height="20">
+          <td width="50%">            
+            <strong> Today's Rain:</strong>            
+          </td>
+          <td width="50%" align="left">
+            $day.rain.sum            
+          </td>
+        </tr>
+	<tr height="20">
+	<td width="50%">      
+           <strong>Above Garage Temperature:</strong>
+            </td>
+          <td width="50%" align="left">
+             $current.honeywell01
+          </td>
+        </tr>
+	<tr height="20">
+	<td width="50%">      
+           <strong>Garage Temperature:</strong>
+            </td>
+          <td width="50%" align="left">
+             $current.garage
+          </td>
+        </tr>
+	<tr height="20">
+	<td width="50%">      
+           <strong>Sunroom Temperature:</strong>
+            </td>
+          <td width="50%" align="left">
+             $current.honeywell02
+          </td>
+        </tr>
+
+	<tr height="20">
+	  <td width="50%">      
+            <strong>Outside Garage Temperature:</strong>
+          </td>
+          <td width="50%" align="left">
+             $current.honeywell03
+          </td>
+        </tr>
+	<tr height="20">
+	  <td width="50%">      
+            <strong>Freezer</strong>
+          </td>
+          <td width="50%" align="left">
+             $current.uprightfreezer
+          </td>
+        </tr>
+	<tr height="20">
+	  <td width="50%">      
+            <strong>Test Sensor (soil):</strong>
+          </td>
+          <td width="50%" align="left">
+             $current.testsensor01
+          </td>
+        </tr>
+
+
+
+		<tr height="20" class="header">
+    <th colspan=2> Today's Almanac</th>
+	</tr>
+	<tr height="20">
+	<td width="50%">      
+           <strong> Sunrise:</strong>
+            </td>
+          <td width="50%" align="left">
+             $almanac.sun.rise
+          </td>
+        </tr>
+	<tr height="20">
+	<td width="50%">      
+           <strong> Sunset:</strong>
+            </td>
+          <td width="50%" align="left">
+             $almanac.sun.set
+          </td>
+        </tr>
+	<tr height="20">
+	<td width="50%">      
+           <strong> Moon Phase:</strong>
+            </td>
+          <td width="50%" align="left">
+             $almanac.moon_phase </br>($almanac.moon_fullness% full)
+          </td>
+        </tr>
+		<tr height="20">
+	<td width="50%">      
+           <strong> Moon Rise:</strong>
+            </td>
+          <td width="50%" align="left">
+             $almanac.moon.rise
+          </td>
+        </tr>
+		<tr height="20">
+	<td width="50%">      
+           <strong> Moon Set:</strong>
+            </td>
+          <td width="50%" align="left">
+             $almanac.moon.set
+          </td>
+        </tr>
+			<tr height="20">
+	<td width="50%">      
+           <strong> Next Full Moon:</strong>
+            </td>
+          <td width="50%" align="left">
+             $almanac.next_full_moon
+          </td>
+        </tr>
+		<tr height="20">
+	<td width="50%">      
+           <strong> Next New Moon:</strong>
+            </td>
+          <td width="50%" align="left">
+             $almanac.next_new_moon
+          </td>
+        </tr>
+		
+ 	
+		
+      </tbody>
+      </table>
+    </td>
+  </tr>
+</tbody>
+</table>
+
+
+<div id="gallery"> 
+ <p>&nbsp;</p>
+ <center>
+               <!-- <a  href="$Extras.radar_url"><img src="$Extras.radar_img" alt="Radar" /></a>
+            </a> <p>Click the image above to enlarge</p></center>-->
+</div>		
+	</div>
+	<div id="sidebar">
+	
+<!-- Gauges -->
+<table class="gauges">
+	<tr>
+		<td class="gauges"> <canvas id="outTemp"></canvas></td>
+		<td class="gauges"> <canvas id="outHumidity"></canvas></td>
+		<td class="gauges"> <canvas id="windGust"></canvas> </td>
+	</tr>
+	<!--Wind Direction Gauge WIP
+	<tr>
+		
+		<td class="gauges"><canvas id="windDirection"></canvas></td>
+	</tr>
+	-->
+
+</table>
+		
+		<p>
+		<img src="daytempdew.png"   alt="temperatures" />&nbsp;&nbsp;
+          <img src="daytempchill.png" alt="heatchill" />&nbsp;&nbsp;
+          <img src="dayrain.png"      alt="rain" />&nbsp;&nbsp;
+          <img src="daywind.png"      alt="wind" />&nbsp;&nbsp;
+          <img src="daybarometer.png" alt="barometer"/>&nbsp;&nbsp;
+          <img src="daywinddir.png"   alt="Hi Wind" />&nbsp;&nbsp;
+          <img src="daywindvec.png"   alt="Wind Vector" />&nbsp;&nbsp;
+          <img src="dayradiation.png"   alt=Radiation" />&nbsp;&nbsp;
+          <img src="dayuv.png"   alt="UV Index" />&nbsp;&nbsp;
+		 
+		</p>
+		 
+	</div>
+        <div id="radar_img">
+              <a  href="$Extras.radar_url"><img src="$Extras.radar_img" alt="Radar" /></a>
+          <p>Click image for expanded radar loop</p>
+      </div>
+
+
+	<div id="footer">
+		<p>Weather Data Provided by weewx <a href="http://www.weewx.com/"> www.weewx.com</a>.  </p>
+		<p>Weewx Version: $station.version</p>
+		<p></p>
+          <p><a href="mobile.html">Mobile formatted</a></p>
+          <p><a href="smartphone/index.html">Smartphone formatted</a></p>
+		
+	</div>
+
+</div>
+	<script>
+
+	/*Gauges for BDWeather Skin*/
+//////////////////////////
+
+var outTemp = new Gauge({
+	renderTo  : 'outTemp',
+	width     : 200,
+	height    : 200,
+	glow      : true,
+	animation : { delay : 10, duration : 900, fn : 'linear' },
+	units     : 'Temperature',
+	strokeTicks : true,
+    minValue    : 0,
+    maxValue    : 110,
+    majorTicks  : ['0','10','20','30','40','50','60','70','80','90','100','110'],
+    minorTicks  : 10,
+    strokeTicks : false,
+    valueFormat : { int: 1, dec: 1 },
+    highlights  : [
+		{ from : $day.outTemp.min.formatted, to : $day.outTemp.max.formatted, color : 'LightSalmon' }
+        
+    ],
+});
+outTemp.onready = function() { setInterval( function() { outTemp.setValue( $current.outTemp.formatted ); }, 100 ); };
+outTemp.draw();
+
+//////////////////////////
+
+var outHumidity = new Gauge({
+	renderTo  : 'outHumidity',
+	width     : 200,
+	height    : 200,
+	glow      : true,
+	animation : { delay : 10, duration : 900, fn : 'linear' },
+	units     : 'Humidity',
+	strokeTicks : true,
+	majorTicks : ['0', '20', '40', '60', '80', '100'],
+    valueFormat : { int: 1, dec: 0 },
+    highlights  : [
+        { from : $day.outHumidity.min.formatted, to : $day.outHumidity.max.formatted, color : 'LightSalmon' }
+    ],
+});
+outHumidity.onready = function() { setInterval( function() { outHumidity.setValue( $current.outHumidity.formatted ); }, 100 ); };
+outHumidity.draw();
+
+//////////////////////////
+
+var windGust = new Gauge({
+	renderTo  : 'windGust',
+	width     : 200,
+	height    : 200,
+	glow      : true,
+	animation : { delay : 10, duration : 900, fn : 'linear' },
+	//units     : 'Pct',
+	//title     : 'InHumidity',
+	units : 'Wind Gust',
+	strokeTicks : true,
+	valueFormat : { int: 1, dec: 0 },
+	maxValue : 60,
+	majorTicks : ['0', '10', '20', '30', '40', '50','60'],
+    valueFormat : { int: 1, dec: 0 },
+    highlights  : [
+        { from : $day.wind.min.formatted, to : $day.wind.max.formatted, color : 'LightSalmon' }       
+    ],
+});
+windGust.onready = function() { windGust.setValue( $current.windSpeed.formatted ); };
+windGust.draw();
+//////////////////////////
+
+/*Wind Direction Gauge WIP
+
+var windDirection = new Gauge({
+	renderTo  : 'windDirection',
+	width     : 200,
+	height    : 200,
+	glow      : false,
+	//units     : 'Pct',
+	//title     : 'InHumidity',
+	units : 'Wind Direction',
+	strokeTicks : false,
+	valueFormat : { int: 1, dec: 0 },
+	maxValue : 359,
+	majorTicks : ['0', '90', '180', '270'],
+    valueFormat : { int: 1, dec: 0 } 
+	 
+});
+windDirection.onready = function() { windDirection.setValue( $current.windDir.formatted ); };
+windDirection.draw();
+*/
+//////////////////////////
+
+
+	</script>
+	
+
+</body>
+</html>
