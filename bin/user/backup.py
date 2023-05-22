@@ -171,6 +171,7 @@ class Backup(StdService):
         except FileNotFoundError:
             last_run = datetime.date.today()
             loginf("Lastrun not found, setting to today: %s" %last_run)
+            self.save_last_run(save_file, last_run)
             return last_run
         line = file_ptr.read()
         file_ptr.close()
