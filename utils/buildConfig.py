@@ -13,9 +13,11 @@ if __name__ == '__main__': # pragma: no cover
         """ Run it."""
         print("start")
         parser = argparse.ArgumentParser(usage=USAGE)
-        parser.add_argument("--secrets", required=True, dest="secrets_config_file",
+        parser.add_argument("--secrets", dest="secrets_config_file",
+                            nargs="?", const="secrets.conf", default="secrets.conf", type=str,
                             help="The secrets file (password, API keys, etc).")
-        parser.add_argument("--template", required=True, dest="template_config_file",
+        parser.add_argument("--template", dest="template_config_file",
+                            nargs="?", const="secrets.conf", default="secrets.conf", type=str,
                             help="The template file.")
         parser.add_argument("--add", dest="customization_file",
                             help="Additional customizations.")
