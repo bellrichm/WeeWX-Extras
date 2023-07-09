@@ -8,11 +8,13 @@ WeeWX module to manage the registration of the AQI XType.
 The AQI XType is part of weewx-airlink extension.
 It can be found here,https://github.com/chaunceygardiner/weewx-airlink.
 """
+import logging
 
 from weewx.engine import StdService
 import weewx.xtypes
 import user.airlink
 
+log = logging.getLogger(__name__)
 def logdbg(msg):
     """ Log debug level. """
     log.debug(msg)
