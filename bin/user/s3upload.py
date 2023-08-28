@@ -270,7 +270,7 @@ if __name__ == '__main__':
                          config_dict['StdReport']['AWS-S3']['AWS_Profile'],
                          config_dict['StdReport']['AWS-S3']['AWS_Region'],
                          config_dict['WEEWX_ROOT'],
-                         config_dict['StdReport']['HTML_ROOT'],
+                         config_dict['StdReport']['AWS-S3']['HTML_ROOT'],
                          config_dict['StdArchive']['archive_interval'],
                          config_dict['StdReport']['AWS-S3']['skin'])
 
