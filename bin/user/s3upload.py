@@ -226,7 +226,7 @@ class S3UploadGenerator(ReportGenerator):
                                                profile          = self.skin_dict['AWS_Profile'],
                                                region           = self.skin_dict['AWS_Region'],
                                                weewx_root       = self.config_dict['WEEWX_ROOT'],
-                                               html_root        = self.config_dict['StdReport']['HTML_ROOT'],
+                                               html_root        = self.skin_dict['HTML_ROOT'],
                                                cache_control    = self.config_dict['StdArchive']['archive_interval'],
                                                name             = self.skin_dict['skin'])
         except KeyError:
