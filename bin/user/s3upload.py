@@ -96,7 +96,7 @@ class S3Upload(object):
         # Walk the local directory structure
         for (dirpath, unused_dirnames, filenames) in os.walk(os.path.join(self.weewx_root, self.html_root)):
                         
-            local_rel_dir_path  = dirpath.replace(self.html_root, '')
+            local_rel_dir_path  = dirpath.replace(os.path.join(self.weewx_root, self.html_root), '')
             s3_bucket_path      = local_rel_dir_path.lstrip( '/')
             
             if self._skipThisDir(local_rel_dir_path):
