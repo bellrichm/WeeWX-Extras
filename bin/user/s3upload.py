@@ -92,9 +92,10 @@ class S3Upload(object):
         # Add some logging information
         log.debug("S3Upload started at: " + datetime.now().strftime('%d-%m-%Y %H:%M:%S') + "\n")
         
+        log.debug("Uploading directory %s" % self.html_root)
         # Walk the local directory structure
-        for (dirpath, unused_dirnames, filenames) in os.walk(self.html_root):
-            
+        for (dirpath, unused_dirnames, filenames) in os.walk(os.path.join(self.weewx_root, self.html_root)):
+                        
             local_rel_dir_path  = dirpath.replace(self.html_root, '')
             s3_bucket_path      = local_rel_dir_path.lstrip( '/')
             
