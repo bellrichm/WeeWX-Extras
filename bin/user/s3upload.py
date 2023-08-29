@@ -75,6 +75,7 @@ class S3Upload(object):
         self.max_tries      = max_tries
         self.debug          = debug
         self.secure_data    = secure_data
+        self.source_dir     = os.path.join(self.weewx_root, self.html_root)
 
     def run(self):
         # Get the timestamp and members of the last upload:
@@ -94,9 +95,9 @@ class S3Upload(object):
         
         log.debug("Uploading directory %s" % self.html_root)
         # Walk the local directory structure
-        for (dirpath, unused_dirnames, filenames) in os.walk(os.path.join(self.weewx_root, self.html_root)):
+        for (dirpath, unused_dirnames, filenames) in os.walk(self.source_dir):
                         
-            local_rel_dir_path  = dirpath.replace(os.path.join(self.weewx_root, self.html_root), '')
+            local_rel_dir_path  = dirpath.replace(self.source_dir, '')
             s3_bucket_path      = local_rel_dir_path.lstrip( '/')
             
             if self._skipThisDir(local_rel_dir_path):
@@ -163,7 +164,7 @@ class S3Upload(object):
     def getLastUpload(self):
         """Reads the time and members of the last upload from the local root"""
 
-        timeStampFile = os.path.join(self.weewx_root, "#%s.last" % self.name)
+        timeStampFile = os.path.join(self.source_dir, "%s.last" % self.name)
 
         # If the file does not exist, an IOError exception will be raised.
         # If the file exists, but is truncated, an EOFError will be raised.
@@ -186,7 +187,7 @@ class S3Upload(object):
 
     def saveLastUpload(self, timestamp, fileset):
         """Saves the time and members of the last upload in the local root."""
-        timeStampFile = os.path.join(self.weewx_root, "#%s.last" % self.name)
+        timeStampFile = os.path.join(self.source_dir, "%s.last" % self.name)
         with open(timeStampFile, "wb") as f:
             cPickle.dump(timestamp, f)
             cPickle.dump(fileset, f)
@@ -198,7 +199,7 @@ class S3Upload(object):
     def _skipThisFile(self, timestamp, fileset, full_local_path):
 
         filename = os.path.basename(full_local_path)
-        if filename[-1] == '~' or filename[0] == '#':
+        if filename[-1] == '~' or filename[0] == '#' or filename == "%s.last" % self.name:
             return True
 
         if full_local_path not in fileset:
