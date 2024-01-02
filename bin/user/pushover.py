@@ -27,9 +27,15 @@
         #[[[refigerator_freezer]]]
 '''
 
+import argparse
+import http.client
 import logging
+import os
 import time
+import urllib
 from concurrent.futures import ThreadPoolExecutor
+
+import configobj
 
 import weewx
 from weewx.engine import StdService
@@ -41,18 +47,37 @@ class Pushover(StdService):
     def __init__(self, engine, config_dict):
         """Initialize an instance of Pushover"""
         super().__init__(engine, config_dict)
+        
+        skin_dict = config_dict.get('Pushover', {})
+
+        self.user_key = skin_dict.get('user_key', None)
+        self.app_token = skin_dict.get('app_token', None)
+        self.server = skin_dict.get('server', 'api.pushover.net:443')
+        self.api = skin_dict.get('api', '/1/messages.json')
 
         self.executor = ThreadPoolExecutor(max_workers=5)
 
     def _process_data(self, data):
         print("start")
-        time.sleep(5)
+        connection = http.client.HTTPSConnection(f"{self.server}")
+        connection.request("POST",
+                           f"{self.api}",
+                           urllib.parse.urlencode({
+                               "token": self.app_token,
+                               "user": self.user_key,
+                               "message": data,
+                               }),
+                            { "Content-type": "application/x-www-form-urlencoded" })
+        response = connection.getresponse()
+        response_body = response.read().decode()
+        print(response_body)
         print("done")
 
     def new_loop_packet(self, event):
         """ Handle the new loop packet event. """
         print("before")
-        self.executor.submit(self._process_data, event.packet)
+        #self.executor.submit(self._process_data, event.packet)
+        #self._process_data(event.packet)
 
         print("after1")
 
@@ -81,10 +106,19 @@ def main():
         }
     }
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--conf",
+                        required=True,
+                        help="The WeeWX configuration file. Typically weewx.conf.")
+    options = parser.parse_args()
+
+
+    config_path = os.path.abspath(options.conf)
+
+    config_dict = configobj.ConfigObj(config_path, file_error=True)
+
     packet = {'dateTime': int(time.time()),
             }
-
-    config_dict= {}
 
     # Now we can instantiate our slim engine, using the DummyEngine class...
     engine = weewx.engine.DummyEngine(min_config_dict)
