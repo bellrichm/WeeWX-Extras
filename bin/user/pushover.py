@@ -29,6 +29,7 @@
 
 import argparse
 import http.client
+import json
 import logging
 import os
 import time
@@ -69,7 +70,8 @@ class Pushover(StdService):
                 self.observations[observation]['min'] = {}
                 self.observations[observation]['min']['value'] = to_int(min_value)
                 self.observations[observation]['min']['count'] = to_int(skin_dict['observations'][observation].get('min_count', count))
-                self.observations[observation]['min']['wait_time'] = to_int(skin_dict['observations'][observation].get('min_wait_time', wait_time))
+                self.observations[observation]['min']['wait_time'] = \
+                    to_int(skin_dict['observations'][observation].get('min_wait_time', wait_time))
                 self.observations[observation]['min']['last_sent_timestamp'] = 0
                 self.observations[observation]['min']['counter'] = 0
 
@@ -78,7 +80,8 @@ class Pushover(StdService):
                 self.observations[observation]['max'] = {}
                 self.observations[observation]['max']['value'] = to_int(max_value)
                 self.observations[observation]['max']['count'] = to_int(skin_dict['observations'][observation].get('max_count', count))
-                self.observations[observation]['max']['wait_time'] = to_int(skin_dict['observations'][observation].get('max_wait_time', wait_time))
+                self.observations[observation]['max']['wait_time'] = \
+                    to_int(skin_dict['observations'][observation].get('max_wait_time', wait_time))
                 self.observations[observation]['max']['last_sent_timestamp'] = 0
                 self.observations[observation]['max']['counter'] = 0
 
@@ -87,26 +90,53 @@ class Pushover(StdService):
                 self.observations[observation]['equal'] = {}
                 self.observations[observation]['equal']['value'] = to_int(equal_value)
                 self.observations[observation]['equal']['count'] = to_int(skin_dict['observations'][observation].get('equal_count', count))
-                self.observations[observation]['equal']['wait_time'] = to_int(skin_dict['observations'][observation].get('equal_wait_time', wait_time))
+                self.observations[observation]['equal']['wait_time'] = \
+                    to_int(skin_dict['observations'][observation].get('equal_wait_time', wait_time))
                 self.observations[observation]['equal']['last_sent_timestamp'] = 0
                 self.observations[observation]['equal']['counter'] = 0
 
         self.executor = ThreadPoolExecutor(max_workers=5)
 
-    def _process_data(self, data):
+    def _process_data(self, observation_detail, title, msgs):
         print("start")
+        msg = ''
+        for _, value in msgs.items():
+            if value:
+                msg += value
         connection = http.client.HTTPSConnection(f"{self.server}")
         connection.request("POST",
                            f"{self.api}",
                            urllib.parse.urlencode({
                                "token": self.app_token,
                                "user": self.user_key,
-                               "message": data,
+                               "title": title,
+                               "message": msg
                                }),
                             { "Content-type": "application/x-www-form-urlencoded" })
         response = connection.getresponse()
-        response_body = response.read().decode()
-        print(response_body)
+        print(response.code)
+
+        if response.code == 200:
+            now = time.time()
+            if msgs['min']:
+                observation_detail['min']['last_sent_timestamp'] = now
+            if msgs['max']:
+                observation_detail['max']['last_sent_timestamp'] = now
+            if msgs['equal']:
+                observation_detail['equal']['last_sent_timestamp'] = now
+        else:
+            log.error("Received code %s", response.code)
+            response_body = response.read().decode()
+            print(response_body)
+            try:
+                response_dict = json.loads(response_body)
+                print(response_dict)
+                log.error('\n'.join(response_dict['errors']))
+            except json.JSONDecodeError as exception:
+                log.error("Unable to parse %s.", exception.doc)
+                log.error("Error at %s, line: %s column: %s",
+                          exception.pos, exception.lineno, exception.colno)
+
         print("done")
 
     def _check_min_value(self, name, observation_detail, value):
@@ -116,7 +146,6 @@ class Pushover(StdService):
             if observation_detail['counter'] >= observation_detail['count']:
                 if abs(time.time() - observation_detail['last_sent_timestamp']) >= observation_detail['wait_time']:
                     msg = f"{name} value {value} is less than {observation_detail['value']}.\n"
-                    observation_detail['last_sent_timestamp'] = time.time()
 
         return msg
 
@@ -127,7 +156,6 @@ class Pushover(StdService):
             if observation_detail['counter'] >= observation_detail['count']:
                 if abs(time.time() - observation_detail['last_sent_timestamp']) >= observation_detail['wait_time']:
                     msg = f"{name} value {value} is greater than {observation_detail['value']}.\n"
-                    observation_detail['last_sent_timestamp'] = time.time()
 
         return msg
 
@@ -138,27 +166,30 @@ class Pushover(StdService):
             if observation_detail['counter'] >= observation_detail['count']:
                 if abs(time.time() - observation_detail['last_sent_timestamp']) >= observation_detail['wait_time']:
                     msg += f"{name} value {value} is not equal {observation_detail['value']}.\n"
-                    observation_detail['last_sent_timestamp'] = time.time()
 
         return msg
 
     def new_loop_packet(self, event):
         """ Handle the new loop packet event. """
-        msg = ''
+        msgs = {}
         for observation, observation_detail in self.observations.items():
+            title = None
             if observation in event.packet:
                 if observation_detail['min']:
-                    msg += self._check_min_value(observation_detail['name'], observation_detail['min'], event.packet[observation])
+                    msgs['min'] = self._check_min_value(observation_detail['name'], observation_detail['min'], event.packet[observation])
+                    title = f"Unexpected value for {observation}."
                 if observation_detail['max']:
-                    msg += self._check_max_value(observation_detail['name'], observation_detail['max'], event.packet[observation])
+                    msgs['max'] = self._check_max_value(observation_detail['name'], observation_detail['max'], event.packet[observation])
+                    title = f"Unexpected value for {observation}."
                 if observation_detail['equal']:
-                    msg += self._check_equal_value(observation_detail['name'], observation_detail['equal'], event.packet[observation])
-        print("before")
-        print(msg)
-        #self.executor.submit(self._process_data, event.packet)
-        #self._process_data(event.packet)
+                    msgs['equal'] = self._check_equal_value(observation_detail['name'], observation_detail['equal'], event.packet[observation])
+                    title = f"Unexpected value for {observation}."
+            print("before")
+            print(msgs)
+            #self.executor.submit(self._process_data, event.packet)
+            self._process_data(observation_detail, title, msgs)
 
-        print("after1")
+            print("after1")
 
     def new_archive_record(self):
         """ Handle the new archive record event. """
