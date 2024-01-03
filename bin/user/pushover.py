@@ -58,6 +58,8 @@ class Pushover(StdService):
         self.api = skin_dict.get('api', '/1/messages.json')
 
         self.fatal_error_log_frequency = skin_dict.get('fatal_error_log_frequency', 3600)
+        self.server_error_wait_period = skin_dict.get('server_error_wait_period', 3600)
+
         wait_time = skin_dict.get('wait_time', 3600)
         count = skin_dict.get('count', 10)
 
@@ -98,6 +100,7 @@ class Pushover(StdService):
 
         self.fatal_error_timestamp = 0
         self.fatal_error_last_logged = 0
+        self.server_error_timestamp = 0
 
         self.executor = ThreadPoolExecutor(max_workers=5)
 
@@ -133,6 +136,8 @@ class Pushover(StdService):
             if response.code >= 400 and response.code < 500:
                 self.fatal_error_timestamp = now
                 self.fatal_error_last_logged = now
+            if response.code >= 500 and response.code < 600:
+                self.server_error_timestamp = now
             response_body = response.read().decode()
             print(response_body)
             try:
@@ -183,6 +188,13 @@ class Pushover(StdService):
                 log.error("Fatal error occurred at %s, Pushover skipped.", self.fatal_error_timestamp)
                 self.fatal_error_last_logged = time.time()
                 return
+
+        if abs(time.time() - self.server_error_timestamp) < self.server_error_wait_period:
+            log.debug("Server error received at %s, waiting %s seconds before retrying.",
+                      self.server_error_timestamp,
+                      self.server_error_wait_period)
+            return
+        self.server_error_timestamp = 0
 
         msgs = {}
         for observation, observation_detail in self.observations.items():
