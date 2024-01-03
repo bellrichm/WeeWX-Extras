@@ -4,27 +4,60 @@
 #    See the file LICENSE.txt for your full rights.
 #
 '''
+Monitor that observation values are within a defined range.
+If a value is out of range, send a notification via pushover.net
+See, https://pushover.net
+
+Configuration:
 [Pushover]
-    server = api.pushover.net:443
-    api = /1/messages.json
+    
+    # Whether the service is enabled or not.
+    # Valid values: True or False
+    # Default is True.
+    # enable = True
+
+    # The server to send the pushover request to.
+    # Default is api.pushover.net:443.
+    # server = api.pushover.net:443
+
+    # The endpoint/API to use.
+    # Default is /1/messages.json.
+    # api = /1/messages.json
+
     app_token = REPLACE_ME
     user_key = REPLACE_ME
-    #title = 
 
+    client_error_log_frequency = 3600
+    server_error_wait_period = 3600
 
+    # The set of WeeWX observations to monitor.
+    # Each subsection is the name of WeeWX observation.
+    # For example, outTemp, inTemp, txBatteryStatus, etc
     [[observations]]
-        [[[extraTemp6]]]
-            # The time in seconds to wait before sending a notification
-            wait_time = 3600
+        [[[REPLACE_ME]]]
+            # A Descriptive name of this observation
+            # Default is the WeeWX name.
+            #name = 
 
-            # The number of times the minimum needs to be reached before sending a notification
-            min_count = 10
-            min = 30
 
-            max_count = 10
-            max = 42
-            name = Kitchen refigerator
-        #[[[refigerator_freezer]]]
+            # The time in seconds to wait before sending another notification.
+            # This is used to throttle the number of notifications.
+            # The default is 3600 seconds.
+            #wait_time = 3600
+
+            # The number of times the minimum needs to be reached before sending a notification.
+            # The default is 10.
+            #min_count = 10
+
+            # The minimum value to monitor.
+            #min = REPLACE_ME
+
+            # The number of times the minimum needs to be reached before sending a notification.
+            # The default is 10.
+            #max_count = 10
+
+            The maximum value to monitor.
+            #max =  REPLACE_ME
 '''
 
 import argparse
@@ -62,7 +95,7 @@ class Pushover(StdService):
         self.server = service_dict.get('server', 'api.pushover.net:443')
         self.api = service_dict.get('api', '/1/messages.json')
 
-        self.fatal_error_log_frequency = service_dict.get('fatal_error_log_frequency', 3600)
+        self.client_error_log_frequency = service_dict.get('client_error_log_frequency', 3600)
         self.server_error_wait_period = service_dict.get('server_error_wait_period', 3600)
 
         wait_time = service_dict.get('wait_time', 3600)
@@ -103,8 +136,8 @@ class Pushover(StdService):
                 self.observations[observation]['equal']['last_sent_timestamp'] = 0
                 self.observations[observation]['equal']['counter'] = 0
 
-        self.fatal_error_timestamp = 0
-        self.fatal_error_last_logged = 0
+        self.client_error_timestamp = 0
+        self.client_error_last_logged = 0
         self.server_error_timestamp = 0
 
         self.executor = ThreadPoolExecutor(max_workers=5)
@@ -135,8 +168,8 @@ class Pushover(StdService):
         else:
             log.error("Received code %s", response.code)
             if response.code >= 400 and response.code < 500:
-                self.fatal_error_timestamp = now
-                self.fatal_error_last_logged = now
+                self.client_error_timestamp = now
+                self.client_error_last_logged = now
             if response.code >= 500 and response.code < 600:
                 self.server_error_timestamp = now
             response_body = response.read().decode()
@@ -186,10 +219,10 @@ class Pushover(StdService):
 
     def new_loop_packet(self, event):
         """ Handle the new loop packet event. """
-        if self.fatal_error_timestamp:
-            if abs(time.time() - self.fatal_error_last_logged) >= self.fatal_error_log_frequency:
-                log.error("Fatal error occurred at %s, Pushover skipped.", self.fatal_error_timestamp)
-                self.fatal_error_last_logged = time.time()
+        if self.client_error_timestamp:
+            if abs(time.time() - self.client_error_last_logged) >= self.client_error_log_frequency:
+                log.error("Fatal error occurred at %s, Pushover skipped.", self.client_error_timestamp)
+                self.client_error_last_logged = time.time()
                 return
 
         if abs(time.time() - self.server_error_timestamp) < self.server_error_wait_period:
