@@ -57,6 +57,7 @@ class Pushover(StdService):
         self.server = skin_dict.get('server', 'api.pushover.net:443')
         self.api = skin_dict.get('api', '/1/messages.json')
 
+        self.fatal_error_log_frequency = skin_dict.get('fatal_error_log_frequency', 3600)
         wait_time = skin_dict.get('wait_time', 3600)
         count = skin_dict.get('count', 10)
 
@@ -95,6 +96,9 @@ class Pushover(StdService):
                 self.observations[observation]['equal']['last_sent_timestamp'] = 0
                 self.observations[observation]['equal']['counter'] = 0
 
+        self.fatal_error_timestamp = 0
+        self.fatal_error_last_logged = 0
+
         self.executor = ThreadPoolExecutor(max_workers=5)
 
     def _process_data(self, observation_detail, title, msgs):
@@ -109,15 +113,15 @@ class Pushover(StdService):
                            urllib.parse.urlencode({
                                "token": self.app_token,
                                "user": self.user_key,
-                               "title": title,
-                               "message": msg
+                               #"message": msg,
+                               "title": title,                               
                                }),
                             { "Content-type": "application/x-www-form-urlencoded" })
         response = connection.getresponse()
         print(response.code)
+        now = time.time()
 
         if response.code == 200:
-            now = time.time()
             if msgs['min']:
                 observation_detail['min']['last_sent_timestamp'] = now
             if msgs['max']:
@@ -126,6 +130,9 @@ class Pushover(StdService):
                 observation_detail['equal']['last_sent_timestamp'] = now
         else:
             log.error("Received code %s", response.code)
+            if response.code >= 400 and response.code < 500:
+                self.fatal_error_timestamp = now
+                self.fatal_error_last_logged = now
             response_body = response.read().decode()
             print(response_body)
             try:
@@ -171,6 +178,12 @@ class Pushover(StdService):
 
     def new_loop_packet(self, event):
         """ Handle the new loop packet event. """
+        if self.fatal_error_timestamp:
+            if abs(time.time() - self.fatal_error_last_logged) >= self.fatal_error_log_frequency:
+                log.error("Fatal error occurred at %s, Pushover skipped.", self.fatal_error_timestamp)
+                self.fatal_error_last_logged = time.time()
+                return
+
         msgs = {}
         for observation, observation_detail in self.observations.items():
             title = None
@@ -240,6 +253,8 @@ def main():
     event = weewx.Event(weewx.NEW_LOOP_PACKET, packet=packet)
 
     pushover.new_loop_packet(event)
+
+    #pushover.new_loop_packet(event)
 
     print("time to quit")
     pushover.shutDown()
