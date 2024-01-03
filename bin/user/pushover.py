@@ -113,7 +113,7 @@ class Pushover(StdService):
                            urllib.parse.urlencode({
                                "token": self.app_token,
                                "user": self.user_key,
-                               #"message": msg,
+                               "message": msg,
                                "title": title,                               
                                }),
                             { "Content-type": "application/x-www-form-urlencoded" })
