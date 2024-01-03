@@ -1,5 +1,5 @@
 #
-#    Copyright (c) 2021 Rich Bell <bellrichm@gmail.com>
+#    Copyright (c) 2021-2023 Rich Bell <bellrichm@gmail.com>
 #
 #    See the file LICENSE.txt for your full rights.
 #
@@ -26,79 +26,52 @@ Configuration:
     # timeout = 10
 """
 
+import logging
 import socket
 import threading
 
-try:
-    # Python 3
-    from urllib.request import urlopen
-except ImportError:
-    # Python 2
-    from urllib2 import urlopen
+from urllib.request import urlopen
 
 import weewx
+import weeutil.logger
 from weewx.engine import StdService
 from weewx.reportengine import ReportGenerator
 
 from weeutil.weeutil import to_bool, to_int
 
-VERSION = "0.1"
+VERSION = "0.2"
 
-try:
-    # Test for new-style weewx logging by trying to import weeutil.logger
-    import weeutil.logger
-    import logging
-    log = logging.getLogger(__name__) # confirm to standards pylint: disable=invalid-name
-    def setup_logging(logging_level, config_dict):
-        """ Setup logging for running in standalone mode."""
-        if logging_level:
-            weewx.debug = logging_level
+log = logging.getLogger(__name__) # confirm to standards pylint: disable=invalid-name
+def setup_logging(logging_level, config_dict):
+    """ Setup logging for running in standalone mode."""
+    if logging_level:
+        weewx.debug = logging_level
 
-        weeutil.logger.setup('wee_HealthChecks', config_dict)
+    weeutil.logger.setup('wee_HealthChecks', config_dict)
 
-    def logdbg(msg):
-        """ Log debug level. """
-        log.debug(msg)
+def logdbg(msg):
+    """ Log debug level. """
+    log.debug(msg)
 
-    def loginf(msg):
-        """ Log informational level. """
-        log.info(msg)
+def loginf(msg):
+    """ Log informational level. """
+    log.info(msg)
 
-    def logerr(msg):
-        """ Log error level. """
-        log.error(msg)
-
-except ImportError:
-    # Old-style weewx logging
-    import syslog
-
-    def logmsg(level, msg):
-        """ Log the message at the designated level. """
-        syslog.syslog(level, 'wee_HealthChecks: %s:' % msg)
-
-    def logdbg(msg):
-        """ Log debug level. """
-        logmsg(syslog.LOG_DEBUG, msg)
-
-    def loginf(msg):
-        """ Log informational level. """
-        logmsg(syslog.LOG_INFO, msg)
-
-    def logerr(msg):
-        """ Log error level. """
-        logmsg(syslog.LOG_ERR, msg)
+def logerr(msg):
+    """ Log error level. """
+    log.error(msg)
 
 def send_ping(host, uuid, timeout, ping_type=None):
     """Send the HealthChecks 'ping'."""
     if ping_type:
-        url = "https://%s/%s/%s" %(host, uuid, ping_type)
+        url = f"https://{host}/{uuid}/{ping_type}"
     else:
-        url = "https://%s/%s" %(host, uuid)
+        url = "https://{host}/{uuid}"
 
     try:
         urlopen(url, timeout=timeout)
     except socket.error as exception:
-        logerr("Ping failed: %s" % exception)
+        logerr(f"Ping failed: {exception}")
 
 class HealthChecksService(StdService):
     """ A service to ping a healthchecks server.. """
@@ -119,6 +92,8 @@ class HealthChecksService(StdService):
         if not self.uuid:
             raise ValueError("uuid option is required.")
 
+        self._thread = None
+
         send_ping(self.host, self.uuid, self.timeout, "start")
 
         # possible option to run as a service only
@@ -126,7 +101,7 @@ class HealthChecksService(StdService):
         # self._thread = HealthChecksServiceThread(self.host, self.uuid, self.timeout)
         # self._thread.start()
 
-    def new_archive_record(self, event):
+    def new_archive_record(self, event): # Need to match signature pylint: disable=unused-argument
         """The new archive record event."""
         self._thread.threading_event.set()
 
@@ -143,7 +118,7 @@ class HealthChecksService(StdService):
             self._thread.threading_event.set()
             self._thread.join(20.0)
             if self._thread.is_alive():
-                logerr("Unable to shut down %s thread" %self._thread.name)
+                logerr(f"Unable to shut down {self._thread.name} thread")
 
             self._thread = None
 
