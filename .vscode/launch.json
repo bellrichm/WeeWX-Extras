@@ -12,6 +12,18 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "buildConfig",
+            "type": "python",
+            "request": "launch",
+            "program": "utils/buildConfig.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--template", "/home/fork.weewx/fork.template.conf",
+                "--secrets", "/home/fork.weewx/fork.secrets.conf",
+                "test.conf"
+            ],                                    
+        },                
+        {
             "name": "Pushover",
             "type": "python",
             "request": "launch",
