@@ -20,6 +20,7 @@
             "args": [
                 "--template", "/home/fork.weewx/fork.template.conf",
                 "--secrets", "/home/fork.weewx/fork.secrets.conf",
+                "--no-backup",
                 "test.conf"
             ],                                    
         },                

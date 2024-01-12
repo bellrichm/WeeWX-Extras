@@ -42,6 +42,8 @@ if __name__ == '__main__': # pragma: no cover
                             help="The template file.")
         parser.add_argument("--add", dest="customization_file",
                             help="Additional customizations.")
+        parser.add_argument("--no-backup", action="store_true", default=False,
+                            help="When updating the WeeWX configuration (--conf), do not back it up.")
         parser.add_argument("config_file")
 
         options = parser.parse_args()
@@ -55,11 +57,12 @@ if __name__ == '__main__': # pragma: no cover
         secrets_config = configobj.ConfigObj(options.secrets_config_file, encoding='utf-8', interpolation=False, file_error=True)
         merge_config(template_config, secrets_config)
 
-        if os.path.exists(options.config_file + ".bkup"):
-            shutil.move(options.config_file + ".bkup", options.config_file + time.strftime(".bkup%Y%m%d%H%M%S"))
+        if not options.no_backup:
+            if os.path.exists(options.config_file + ".bkup"):
+                shutil.move(options.config_file + ".bkup", options.config_file + time.strftime(".bkup%Y%m%d%H%M%S"))
 
-        if os.path.exists(options.config_file):
-            shutil.move(options.config_file, options.config_file + ".bkup")
+            if os.path.exists(options.config_file):
+                shutil.move(options.config_file, options.config_file + ".bkup")
 
         template_config.filename = options.config_file
         template_config.write()
