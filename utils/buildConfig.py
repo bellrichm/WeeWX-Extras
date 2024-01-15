@@ -1,4 +1,9 @@
 #!/usr/bin/python
+#
+#    Copyright (c) 2023 Rich Bell <bellrichm@gmail.com>
+#
+#    See the file LICENSE.txt for your full rights.
+#
 """Merge config files"""
 
 import argparse
@@ -22,11 +27,27 @@ def patch_config(self_config, indict):
                 and key in indict and isinstance(indict[key], configobj.Section):
             self_config[key].parent = self_config
             self_config[key].main = self_config.main
-            self_config.comments[key] = indict.comments[key]
-            self_config.inline_comments[key] = indict.inline_comments[key]
+            if not self_config.comments[key]:
+                self_config.comments[key] = indict.comments[key]
+            if not self_config.inline_comments[key]:
+                self_config.inline_comments[key] = indict.inline_comments[key]
             patch_config(self_config[key], indict[key])
-        elif key in indict.comments and indict.comments[key]:
+        elif not self_config.comments[key] and key in indict.comments and indict.comments[key]:
             self_config.comments[key] = indict.comments[key]
+
+def conditional_merge(a_dict, b_dict):
+    """Merge fields from b_dict into a_dict, but only if they do not yet
+    exist in a_dict"""
+    # Go through each key in b_dict
+    for k in b_dict:
+        if isinstance(b_dict[k], dict):
+            if k not in a_dict:
+                # It's a new section. Initialize it...
+                a_dict[k] = {}
+            conditional_merge(a_dict[k], b_dict[k])
+        elif k not in a_dict:
+            # It's a scalar. Transfer over the value...
+            a_dict[k] = b_dict[k]
 
 if __name__ == '__main__': # pragma: no cover
     USAGE = ""
@@ -52,10 +73,15 @@ if __name__ == '__main__': # pragma: no cover
 
         if options.customization_file:
             customization_config = configobj.ConfigObj(options.customization_file, encoding='utf-8', interpolation=False, file_error=True)
-            merge_config(template_config, customization_config)
+            # Merging into the customization config provides more control over the order of keys
+            # By default any keys only in template_config will be at the end.
+            # If the need to be earlier, placeholders can be added to template_config
+            conditional_merge(customization_config, template_config)
+            customization_config.initial_comment = template_config.initial_comment
+            patch_config(customization_config, template_config)
 
         secrets_config = configobj.ConfigObj(options.secrets_config_file, encoding='utf-8', interpolation=False, file_error=True)
-        merge_config(template_config, secrets_config)
+        merge_config(customization_config, secrets_config)
 
         if not options.no_backup:
             if os.path.exists(options.config_file + ".bkup"):
@@ -64,8 +90,8 @@ if __name__ == '__main__': # pragma: no cover
             if os.path.exists(options.config_file):
                 shutil.move(options.config_file, options.config_file + ".bkup")
 
-        template_config.filename = options.config_file
-        template_config.write()
+        customization_config.filename = options.config_file
+        customization_config.write()
 
         print("done")
 
