@@ -7,8 +7,10 @@
 """Merge config files"""
 
 import argparse
+import datetime
 import os
 import shutil
+import sys
 import time
 
 import configobj
@@ -82,6 +84,12 @@ if __name__ == '__main__': # pragma: no cover
 
         secrets_config = configobj.ConfigObj(options.secrets_config_file, encoding='utf-8', interpolation=False, file_error=True)
         merge_config(customization_config, secrets_config)
+
+        first_key = list(customization_config)[1]
+        customization_config.comments[first_key].insert(0, f"Built with {str(sys.argv)}")
+        customization_config.comments[first_key].insert(0, f"Built on {datetime.date.today()} at {datetime.datetime.now().strftime('%H:%M:%S')}.")
+        customization_config.comments[first_key].insert(0, '')
+
 
         if not options.no_backup:
             if os.path.exists(options.config_file + ".bkup"):
