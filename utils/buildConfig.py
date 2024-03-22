@@ -86,7 +86,7 @@ if __name__ == '__main__': # pragma: no cover
         merge_config(customization_config, secrets_config)
 
         first_key = list(customization_config)[1]
-        customization_config.comments[first_key].insert(0, f"Built with {str(sys.argv)}")
+        customization_config.comments[first_key].insert(0, f"Built with {' '.join(sys.argv)}")
         customization_config.comments[first_key].insert(0, f"Built on {datetime.date.today()} at {datetime.datetime.now().strftime('%H:%M:%S')}.")
         customization_config.comments[first_key].insert(0, '')
 
