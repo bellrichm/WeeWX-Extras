@@ -1,7 +1,7 @@
 #
 import subprocess
 repos_dir = '/home/pi/weewx_code/'
-repos = ['weewx-gw1000',  'weewx-aqi-xtype', 'WeeWX-Extras', 'weewx-healthchecks', 'weewx-jas', 'weewx-mqttpublish' 'WeeWX-MQTTSubscribe', 'weewx-pushover', 'vds-weewx-v3-mem-extension', 'weewx-cmon', 'configs', 'secrets']
+repos = ['weewx-gw1000',  'weewx-aqi-xtype', 'WeeWX-Extras', 'weewx-healthchecks', 'weewx-jas', 'weewx-mqttpublish', 'WeeWX-MQTTSubscribe', 'weewx-pushover', 'vds-weewx-v3-mem-extension', 'weewx-cmon', 'configs', 'secrets']
 
 command = ['git', 'fetch', '--quiet']
 process = subprocess.Popen(command, stdout=subprocess.PIPE, cwd='/home/pi/weewx')
