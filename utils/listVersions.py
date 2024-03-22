@@ -17,7 +17,7 @@ for repo in repos:
     except FileNotFoundError:
         print(f'{repo} does not exist')
 
-command = ['git', 'status', '--short', '--branch', '-uno']
+command = ['git', 'status', '--branch', '-uno', '--null']
 process = subprocess.Popen(command, stdout=subprocess.PIPE, cwd='/home/pi/weewx')
 output, unused_err = process.communicate()
 print(f'\nweewx: {output.decode("utf-8")}')
