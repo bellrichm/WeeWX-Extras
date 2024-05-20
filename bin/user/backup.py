@@ -115,7 +115,7 @@ class Backup(StdService):
 
         self.force_backup = to_bool(service_dict.get('force_backup', False))
 
-        self.weewx_root = self.config_dict.get('WEEWX_ROOT', '/home/pi/weewx-data')
+        self.weewx_root = self.config_dict.get('WEEWX_ROOT', '/home/richbell/weewx-data')
 
         if not os.path.exists(self.working_dir):
             os.makedirs(self.working_dir)
