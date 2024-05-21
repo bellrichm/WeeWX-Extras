@@ -1,12 +1,17 @@
 #
 import subprocess
-repos_dir = '/home/pi/weewx_code/'
+repos_dir = '/home/richbell/weewx_code/'
+weewx_dir = '/home/richbell/weewx'
 repos = ['weewx-gw1000',  'weewx-aqi-xtype', 'WeeWX-Extras', 'weewx-healthchecks', 'weewx-jas', 'weewx-mqttpublish', 'WeeWX-MQTTSubscribe', 'weewx-pushover', 'vds-weewx-v3-mem-extension', 'weewx-cmon', 'configs', 'secrets']
 
 command = ['git', 'fetch', '--quiet']
-process = subprocess.Popen(command, stdout=subprocess.PIPE, cwd='/home/pi/weewx')
-output, unused_err = process.communicate()
-print(f'\nweewx: {output.decode("utf-8")}')
+print(f'\nRunning command: {" ".join(command)}')
+try:
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, cwd=weewx_dir)
+    output, unused_err = process.communicate()
+    print(f'weewx: {output.decode("utf-8")}')
+except FileNotFoundError:
+    print(f'{weewx_dir} does not exist')
 
 for repo in repos:
     try:
@@ -18,9 +23,13 @@ for repo in repos:
         print(f'{repo} does not exist')
 
 command = ['git', 'status', '--branch', '-uno', '--null']
-process = subprocess.Popen(command, stdout=subprocess.PIPE, cwd='/home/pi/weewx')
-output, unused_err = process.communicate()
-print(f'\nweewx: {output.decode("utf-8")}')
+print(f'\nRunning command: {" ".join(command)}')
+try:
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, cwd=weewx_dir)
+    output, unused_err = process.communicate()
+    print(f'weewx: {output.decode("utf-8")}')
+except FileNotFoundError:
+    print(f'{weewx_dir} does not exist')
 
 for repo in repos:
     try:
@@ -32,9 +41,13 @@ for repo in repos:
         print(f'{repo} does not exist')
 
 command = ['git', 'log', '--format=format:"%ci %h %d %s"', '-n 1']
-process = subprocess.Popen(command, stdout=subprocess.PIPE, cwd='/home/pi/weewx')
-output, unused_err = process.communicate()
-print(f'\nweewx: {output.decode("utf-8")}')
+print(f'\nRunning command: {" ".join(command)}')
+try:
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, cwd=weewx_dir)
+    output, unused_err = process.communicate()
+    print(f'weewx: {output.decode("utf-8")}')
+except FileNotFoundError:
+    print(f'{weewx_dir} does not exist')
 
 for repo in repos:
     try:
