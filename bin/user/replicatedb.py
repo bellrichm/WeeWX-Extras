@@ -115,7 +115,10 @@ class ReplicateDB(StdArchive):
 
         for database in self.databases:
             if database['event_catchup']:
-                database['secondary_dbm'].addRecord(event.record)
+                database['secondary_dbm'].addRecord(event.record,
+                                accumulator=self.old_accumulator,
+                                log_success=self.log_success,
+                                log_failure=self.log_failure)
             else:
                 self._replicate(database['primary_binding'], database['secondary_dbm'])
 
