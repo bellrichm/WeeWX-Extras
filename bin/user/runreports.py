@@ -91,6 +91,7 @@ if __name__ == "__main__":
 
             try:
                 # Although the report engine inherits from Thread, we can just run it in the main thread:
+                log.info(f"**** Running run: {run+1} of {runs} ****")
                 t.run(reports)
                 print(f"{run+1} {get_data()}")
             except KeyError as e:
