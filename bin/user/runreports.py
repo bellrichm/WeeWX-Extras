@@ -84,16 +84,18 @@ if __name__ == "__main__":
             ts = db_manager.lastGoodStamp()
             record = db_manager.getRecord(ts)
 
+        first_run = True
         print (get_data())
         for run  in range(runs):
             # Instantiate the report engine with the retrieved record and required timestamp
-            t = weewx.reportengine.StdReportEngine(config_dict, stn_info, record=record, gen_ts=ts)
+            t = weewx.reportengine.StdReportEngine(config_dict, stn_info, record=record, gen_ts=ts, first_run=first_run)
 
             try:
                 # Although the report engine inherits from Thread, we can just run it in the main thread:
-                log.info(f"**** Running run: {run+1} of {runs} ****")
+                log.info("**** Running run: %i of %i ****", run+1, runs)
                 t.run(reports)
                 print(f"{run+1} {get_data()}")
+                first_run = False
             except KeyError as e:
                 print(f"Unknown report: {e}", file=sys.stderr)
 
