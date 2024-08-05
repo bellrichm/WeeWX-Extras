@@ -18,6 +18,11 @@ import weeutil
 import weeutil.logger
 import weeutil.startup
 
+
+reports = ['jas']
+RUNS = 100
+CONFIG = '/home/richbell/weewx-data/run/weewx.conf'
+
 PID = os.getpid()
 PAGE_SIZE = resource.getpagesize()
 
@@ -43,10 +48,7 @@ if __name__ == "__main__":
     def main():
         ''' The program. '''
         print("In main")
-        reports = ['jas']
-        runs = 100
-        config = '/home/richbell/weewx-data/run/weewx.conf'
-        _config_path, config_dict = weecfg.read_config(config)
+        _config_path, config_dict = weecfg.read_config(CONFIG)
 
         try:
             # Customize the logging with user settings.
@@ -86,13 +88,13 @@ if __name__ == "__main__":
 
         first_run = True
         print (get_data())
-        for run  in range(runs):
+        for run  in range(RUNS):
             # Instantiate the report engine with the retrieved record and required timestamp
             t = weewx.reportengine.StdReportEngine(config_dict, stn_info, record=record, gen_ts=ts, first_run=first_run)
 
             try:
                 # Although the report engine inherits from Thread, we can just run it in the main thread:
-                log.info("**** Running run: %i of %i ****", run+1, runs)
+                log.info("**** Running run: %i of %i ****", run+1, RUNS)
                 t.run(reports)
                 print(f"{run+1} {get_data()}")
                 first_run = False
