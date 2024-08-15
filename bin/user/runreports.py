@@ -4,6 +4,7 @@ Run WeeWX reports. Useful for looking for memory 'leaks'
 # PYTHONPATH=~/weewx/src:~/weewx-data/bin python3 ~/weewx-data/bin/user/runreports.py
 
 # import user.jas
+import gc
 import logging
 import os
 import resource
@@ -20,7 +21,7 @@ import weeutil.startup
 
 
 reports = ['jas']
-RUNS = 100
+RUNS = 10000
 CONFIG = '/home/richbell/weewx-data/run/weewx.conf'
 
 PID = os.getpid()
@@ -96,7 +97,9 @@ if __name__ == "__main__":
                 # Although the report engine inherits from Thread, we can just run it in the main thread:
                 log.info("**** Running run: %i of %i ****", run+1, RUNS)
                 t.run(reports)
-                print(f"{run+1} {get_data()}")
+                ngc = gc.collect()
+
+                print(f"{run+1} {get_data()} collected {ngc} objects.")
                 first_run = False
             except KeyError as e:
                 print(f"Unknown report: {e}", file=sys.stderr)
