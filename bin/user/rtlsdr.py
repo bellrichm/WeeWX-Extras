@@ -22,6 +22,12 @@ table = [('dateTime',               'INTEGER NOT NULL UNIQUE PRIMARY KEY'),
          ('unkn1',                  'INTEGER'),
          ('unkn2',                  'INTEGER'),
          ('unkn3',                  'INTEGER'),
+# model = FineOffset-WH31L
+         ('strike_count',           'INTEGER'),
+         ('storm_distance_km',      'INTEGER'),
+         ('state',                  'TEXT'),
+         ('battery_ok',             'INTEGER'),
+         ('flags',                  'INTEGER'),
 
          ('time',                   'TEXT'),
          ]
