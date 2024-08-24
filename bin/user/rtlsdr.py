@@ -7,10 +7,22 @@ table = [('dateTime',               'INTEGER NOT NULL UNIQUE PRIMARY KEY'),
          ('interval',               'INTEGER NOT NULL'),
          ('model',                  'TEXT'),
          ('id',                     'INTEGER'),
+# model = ERT-SCM
          ('ert_type',               'INTEGER'),
          ('consumption_data',       'FLOAT'),
          ('encoder_tamper',         'INTEGER'),
          ('physical_tamper',        'INTEGER'),
+# model = Neptune-R900
+         ('consumption',            'INTEGER'),
+         ('backflow',               'INTEGER'),
+         ('leak',                   'INTEGER'),
+         ('leaknow',                'INTEGER'),
+         ('extra',                  'TEXT'),
+         ('nouse',                  'INTEGER'),
+         ('unkn1',                  'INTEGER'),
+         ('unkn2',                  'INTEGER'),
+         ('unkn3',                  'INTEGER'),
+
          ('time',                   'TEXT'),
          ]
 
