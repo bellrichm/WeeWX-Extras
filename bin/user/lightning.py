@@ -1,5 +1,9 @@
+import logging
+
 import weewx
 import weewx.engine
+
+log = logging.getLogger(__name__)
 
 class Lightning(weewx.engine.StdService):
     def __init__(self, engine, config_dict):
@@ -38,17 +42,25 @@ class Lightning(weewx.engine.StdService):
         self.min_strike_time = None
 
     def new_loop_packet(self, event):
-        print(event.packent)
-
         if self.strike_count_field_name not in event.packet or self.strike_distance_field_name not in event.packet:
             return
         
+        log.info(event.packet)
+        log.info(self.strike_count_total)
+        log.info(self.last_strike_distance)
+        log.info(self.last_strike_time)
+        log.info(self.first_strike_distance)
+        log.info(self.first_strike_time)
+        log.info(self.min_strike_distance)
+        log.info(self.min_strike_time)
+       
         date_time = event.packet['dateTime']
         strike_distance = event.packet[self.strike_distance_field_name]
         strike_count_total = event.packet[self.strike_count_field_name]
         strike_count = None
 
         if self.contains_total:
+            log.info(f"Calculating delta {self.strike_count_total} {strike_count_total}")
             if self.strike_count_total is not None and strike_count_total is not None:
                 if strike_count_total - self.strike_count_total > 0:
                     strike_count = strike_count_total - self.strike_count_total
@@ -59,14 +71,17 @@ class Lightning(weewx.engine.StdService):
             strike_count = strike_count_total
 
         if strike_count:
+            log.info(f"Setting last strike distance {strike_distance} and time {date_time}")
             self.last_stike_distance = strike_distance
             self.last_strike_time = date_time
 
             if self.first_strike_distance is None:
+                log.info(f"Setting first strike distance {strike_distance} and time {date_time}")
                 self.first_strike_distance = strike_distance
                 self.first_strike_time = date_time
 
             if self.min_strike_distance <= strike_distance:
+                log.info(f"Setting min strike distance {strike_distance} and time {date_time}")
                 self.min_strike_distance = strike_distance
                 self.min_strike_time = date_time
 
@@ -79,3 +94,4 @@ class Lightning(weewx.engine.StdService):
         event.packet[self.min_distance_field_name] = self.min_strike_distance
         event.packet[self.min_det_time_field] = self.min_strike_time
                
+        log.info(event.packet)
