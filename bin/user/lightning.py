@@ -33,7 +33,6 @@ class Lightning(weewx.engine.StdService):
         self.bind(weewx.NEW_LOOP_PACKET, self.new_loop_packet)
 
     def pre_loop(self, _event):
-        print("pre loop")
         self.last_strike_distance = None
         self.last_strike_time = None
         self.first_strike_distance = None
