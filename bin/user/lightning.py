@@ -3,6 +3,11 @@
 #
 #    See the file LICENSE.txt for your full rights.
 #
+
+'''
+WeeWX service to augment lightning data.
+'''
+
 import logging
 
 import weewx
@@ -83,22 +88,24 @@ class Lightning(weewx.engine.StdService):
         else:
             strike_count = strike_count_total
 
+        log.info("Setting last strike distance %s and time %s", strike_distance, date_time)
+        self.last_strike_distance = strike_distance
+        self.last_strike_time = date_time
+
+        if self.first_strike_distance is None:
+            log.info("Setting first strike distance %s and time %s", strike_distance, date_time)
+            self.first_strike_distance = strike_distance
+            self.first_strike_time = date_time
+
+        if self.min_strike_distance is None or self.min_strike_distance <= strike_distance:
+            log.info("Setting min strike distance %s and time %s", strike_distance, date_time)
+            self.min_strike_distance = strike_distance
+            self.min_strike_time = date_time
+
         if strike_count:
-            log.info("Setting last strike distance %s and time %s", strike_distance, date_time)
-            self.last_strike_distance = strike_distance
-            self.last_strike_time = date_time
-
-            if self.first_strike_distance is None:
-                log.info("Setting first strike distance %s and time %s", strike_distance, date_time)
-                self.first_strike_distance = strike_distance
-                self.first_strike_time = date_time
-
-            if self.min_strike_distance <= strike_distance:
-                log.info("Setting min strike distance %s and time %s", strike_distance, date_time)
-                self.min_strike_distance = strike_distance
-                self.min_strike_time = date_time
-
-        event.packet[self.strike_count_field_name] = strike_distance
+            event.packet[self.strike_count_field_name] = strike_distance
+        else:
+            event.packet[self.strike_count_field_name] = None
         event.packet[self.strike_distance_field_name] = strike_count
         event.packet[self.last_distance_field_name] = self.last_strike_distance
         event.packet[self.last_det_time_field_name] = self.last_strike_time
