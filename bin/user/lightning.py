@@ -103,10 +103,11 @@ class Lightning(weewx.engine.StdService):
             self.min_strike_time = date_time
 
         if strike_count:
-            event.packet[self.strike_count_field_name] = strike_distance
+            event.packet[self.lightning_count_field_name] = strike_count
+            event.packet[self.lightning_distance_field_name] = strike_distance
         else:
-            event.packet[self.strike_count_field_name] = None
-        event.packet[self.strike_distance_field_name] = strike_count
+            event.packet[self.lightning_count_field_name] = None
+            event.packet[self.lightning_distance_field_name] = None
         event.packet[self.last_distance_field_name] = self.last_strike_distance
         event.packet[self.last_det_time_field_name] = self.last_strike_time
         event.packet[self.first_distance_field_name] = self.first_strike_distance
