@@ -35,6 +35,14 @@ class TestFirstLoopPacket(unittest.TestCase):
         SUT.new_loop_packet(event)
 
         self.assertEqual(SUT.strike_count_total, strike_count)
+        self.assertIsNone(event.packet[SUT.strike_count_field_name])
+        self.assertIsNone(event.packet[SUT.strike_distance_field_name])
+        self.assertEqual(event.packet[SUT.last_distance_field_name], strike_distance)
+        self.assertEqual(event.packet[SUT.last_det_time_field_name], now)
+        self.assertEqual(event.packet[SUT.first_distance_field_name], strike_distance)
+        self.assertEqual(event.packet[SUT.first_det_time_field_name], now)
+        self.assertEqual(event.packet[SUT.min_distance_field_name], strike_distance)
+        self.assertEqual(event.packet[SUT.min_det_time_field_name], now)
 
         print("done")
 
