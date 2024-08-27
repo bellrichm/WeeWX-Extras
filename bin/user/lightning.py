@@ -97,7 +97,7 @@ class Lightning(weewx.engine.StdService):
             self.first_strike_distance = strike_distance
             self.first_strike_time = date_time
 
-        if self.min_strike_distance is None or self.min_strike_distance <= strike_distance:
+        if self.min_strike_distance is None or strike_distance <= self.min_strike_distance:
             log.info("Setting min strike distance %s and time %s", strike_distance, date_time)
             self.min_strike_distance = strike_distance
             self.min_strike_time = date_time
