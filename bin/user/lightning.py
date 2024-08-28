@@ -92,7 +92,7 @@ class Lightning(weewx.engine.StdService):
                 if strike_count_total - self.strike_count_total > 0:
                     strike_count = strike_count_total - self.strike_count_total
                 else:
-                    strike_count = self.strike_count_total
+                    strike_count = strike_count_total
             self.strike_count_total = strike_count_total
         else:
             strike_count = strike_count_total
