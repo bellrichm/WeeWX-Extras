@@ -27,6 +27,8 @@ class Lightning(weewx.engine.StdService):
         self.first_strike_time = None
         self.min_strike_distance = None
         self.min_strike_time = None
+        self.max_strike_distance = None
+        self.max_strike_time = None
 
         service_dict = config_dict.get('Lightning', {})
         self.contains_total = service_dict.get('contains_total', True)
@@ -46,6 +48,9 @@ class Lightning(weewx.engine.StdService):
         self.min_distance_field_name = service_dict.get('min_distance_field_name', 'lightning_min_distance')
         self.min_det_time_field_name = service_dict.get('min_det_time_field_name', 'lightning_min_det_time')
 
+        self.max_distance_field_name = service_dict.get('max_distance_field_name', 'lightning_max_distance')
+        self.max_det_time_field_name = service_dict.get('max_det_time_field_name', 'lightning_max_det_time')
+
         self.bind(weewx.PRE_LOOP, self.pre_loop)
         self.bind(weewx.NEW_LOOP_PACKET, self.new_loop_packet)
 
@@ -57,6 +62,8 @@ class Lightning(weewx.engine.StdService):
         self.first_strike_time = None
         self.min_strike_distance = None
         self.min_strike_time = None
+        self.max_strike_distance = None
+        self.max_strike_time = None
 
     def new_loop_packet(self, event):
         ''' Handle the WeeWX POST_LOOP event.'''
@@ -71,6 +78,8 @@ class Lightning(weewx.engine.StdService):
         log.info(self.first_strike_time)
         log.info(self.min_strike_distance)
         log.info(self.min_strike_time)
+        log.info(self.max_strike_distance)
+        log.info(self.max_strike_time)
 
         date_time = event.packet['dateTime']
         strike_distance = event.packet[self.strike_distance_field_name]
@@ -102,17 +111,25 @@ class Lightning(weewx.engine.StdService):
             self.min_strike_distance = strike_distance
             self.min_strike_time = date_time
 
+        if self.max_strike_distance is None or strike_distance >= self.max_strike_distance:
+            log.info("Setting max strike distance %s and time %s", strike_distance, date_time)
+            self.max_strike_distance = strike_distance
+            self.max_strike_time = date_time
+
         if strike_count:
             event.packet[self.lightning_count_field_name] = strike_count
             event.packet[self.lightning_distance_field_name] = strike_distance
         else:
             event.packet[self.lightning_count_field_name] = None
             event.packet[self.lightning_distance_field_name] = None
+
         event.packet[self.last_distance_field_name] = self.last_strike_distance
         event.packet[self.last_det_time_field_name] = self.last_strike_time
         event.packet[self.first_distance_field_name] = self.first_strike_distance
         event.packet[self.first_det_time_field_name] = self.first_strike_time
         event.packet[self.min_distance_field_name] = self.min_strike_distance
         event.packet[self.min_det_time_field_name] = self.min_strike_time
+        event.packet[self.max_distance_field_name] = self.max_strike_distance
+        event.packet[self.max_det_time_field_name] = self.max_strike_time
 
         log.info(event.packet)
