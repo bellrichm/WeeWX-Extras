@@ -20,6 +20,7 @@ class ObservationTime(weewx.engine.StdService):
     def __init__(self, engine, config_dict):
         super(ObservationTime, self).__init__(engine, config_dict)
 
+        # ToDo: perform a deep copy
         self.observations = config_dict.get('ObservationTime', {}).get('observations', {})
 
         self.bind(weewx.PRE_LOOP, self.pre_loop)
