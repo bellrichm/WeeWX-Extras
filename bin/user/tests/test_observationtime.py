@@ -15,34 +15,34 @@ import mock
 import user.observationtime
 import weewx
 
-lightning_distance_name = 'lightning_distance'
-last_distance_field_name = 'lightning_last_distance'
-last_det_time_field_name = 'lightning_last_det_time'
-first_distance_field_name = 'lightning_first_distance'
+observation_name = 'lightning_distance'
+last_value_field_name = 'lightning_last_distance'
+last_time_field_name = 'lightning_last_det_time'
+first_time_field_name = 'lightning_first_distance'
 first_det_time_field_name = 'lightning_first_det_time'
-min_distance_field_name = 'lightning_min_distance'
-min_det_time_field_name = 'lightning_min_det_time'
-max_distance_field_name = 'lightning_max_distance'
-max_det_time_field_name = 'lightning_max_det_time'
+min_value_field_name = 'lightning_min_distance'
+min_time_field_name = 'lightning_min_det_time'
+max_value_field_name = 'lightning_max_distance'
+max_time_field_name = 'lightning_max_det_time'
 
 observations = {}
-observations[lightning_distance_name] = {}
+observations[observation_name] = {}
 
-observations[lightning_distance_name]['last'] = {}
-observations[lightning_distance_name]['last']['observation_name'] = last_distance_field_name
-observations[lightning_distance_name]['last']['observation_time_name'] = last_det_time_field_name
+observations[observation_name]['last'] = {}
+observations[observation_name]['last']['observation_name'] = last_value_field_name
+observations[observation_name]['last']['observation_time_name'] = last_time_field_name
 
-observations[lightning_distance_name]['first'] = {}
-observations[lightning_distance_name]['first']['observation_name'] = first_distance_field_name
-observations[lightning_distance_name]['first']['observation_time_name'] = first_det_time_field_name
+observations[observation_name]['first'] = {}
+observations[observation_name]['first']['observation_name'] = first_time_field_name
+observations[observation_name]['first']['observation_time_name'] = first_det_time_field_name
 
-observations[lightning_distance_name]['min'] = {}
-observations[lightning_distance_name]['min']['observation_name'] = min_distance_field_name
-observations[lightning_distance_name]['min']['observation_time_name'] = min_det_time_field_name
+observations[observation_name]['min'] = {}
+observations[observation_name]['min']['observation_name'] = min_value_field_name
+observations[observation_name]['min']['observation_time_name'] = min_time_field_name
 
-observations[lightning_distance_name]['max'] = {}
-observations[lightning_distance_name]['max']['observation_name'] = max_distance_field_name
-observations[lightning_distance_name]['max']['observation_time_name'] = max_det_time_field_name
+observations[observation_name]['max'] = {}
+observations[observation_name]['max']['observation_name'] = max_value_field_name
+observations[observation_name]['max']['observation_time_name'] = max_time_field_name
 
 class TestFirstLoopPacket(unittest.TestCase):
     def test_first_lightning_packet(self):
@@ -57,17 +57,17 @@ class TestFirstLoopPacket(unittest.TestCase):
         strike_distance = random.randint(1, 50)
 
         SUT = user.observationtime.ObservationTime(mock_engine, config_dict)
-        SUT.observations[lightning_distance_name]['last']['observation'] = None
-        SUT.observations[lightning_distance_name]['last']['observation_time'] = None
+        SUT.observations[observation_name]['last']['observation'] = None
+        SUT.observations[observation_name]['last']['observation_time'] = None
 
-        SUT.observations[lightning_distance_name]['first']['observation'] = None
-        SUT.observations[lightning_distance_name]['first']['observation_time'] = None
+        SUT.observations[observation_name]['first']['observation'] = None
+        SUT.observations[observation_name]['first']['observation_time'] = None
 
-        SUT.observations[lightning_distance_name]['min']['observation'] = None
-        SUT.observations[lightning_distance_name]['min']['observation_time'] = None
+        SUT.observations[observation_name]['min']['observation'] = None
+        SUT.observations[observation_name]['min']['observation_time'] = None
 
-        SUT.observations[lightning_distance_name]['max']['observation'] = None
-        SUT.observations[lightning_distance_name]['max']['observation_time'] = None
+        SUT.observations[observation_name]['max']['observation'] = None
+        SUT.observations[observation_name]['max']['observation_time'] = None
 
         event = weewx.NEW_LOOP_PACKET()
         event.packet = {
@@ -76,14 +76,14 @@ class TestFirstLoopPacket(unittest.TestCase):
         }
         SUT.new_loop_packet(event)
 
-        self.assertEqual(event.packet[last_distance_field_name], strike_distance)
-        self.assertEqual(event.packet[last_det_time_field_name], now)
-        self.assertEqual(event.packet[first_distance_field_name], strike_distance)
+        self.assertEqual(event.packet[last_value_field_name], strike_distance)
+        self.assertEqual(event.packet[last_time_field_name], now)
+        self.assertEqual(event.packet[first_time_field_name], strike_distance)
         self.assertEqual(event.packet[first_det_time_field_name], now)
-        self.assertEqual(event.packet[min_distance_field_name], strike_distance)
-        self.assertEqual(event.packet[min_det_time_field_name], now)
-        self.assertEqual(event.packet[max_distance_field_name], strike_distance)
-        self.assertEqual(event.packet[max_det_time_field_name], now)
+        self.assertEqual(event.packet[min_value_field_name], strike_distance)
+        self.assertEqual(event.packet[min_time_field_name], now)
+        self.assertEqual(event.packet[max_value_field_name], strike_distance)
+        self.assertEqual(event.packet[max_time_field_name], now)
 
     def test_new_min_value(self):
         mock_engine = mock.Mock()
@@ -100,17 +100,17 @@ class TestFirstLoopPacket(unittest.TestCase):
         prior_lightning_time = now - 60 * 60
 
         SUT = user.observationtime.ObservationTime(mock_engine, config_dict)
-        SUT.observations[lightning_distance_name]['last']['observation'] = prior_lightning_distance
-        SUT.observations[lightning_distance_name]['last']['observation_time'] = prior_lightning_time
+        SUT.observations[observation_name]['last']['observation'] = prior_lightning_distance
+        SUT.observations[observation_name]['last']['observation_time'] = prior_lightning_time
 
-        SUT.observations[lightning_distance_name]['first']['observation'] = prior_lightning_distance
-        SUT.observations[lightning_distance_name]['first']['observation_time'] = prior_lightning_time
+        SUT.observations[observation_name]['first']['observation'] = prior_lightning_distance
+        SUT.observations[observation_name]['first']['observation_time'] = prior_lightning_time
 
-        SUT.observations[lightning_distance_name]['min']['observation'] = prior_lightning_distance
-        SUT.observations[lightning_distance_name]['min']['observation_time'] = prior_lightning_time
+        SUT.observations[observation_name]['min']['observation'] = prior_lightning_distance
+        SUT.observations[observation_name]['min']['observation_time'] = prior_lightning_time
 
-        SUT.observations[lightning_distance_name]['max']['observation'] = prior_lightning_distance
-        SUT.observations[lightning_distance_name]['max']['observation_time'] = prior_lightning_time
+        SUT.observations[observation_name]['max']['observation'] = prior_lightning_distance
+        SUT.observations[observation_name]['max']['observation_time'] = prior_lightning_time
 
         event = weewx.NEW_LOOP_PACKET()
         event.packet = {
@@ -119,14 +119,14 @@ class TestFirstLoopPacket(unittest.TestCase):
         }
         SUT.new_loop_packet(event)
 
-        self.assertEqual(event.packet[last_distance_field_name], strike_distance)
-        self.assertEqual(event.packet[last_det_time_field_name], now)
-        self.assertEqual(event.packet[first_distance_field_name], prior_lightning_distance)
+        self.assertEqual(event.packet[last_value_field_name], strike_distance)
+        self.assertEqual(event.packet[last_time_field_name], now)
+        self.assertEqual(event.packet[first_time_field_name], prior_lightning_distance)
         self.assertEqual(event.packet[first_det_time_field_name], prior_lightning_time)
-        self.assertEqual(event.packet[min_distance_field_name], strike_distance)
-        self.assertEqual(event.packet[min_det_time_field_name], now)
-        self.assertEqual(event.packet[max_distance_field_name], prior_lightning_distance)
-        self.assertEqual(event.packet[max_det_time_field_name], prior_lightning_time)
+        self.assertEqual(event.packet[min_value_field_name], strike_distance)
+        self.assertEqual(event.packet[min_time_field_name], now)
+        self.assertEqual(event.packet[max_value_field_name], prior_lightning_distance)
+        self.assertEqual(event.packet[max_time_field_name], prior_lightning_time)
 
     def test_new_max_value(self):
         mock_engine = mock.Mock()
@@ -143,17 +143,17 @@ class TestFirstLoopPacket(unittest.TestCase):
         prior_lightning_time = now - 60 * 60
 
         SUT = user.observationtime.ObservationTime(mock_engine, config_dict)
-        SUT.observations[lightning_distance_name]['last']['observation'] = prior_lightning_distance
-        SUT.observations[lightning_distance_name]['last']['observation_time'] = prior_lightning_time
+        SUT.observations[observation_name]['last']['observation'] = prior_lightning_distance
+        SUT.observations[observation_name]['last']['observation_time'] = prior_lightning_time
 
-        SUT.observations[lightning_distance_name]['first']['observation'] = prior_lightning_distance
-        SUT.observations[lightning_distance_name]['first']['observation_time'] = prior_lightning_time
+        SUT.observations[observation_name]['first']['observation'] = prior_lightning_distance
+        SUT.observations[observation_name]['first']['observation_time'] = prior_lightning_time
 
-        SUT.observations[lightning_distance_name]['min']['observation'] = prior_lightning_distance
-        SUT.observations[lightning_distance_name]['min']['observation_time'] = prior_lightning_time
+        SUT.observations[observation_name]['min']['observation'] = prior_lightning_distance
+        SUT.observations[observation_name]['min']['observation_time'] = prior_lightning_time
 
-        SUT.observations[lightning_distance_name]['max']['observation'] = prior_lightning_distance
-        SUT.observations[lightning_distance_name]['max']['observation_time'] = prior_lightning_time
+        SUT.observations[observation_name]['max']['observation'] = prior_lightning_distance
+        SUT.observations[observation_name]['max']['observation_time'] = prior_lightning_time
 
         SUT.last_lightning_distance = prior_lightning_distance
         SUT.last_lightning_time = prior_lightning_time
@@ -171,14 +171,14 @@ class TestFirstLoopPacket(unittest.TestCase):
         }
         SUT.new_loop_packet(event)
 
-        self.assertEqual(event.packet[last_distance_field_name], strike_distance)
-        self.assertEqual(event.packet[last_det_time_field_name], now)
-        self.assertEqual(event.packet[first_distance_field_name], prior_lightning_distance)
+        self.assertEqual(event.packet[last_value_field_name], strike_distance)
+        self.assertEqual(event.packet[last_time_field_name], now)
+        self.assertEqual(event.packet[first_time_field_name], prior_lightning_distance)
         self.assertEqual(event.packet[first_det_time_field_name], prior_lightning_time)
-        self.assertEqual(event.packet[min_distance_field_name], prior_lightning_distance)
-        self.assertEqual(event.packet[min_det_time_field_name], prior_lightning_time)
-        self.assertEqual(event.packet[max_distance_field_name], strike_distance)
-        self.assertEqual(event.packet[max_det_time_field_name], now)
+        self.assertEqual(event.packet[min_value_field_name], prior_lightning_distance)
+        self.assertEqual(event.packet[min_time_field_name], prior_lightning_time)
+        self.assertEqual(event.packet[max_value_field_name], strike_distance)
+        self.assertEqual(event.packet[max_time_field_name], now)
 
 if __name__ == '__main__':
     unittest.main(exit=False)
