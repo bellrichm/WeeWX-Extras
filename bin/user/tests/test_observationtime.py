@@ -15,15 +15,15 @@ import mock
 import user.observationtime
 import weewx
 
-observation_name = 'lightning_distance'
-last_value_field_name = 'lightning_last_distance'
-last_time_field_name = 'lightning_last_det_time'
-first_time_field_name = 'lightning_first_distance'
-first_det_time_field_name = 'lightning_first_det_time'
-min_value_field_name = 'lightning_min_distance'
-min_time_field_name = 'lightning_min_det_time'
-max_value_field_name = 'lightning_max_distance'
-max_time_field_name = 'lightning_max_det_time'
+observation_name = 'observation'
+last_value_field_name = 'observation_last_value'
+last_time_field_name = 'observation_last_time'
+first_time_field_name = 'observation_first_value'
+first_det_time_field_name = 'observation_first_time'
+min_value_field_name = 'observation_min_value'
+min_time_field_name = 'observation_min_time'
+max_value_field_name = 'observation_max_value'
+max_time_field_name = 'observation_max_time'
 
 observations = {}
 observations[observation_name] = {}
