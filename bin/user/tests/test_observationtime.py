@@ -25,10 +25,40 @@ min_det_time_field_name = 'lightning_min_det_time'
 max_distance_field_name = 'lightning_max_distance'
 max_det_time_field_name = 'lightning_max_det_time'
 
+observations = {}
+observations[lightning_distance_name] = {}
+
+observations[lightning_distance_name]['last'] = {}
+observations[lightning_distance_name]['last']['observation_name'] = last_distance_field_name
+observations[lightning_distance_name]['last']['observation_time_name'] = last_det_time_field_name
+observations[lightning_distance_name]['last']['observation'] = None
+observations[lightning_distance_name]['last']['observation_time'] = None
+
+observations[lightning_distance_name]['first'] = {}
+observations[lightning_distance_name]['first']['observation_name'] = first_distance_field_name
+observations[lightning_distance_name]['first']['observation_time_name'] = first_det_time_field_name
+observations[lightning_distance_name]['first']['observation'] = None
+observations[lightning_distance_name]['first']['observation_time'] = None
+
+observations[lightning_distance_name]['min'] = {}
+observations[lightning_distance_name]['min']['observation_name'] = min_distance_field_name
+observations[lightning_distance_name]['min']['observation_time_name'] = min_det_time_field_name
+observations[lightning_distance_name]['min']['observation'] = None
+observations[lightning_distance_name]['min']['observation_time'] = None
+
+observations[lightning_distance_name]['max'] = {}
+observations[lightning_distance_name]['max']['observation_name'] = max_distance_field_name
+observations[lightning_distance_name]['max']['observation_time_name'] = max_det_time_field_name
+observations[lightning_distance_name]['max']['observation'] = None
+observations[lightning_distance_name]['max']['observation_time'] = None
+
 class TestFirstLoopPacket(unittest.TestCase):
     def test_first_lightning_packet(self):
         mock_engine = mock.Mock()
-        config_dict = {}
+        config_dict = {
+            'Lightning': {}
+        }
+        config_dict['Lightning']['observations'] = observations
         now = int(time.time())
         strike_distance = random.randint(1, 50)
 
@@ -52,7 +82,10 @@ class TestFirstLoopPacket(unittest.TestCase):
 
     def test_new_min_value(self):
         mock_engine = mock.Mock()
-        config_dict = {}
+        config_dict = {
+            'Lightning': {}
+        }
+        config_dict['Lightning']['observations'] = observations
         now = int(time.time())
         strike_distance = random.randint(1, 50)
 
@@ -90,7 +123,10 @@ class TestFirstLoopPacket(unittest.TestCase):
 
     def test_new_max_value(self):
         mock_engine = mock.Mock()
-        config_dict = {}
+        config_dict = {
+            'Lightning': {}
+        }
+        config_dict['Lightning']['observations'] = observations
         now = int(time.time())
         strike_distance = random.randint(1, 50)
 

@@ -21,32 +21,7 @@ class ObservationTime(weewx.engine.StdService):
         super(ObservationTime, self).__init__(engine, config_dict)
 
         # service_dict = config_dict.get('Lightning', {})
-        self.observations = {}
-        self.observations['lightning_distance'] = {}
-
-        self.observations['lightning_distance']['last'] = {}
-        self.observations['lightning_distance']['last']['observation_name'] = 'lightning_last_distance'
-        self.observations['lightning_distance']['last']['observation_time_name'] = 'lightning_last_det_time'
-        self.observations['lightning_distance']['last']['observation'] = None
-        self.observations['lightning_distance']['last']['observation_time'] = None
-
-        self.observations['lightning_distance']['first'] = {}
-        self.observations['lightning_distance']['first']['observation_name'] = 'lightning_first_distance'
-        self.observations['lightning_distance']['first']['observation_time_name'] = 'lightning_first_det_time'
-        self.observations['lightning_distance']['first']['observation'] = None
-        self.observations['lightning_distance']['first']['observation_time'] = None
-
-        self.observations['lightning_distance']['min'] = {}
-        self.observations['lightning_distance']['min']['observation_name'] = 'lightning_min_distance'
-        self.observations['lightning_distance']['min']['observation_time_name'] = 'lightning_min_det_time'
-        self.observations['lightning_distance']['min']['observation'] = None
-        self.observations['lightning_distance']['min']['observation_time'] = None
-
-        self.observations['lightning_distance']['max'] = {}
-        self.observations['lightning_distance']['max']['observation_name'] = 'lightning_max_distance'
-        self.observations['lightning_distance']['max']['observation_time_name'] = 'lightning_max_det_time'
-        self.observations['lightning_distance']['max']['observation'] = None
-        self.observations['lightning_distance']['max']['observation_time'] = None
+        self.observations = config_dict.get('Lightning', {}).get('observations', {})
 
         self.bind(weewx.PRE_LOOP, self.pre_loop)
         self.bind(weewx.NEW_LOOP_PACKET, self.new_loop_packet)
