@@ -5,7 +5,7 @@
 #
 
 '''
-WeeWX service to augment lightning data.
+WeeWX service to capture times and values for the first, last, min, and max of an observation.
 '''
 
 import logging
@@ -16,12 +16,11 @@ import weewx.engine
 log = logging.getLogger(__name__)
 
 class ObservationTime(weewx.engine.StdService):
-    ''' Save additional lightning event data to the WeeWX packet.'''
+    ''' Save the times and values of the first, last, min, and max of an observation.'''
     def __init__(self, engine, config_dict):
         super(ObservationTime, self).__init__(engine, config_dict)
 
-        # service_dict = config_dict.get('Lightning', {})
-        self.observations = config_dict.get('Lightning', {}).get('observations', {})
+        self.observations = config_dict.get('ObservationTime', {}).get('observations', {})
 
         self.bind(weewx.PRE_LOOP, self.pre_loop)
         self.bind(weewx.NEW_LOOP_PACKET, self.new_loop_packet)

@@ -56,9 +56,11 @@ class TestFirstLoopPacket(unittest.TestCase):
     def test_first_lightning_packet(self):
         mock_engine = mock.Mock()
         config_dict = {
-            'Lightning': {}
+            'ObservationTime': {
+                'observations': observations
+            }
         }
-        config_dict['Lightning']['observations'] = observations
+
         now = int(time.time())
         strike_distance = random.randint(1, 50)
 
@@ -83,9 +85,11 @@ class TestFirstLoopPacket(unittest.TestCase):
     def test_new_min_value(self):
         mock_engine = mock.Mock()
         config_dict = {
-            'Lightning': {}
+            'ObservationTime': {
+                'observations': observations
+            }
         }
-        config_dict['Lightning']['observations'] = observations
+
         now = int(time.time())
         strike_distance = random.randint(1, 50)
 
@@ -124,9 +128,11 @@ class TestFirstLoopPacket(unittest.TestCase):
     def test_new_max_value(self):
         mock_engine = mock.Mock()
         config_dict = {
-            'Lightning': {}
+            'ObservationTime': {
+                'observations': observations
+            }
         }
-        config_dict['Lightning']['observations'] = observations
+
         now = int(time.time())
         strike_distance = random.randint(1, 50)
 
