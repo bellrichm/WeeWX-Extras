@@ -53,37 +53,38 @@ class TestFirstLoopPacket(unittest.TestCase):
             }
         }
 
-        now = int(time.time())
-        strike_distance = random.randint(1, 50)
+        current_time = int(time.time())
+        current_value = random.randint(1, 50)
 
+        prior_value = None
+        prior_time = None
+        
         SUT = user.observationtime.ObservationTime(mock_engine, config_dict)
-        SUT.observations[observation_name]['last']['observation'] = None
-        SUT.observations[observation_name]['last']['observation_time'] = None
 
-        SUT.observations[observation_name]['first']['observation'] = None
-        SUT.observations[observation_name]['first']['observation_time'] = None
-
-        SUT.observations[observation_name]['min']['observation'] = None
-        SUT.observations[observation_name]['min']['observation_time'] = None
-
-        SUT.observations[observation_name]['max']['observation'] = None
-        SUT.observations[observation_name]['max']['observation_time'] = None
+        SUT.observations[observation_name]['last']['observation'] = prior_value
+        SUT.observations[observation_name]['last']['observation_time'] = prior_time
+        SUT.observations[observation_name]['first']['observation'] = prior_value
+        SUT.observations[observation_name]['first']['observation_time'] = prior_time
+        SUT.observations[observation_name]['min']['observation'] = prior_value
+        SUT.observations[observation_name]['min']['observation_time'] = prior_time
+        SUT.observations[observation_name]['max']['observation'] = prior_value
+        SUT.observations[observation_name]['max']['observation_time'] = prior_time
 
         event = weewx.NEW_LOOP_PACKET()
         event.packet = {
-            'dateTime': now,
-            observation_name: strike_distance,
+            'dateTime': current_time,
+            observation_name: current_value,
         }
         SUT.new_loop_packet(event)
 
-        self.assertEqual(event.packet[last_value_field_name], strike_distance)
-        self.assertEqual(event.packet[last_time_field_name], now)
-        self.assertEqual(event.packet[first_time_field_name], strike_distance)
-        self.assertEqual(event.packet[first_det_time_field_name], now)
-        self.assertEqual(event.packet[min_value_field_name], strike_distance)
-        self.assertEqual(event.packet[min_time_field_name], now)
-        self.assertEqual(event.packet[max_value_field_name], strike_distance)
-        self.assertEqual(event.packet[max_time_field_name], now)
+        self.assertEqual(event.packet[last_value_field_name], current_value)
+        self.assertEqual(event.packet[last_time_field_name], current_time)
+        self.assertEqual(event.packet[first_time_field_name], current_value)
+        self.assertEqual(event.packet[first_det_time_field_name], current_time)
+        self.assertEqual(event.packet[min_value_field_name], current_value)
+        self.assertEqual(event.packet[min_time_field_name], current_time)
+        self.assertEqual(event.packet[max_value_field_name], current_value)
+        self.assertEqual(event.packet[max_time_field_name], current_time)
 
     def test_new_min_value(self):
         mock_engine = mock.Mock()
@@ -93,38 +94,36 @@ class TestFirstLoopPacket(unittest.TestCase):
             }
         }
 
-        now = int(time.time())
-        strike_distance = random.randint(1, 50)
+        current_time = int(time.time())
+        current_value = random.randint(1, 50)
 
-        prior_value = strike_distance + random.randint(1, 50)
-        prior_time = now - 60 * 60
+        prior_value = current_value + random.randint(1, 50)
+        prior_time = current_time - 60 * 60
 
         SUT = user.observationtime.ObservationTime(mock_engine, config_dict)
+
         SUT.observations[observation_name]['last']['observation'] = prior_value
         SUT.observations[observation_name]['last']['observation_time'] = prior_time
-
         SUT.observations[observation_name]['first']['observation'] = prior_value
         SUT.observations[observation_name]['first']['observation_time'] = prior_time
-
         SUT.observations[observation_name]['min']['observation'] = prior_value
         SUT.observations[observation_name]['min']['observation_time'] = prior_time
-
         SUT.observations[observation_name]['max']['observation'] = prior_value
         SUT.observations[observation_name]['max']['observation_time'] = prior_time
 
         event = weewx.NEW_LOOP_PACKET()
         event.packet = {
-            'dateTime': now,
-            observation_name: strike_distance,
+            'dateTime': current_time,
+            observation_name: current_value,
         }
         SUT.new_loop_packet(event)
 
-        self.assertEqual(event.packet[last_value_field_name], strike_distance)
-        self.assertEqual(event.packet[last_time_field_name], now)
+        self.assertEqual(event.packet[last_value_field_name], current_value)
+        self.assertEqual(event.packet[last_time_field_name], current_time)
         self.assertEqual(event.packet[first_time_field_name], prior_value)
         self.assertEqual(event.packet[first_det_time_field_name], prior_time)
-        self.assertEqual(event.packet[min_value_field_name], strike_distance)
-        self.assertEqual(event.packet[min_time_field_name], now)
+        self.assertEqual(event.packet[min_value_field_name], current_value)
+        self.assertEqual(event.packet[min_time_field_name], current_time)
         self.assertEqual(event.packet[max_value_field_name], prior_value)
         self.assertEqual(event.packet[max_time_field_name], prior_time)
 
@@ -136,40 +135,38 @@ class TestFirstLoopPacket(unittest.TestCase):
             }
         }
 
-        now = int(time.time())
-        strike_distance = random.randint(1, 50)
+        current_time = int(time.time())
+        current_value = random.randint(1, 50)
 
-        prior_value = strike_distance - random.randint(1, 50)
-        prior_time = now - 60 * 60
+        prior_value = current_value - random.randint(1, 50)
+        prior_time = current_time - 60 * 60
 
         SUT = user.observationtime.ObservationTime(mock_engine, config_dict)
+
         SUT.observations[observation_name]['last']['observation'] = prior_value
         SUT.observations[observation_name]['last']['observation_time'] = prior_time
-
         SUT.observations[observation_name]['first']['observation'] = prior_value
         SUT.observations[observation_name]['first']['observation_time'] = prior_time
-
         SUT.observations[observation_name]['min']['observation'] = prior_value
         SUT.observations[observation_name]['min']['observation_time'] = prior_time
-
         SUT.observations[observation_name]['max']['observation'] = prior_value
         SUT.observations[observation_name]['max']['observation_time'] = prior_time
 
         event = weewx.NEW_LOOP_PACKET()
         event.packet = {
-            'dateTime': now,
-            observation_name: strike_distance,
+            'dateTime': current_time,
+            observation_name: current_value,
         }
         SUT.new_loop_packet(event)
 
-        self.assertEqual(event.packet[last_value_field_name], strike_distance)
-        self.assertEqual(event.packet[last_time_field_name], now)
+        self.assertEqual(event.packet[last_value_field_name], current_value)
+        self.assertEqual(event.packet[last_time_field_name], current_time)
         self.assertEqual(event.packet[first_time_field_name], prior_value)
         self.assertEqual(event.packet[first_det_time_field_name], prior_time)
         self.assertEqual(event.packet[min_value_field_name], prior_value)
         self.assertEqual(event.packet[min_time_field_name], prior_time)
-        self.assertEqual(event.packet[max_value_field_name], strike_distance)
-        self.assertEqual(event.packet[max_time_field_name], now)
+        self.assertEqual(event.packet[max_value_field_name], current_value)
+        self.assertEqual(event.packet[max_time_field_name], current_time)
 
 if __name__ == '__main__':
     unittest.main(exit=False)
