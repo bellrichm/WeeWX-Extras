@@ -52,14 +52,20 @@ def config_observation(observation_name, observation_types):
         observations[observation_name][observation_type]['observation_time_name'] = types[observation_type]['observation_time_name']
     return observations[observation_name]
 
+def set_prior_value(observation_configuration, observation_types, prior_value, prior_time):
+    for observation_type in observation_types:
+        observation_configuration[observation_type]['observation'] = prior_value
+        observation_configuration[observation_type]['observation_time'] = prior_time
+
 class TestFirstLoopPacket(unittest.TestCase):
     def test_first_packet(self):
         observation_name = 'observation'
+        observation_types = ['last', 'first', 'min', 'max']
         mock_engine = mock.Mock()
         config_dict = {
             'ObservationTime': {
                 'observations': {
-                    observation_name: config_observation(observation_name, ['last', 'first', 'min', 'max'])
+                    observation_name: config_observation(observation_name, observation_types)
                 }
             }
         }
@@ -71,15 +77,7 @@ class TestFirstLoopPacket(unittest.TestCase):
         prior_time = None
 
         SUT = user.observationtime.ObservationTime(mock_engine, config_dict)
-
-        SUT.observations[observation_name]['last']['observation'] = prior_value
-        SUT.observations[observation_name]['last']['observation_time'] = prior_time
-        SUT.observations[observation_name]['first']['observation'] = prior_value
-        SUT.observations[observation_name]['first']['observation_time'] = prior_time
-        SUT.observations[observation_name]['min']['observation'] = prior_value
-        SUT.observations[observation_name]['min']['observation_time'] = prior_time
-        SUT.observations[observation_name]['max']['observation'] = prior_value
-        SUT.observations[observation_name]['max']['observation_time'] = prior_time
+        set_prior_value(SUT.observations[observation_name], observation_types, prior_value, prior_time)
 
         event = weewx.NEW_LOOP_PACKET()
         event.packet = {
@@ -99,11 +97,12 @@ class TestFirstLoopPacket(unittest.TestCase):
 
     def test_new_min_value(self):
         observation_name = 'observation'
+        observation_types = ['last', 'first', 'min', 'max']
         mock_engine = mock.Mock()
         config_dict = {
             'ObservationTime': {
                 'observations': {
-                    observation_name: config_observation(observation_name, ['last', 'first', 'min', 'max'])
+                    observation_name: config_observation(observation_name, observation_types)
                 }
             }
         }
@@ -115,15 +114,7 @@ class TestFirstLoopPacket(unittest.TestCase):
         prior_time = current_time - 60 * 60
 
         SUT = user.observationtime.ObservationTime(mock_engine, config_dict)
-
-        SUT.observations[observation_name]['last']['observation'] = prior_value
-        SUT.observations[observation_name]['last']['observation_time'] = prior_time
-        SUT.observations[observation_name]['first']['observation'] = prior_value
-        SUT.observations[observation_name]['first']['observation_time'] = prior_time
-        SUT.observations[observation_name]['min']['observation'] = prior_value
-        SUT.observations[observation_name]['min']['observation_time'] = prior_time
-        SUT.observations[observation_name]['max']['observation'] = prior_value
-        SUT.observations[observation_name]['max']['observation_time'] = prior_time
+        set_prior_value(SUT.observations[observation_name], observation_types, prior_value, prior_time)
 
         event = weewx.NEW_LOOP_PACKET()
         event.packet = {
@@ -143,11 +134,12 @@ class TestFirstLoopPacket(unittest.TestCase):
 
     def test_new_max_value(self):
         observation_name = 'observation'
+        observation_types = ['last', 'first', 'min', 'max']
         mock_engine = mock.Mock()
         config_dict = {
             'ObservationTime': {
                 'observations': {
-                    observation_name: config_observation(observation_name, ['last', 'first', 'min', 'max'])
+                    observation_name: config_observation(observation_name, observation_types)
                 }
             }
         }
@@ -159,15 +151,7 @@ class TestFirstLoopPacket(unittest.TestCase):
         prior_time = current_time - 60 * 60
 
         SUT = user.observationtime.ObservationTime(mock_engine, config_dict)
-
-        SUT.observations[observation_name]['last']['observation'] = prior_value
-        SUT.observations[observation_name]['last']['observation_time'] = prior_time
-        SUT.observations[observation_name]['first']['observation'] = prior_value
-        SUT.observations[observation_name]['first']['observation_time'] = prior_time
-        SUT.observations[observation_name]['min']['observation'] = prior_value
-        SUT.observations[observation_name]['min']['observation_time'] = prior_time
-        SUT.observations[observation_name]['max']['observation'] = prior_value
-        SUT.observations[observation_name]['max']['observation_time'] = prior_time
+        set_prior_value(SUT.observations[observation_name], observation_types, prior_value, prior_time)
 
         event = weewx.NEW_LOOP_PACKET()
         event.packet = {
