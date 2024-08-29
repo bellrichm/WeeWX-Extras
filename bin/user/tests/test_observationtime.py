@@ -45,7 +45,7 @@ observations[observation_name]['max']['observation_name'] = max_value_field_name
 observations[observation_name]['max']['observation_time_name'] = max_time_field_name
 
 class TestFirstLoopPacket(unittest.TestCase):
-    def test_first_lightning_packet(self):
+    def test_first_packet(self):
         mock_engine = mock.Mock()
         config_dict = {
             'ObservationTime': {
@@ -72,7 +72,7 @@ class TestFirstLoopPacket(unittest.TestCase):
         event = weewx.NEW_LOOP_PACKET()
         event.packet = {
             'dateTime': now,
-            'lightning_distance': strike_distance,
+            observation_name: strike_distance,
         }
         SUT.new_loop_packet(event)
 
@@ -96,37 +96,37 @@ class TestFirstLoopPacket(unittest.TestCase):
         now = int(time.time())
         strike_distance = random.randint(1, 50)
 
-        prior_lightning_distance = strike_distance + random.randint(1, 50)
-        prior_lightning_time = now - 60 * 60
+        prior_value = strike_distance + random.randint(1, 50)
+        prior_time = now - 60 * 60
 
         SUT = user.observationtime.ObservationTime(mock_engine, config_dict)
-        SUT.observations[observation_name]['last']['observation'] = prior_lightning_distance
-        SUT.observations[observation_name]['last']['observation_time'] = prior_lightning_time
+        SUT.observations[observation_name]['last']['observation'] = prior_value
+        SUT.observations[observation_name]['last']['observation_time'] = prior_time
 
-        SUT.observations[observation_name]['first']['observation'] = prior_lightning_distance
-        SUT.observations[observation_name]['first']['observation_time'] = prior_lightning_time
+        SUT.observations[observation_name]['first']['observation'] = prior_value
+        SUT.observations[observation_name]['first']['observation_time'] = prior_time
 
-        SUT.observations[observation_name]['min']['observation'] = prior_lightning_distance
-        SUT.observations[observation_name]['min']['observation_time'] = prior_lightning_time
+        SUT.observations[observation_name]['min']['observation'] = prior_value
+        SUT.observations[observation_name]['min']['observation_time'] = prior_time
 
-        SUT.observations[observation_name]['max']['observation'] = prior_lightning_distance
-        SUT.observations[observation_name]['max']['observation_time'] = prior_lightning_time
+        SUT.observations[observation_name]['max']['observation'] = prior_value
+        SUT.observations[observation_name]['max']['observation_time'] = prior_time
 
         event = weewx.NEW_LOOP_PACKET()
         event.packet = {
             'dateTime': now,
-            'lightning_distance': strike_distance,
+            observation_name: strike_distance,
         }
         SUT.new_loop_packet(event)
 
         self.assertEqual(event.packet[last_value_field_name], strike_distance)
         self.assertEqual(event.packet[last_time_field_name], now)
-        self.assertEqual(event.packet[first_time_field_name], prior_lightning_distance)
-        self.assertEqual(event.packet[first_det_time_field_name], prior_lightning_time)
+        self.assertEqual(event.packet[first_time_field_name], prior_value)
+        self.assertEqual(event.packet[first_det_time_field_name], prior_time)
         self.assertEqual(event.packet[min_value_field_name], strike_distance)
         self.assertEqual(event.packet[min_time_field_name], now)
-        self.assertEqual(event.packet[max_value_field_name], prior_lightning_distance)
-        self.assertEqual(event.packet[max_time_field_name], prior_lightning_time)
+        self.assertEqual(event.packet[max_value_field_name], prior_value)
+        self.assertEqual(event.packet[max_time_field_name], prior_time)
 
     def test_new_max_value(self):
         mock_engine = mock.Mock()
@@ -139,44 +139,35 @@ class TestFirstLoopPacket(unittest.TestCase):
         now = int(time.time())
         strike_distance = random.randint(1, 50)
 
-        prior_lightning_distance = strike_distance - random.randint(1, 50)
-        prior_lightning_time = now - 60 * 60
+        prior_value = strike_distance - random.randint(1, 50)
+        prior_time = now - 60 * 60
 
         SUT = user.observationtime.ObservationTime(mock_engine, config_dict)
-        SUT.observations[observation_name]['last']['observation'] = prior_lightning_distance
-        SUT.observations[observation_name]['last']['observation_time'] = prior_lightning_time
+        SUT.observations[observation_name]['last']['observation'] = prior_value
+        SUT.observations[observation_name]['last']['observation_time'] = prior_time
 
-        SUT.observations[observation_name]['first']['observation'] = prior_lightning_distance
-        SUT.observations[observation_name]['first']['observation_time'] = prior_lightning_time
+        SUT.observations[observation_name]['first']['observation'] = prior_value
+        SUT.observations[observation_name]['first']['observation_time'] = prior_time
 
-        SUT.observations[observation_name]['min']['observation'] = prior_lightning_distance
-        SUT.observations[observation_name]['min']['observation_time'] = prior_lightning_time
+        SUT.observations[observation_name]['min']['observation'] = prior_value
+        SUT.observations[observation_name]['min']['observation_time'] = prior_time
 
-        SUT.observations[observation_name]['max']['observation'] = prior_lightning_distance
-        SUT.observations[observation_name]['max']['observation_time'] = prior_lightning_time
-
-        SUT.last_lightning_distance = prior_lightning_distance
-        SUT.last_lightning_time = prior_lightning_time
-        SUT.first_lightning_distance = prior_lightning_distance
-        SUT.first_lightning_time = prior_lightning_time
-        SUT.min_lightning_distance = prior_lightning_distance
-        SUT.min_lightning_time = prior_lightning_time
-        SUT.max_lightning_distance = prior_lightning_distance
-        SUT.max_lightning_time = prior_lightning_time
+        SUT.observations[observation_name]['max']['observation'] = prior_value
+        SUT.observations[observation_name]['max']['observation_time'] = prior_time
 
         event = weewx.NEW_LOOP_PACKET()
         event.packet = {
             'dateTime': now,
-            'lightning_distance': strike_distance,
+            observation_name: strike_distance,
         }
         SUT.new_loop_packet(event)
 
         self.assertEqual(event.packet[last_value_field_name], strike_distance)
         self.assertEqual(event.packet[last_time_field_name], now)
-        self.assertEqual(event.packet[first_time_field_name], prior_lightning_distance)
-        self.assertEqual(event.packet[first_det_time_field_name], prior_lightning_time)
-        self.assertEqual(event.packet[min_value_field_name], prior_lightning_distance)
-        self.assertEqual(event.packet[min_time_field_name], prior_lightning_time)
+        self.assertEqual(event.packet[first_time_field_name], prior_value)
+        self.assertEqual(event.packet[first_det_time_field_name], prior_time)
+        self.assertEqual(event.packet[min_value_field_name], prior_value)
+        self.assertEqual(event.packet[min_time_field_name], prior_time)
         self.assertEqual(event.packet[max_value_field_name], strike_distance)
         self.assertEqual(event.packet[max_time_field_name], now)
 
