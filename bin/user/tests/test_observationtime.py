@@ -58,7 +58,7 @@ class TestFirstLoopPacket(unittest.TestCase):
 
         prior_value = None
         prior_time = None
-        
+
         SUT = user.observationtime.ObservationTime(mock_engine, config_dict)
 
         SUT.observations[observation_name]['last']['observation'] = prior_value
