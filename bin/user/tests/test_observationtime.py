@@ -15,41 +15,52 @@ import mock
 import user.observationtime
 import weewx
 
-observation_name = 'observation'
-last_value_field_name = 'observation_last_value'
-last_time_field_name = 'observation_last_time'
-first_time_field_name = 'observation_first_value'
-first_det_time_field_name = 'observation_first_time'
-min_value_field_name = 'observation_min_value'
-min_time_field_name = 'observation_min_time'
-max_value_field_name = 'observation_max_value'
-max_time_field_name = 'observation_max_time'
+types = {
+    'last': {
+        'observation_name': 'observation_last_value',
+        'observation_time_name': 'observation_last_time',
+    },
+    'first': {
+        'observation_name': 'observation_first_value',
+        'observation_time_name': 'observation_first_time',
+    },
+    'min': {
+        'observation_name': 'observation_min_value',
+        'observation_time_name': 'observation_min_time',
+    },
+    'max': {
+        'observation_name': 'observation_max_value',
+        'observation_time_name': 'observation_max_time',
+    },
+}
 
-observations = {}
-observations[observation_name] = {}
+last_value_field_name = types['last']['observation_name']
+last_time_field_name = types['last']['observation_time_name']
+first_value_field_name = types['first']['observation_name']
+first_time_field_name = types['first']['observation_time_name']
+min_value_field_name = types['min']['observation_name']
+min_time_field_name = types['min']['observation_time_name']
+max_value_field_name = types['max']['observation_name']
+max_time_field_name = types['max']['observation_time_name']
 
-observations[observation_name]['last'] = {}
-observations[observation_name]['last']['observation_name'] = last_value_field_name
-observations[observation_name]['last']['observation_time_name'] = last_time_field_name
-
-observations[observation_name]['first'] = {}
-observations[observation_name]['first']['observation_name'] = first_time_field_name
-observations[observation_name]['first']['observation_time_name'] = first_det_time_field_name
-
-observations[observation_name]['min'] = {}
-observations[observation_name]['min']['observation_name'] = min_value_field_name
-observations[observation_name]['min']['observation_time_name'] = min_time_field_name
-
-observations[observation_name]['max'] = {}
-observations[observation_name]['max']['observation_name'] = max_value_field_name
-observations[observation_name]['max']['observation_time_name'] = max_time_field_name
+def config_observation(observation_name, observation_types):
+    observations = {}
+    observations[observation_name] = {}
+    for observation_type in observation_types:
+        observations[observation_name][observation_type] = {}
+        observations[observation_name][observation_type]['observation_name'] = types[observation_type]['observation_name']
+        observations[observation_name][observation_type]['observation_time_name'] = types[observation_type]['observation_time_name']
+    return observations[observation_name]
 
 class TestFirstLoopPacket(unittest.TestCase):
     def test_first_packet(self):
+        observation_name = 'observation'
         mock_engine = mock.Mock()
         config_dict = {
             'ObservationTime': {
-                'observations': observations
+                'observations': {
+                    observation_name: config_observation(observation_name, ['last', 'first', 'min', 'max'])
+                }
             }
         }
 
@@ -79,18 +90,21 @@ class TestFirstLoopPacket(unittest.TestCase):
 
         self.assertEqual(event.packet[last_value_field_name], current_value)
         self.assertEqual(event.packet[last_time_field_name], current_time)
-        self.assertEqual(event.packet[first_time_field_name], current_value)
-        self.assertEqual(event.packet[first_det_time_field_name], current_time)
+        self.assertEqual(event.packet[first_value_field_name], current_value)
+        self.assertEqual(event.packet[first_time_field_name], current_time)
         self.assertEqual(event.packet[min_value_field_name], current_value)
         self.assertEqual(event.packet[min_time_field_name], current_time)
         self.assertEqual(event.packet[max_value_field_name], current_value)
         self.assertEqual(event.packet[max_time_field_name], current_time)
 
     def test_new_min_value(self):
+        observation_name = 'observation'
         mock_engine = mock.Mock()
         config_dict = {
             'ObservationTime': {
-                'observations': observations
+                'observations': {
+                    observation_name: config_observation(observation_name, ['last', 'first', 'min', 'max'])
+                }
             }
         }
 
@@ -120,18 +134,21 @@ class TestFirstLoopPacket(unittest.TestCase):
 
         self.assertEqual(event.packet[last_value_field_name], current_value)
         self.assertEqual(event.packet[last_time_field_name], current_time)
-        self.assertEqual(event.packet[first_time_field_name], prior_value)
-        self.assertEqual(event.packet[first_det_time_field_name], prior_time)
+        self.assertEqual(event.packet[first_value_field_name], prior_value)
+        self.assertEqual(event.packet[first_time_field_name], prior_time)
         self.assertEqual(event.packet[min_value_field_name], current_value)
         self.assertEqual(event.packet[min_time_field_name], current_time)
         self.assertEqual(event.packet[max_value_field_name], prior_value)
         self.assertEqual(event.packet[max_time_field_name], prior_time)
 
     def test_new_max_value(self):
+        observation_name = 'observation'
         mock_engine = mock.Mock()
         config_dict = {
             'ObservationTime': {
-                'observations': observations
+                'observations': {
+                    observation_name: config_observation(observation_name, ['last', 'first', 'min', 'max'])
+                }
             }
         }
 
@@ -161,8 +178,8 @@ class TestFirstLoopPacket(unittest.TestCase):
 
         self.assertEqual(event.packet[last_value_field_name], current_value)
         self.assertEqual(event.packet[last_time_field_name], current_time)
-        self.assertEqual(event.packet[first_time_field_name], prior_value)
-        self.assertEqual(event.packet[first_det_time_field_name], prior_time)
+        self.assertEqual(event.packet[first_value_field_name], prior_value)
+        self.assertEqual(event.packet[first_time_field_name], prior_time)
         self.assertEqual(event.packet[min_value_field_name], prior_value)
         self.assertEqual(event.packet[min_time_field_name], prior_time)
         self.assertEqual(event.packet[max_value_field_name], current_value)
