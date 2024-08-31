@@ -22,6 +22,7 @@ class ObservationTime(weewx.engine.StdService):
 
         # ToDo: perform a deep copy
         self.observations = config_dict.get('ObservationTime', {}).get('observations', {})
+        log.info(self.observations)
 
         self.bind(weewx.PRE_LOOP, self.pre_loop)
         self.bind(weewx.NEW_LOOP_PACKET, self.new_loop_packet)
@@ -40,6 +41,7 @@ class ObservationTime(weewx.engine.StdService):
             if observation not in event.packet:
                 continue
 
+            log.info("processing observation: %s", observation)
             log.info(event.packet)
             for observation_type in observation_data:
                 observation_value = event.packet[observation]
