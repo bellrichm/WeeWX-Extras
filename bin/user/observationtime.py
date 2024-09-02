@@ -7,6 +7,10 @@
 '''
 WeeWX service to capture times and values for the first, last, min, and max of an observation in an archive period.
 
+Prerequistes:
+Python 3.7+
+WeeWX 5.x+
+
 Installation:
     1. Put this file in the bin/user directory.
     2. Update weewx.conf [ObservationTime] as needed to configure the service.
@@ -90,6 +94,16 @@ This assumes that in the WeeWX loop packet, the 'lightning_distance' field captu
             [[[[min]]]]
                 observation_name = lightning_min_distance
                 observation_time = lightning_min_det_time
+
+Add the additional fields to the database:
+weectl database add-column lightning_last_distance --type=REAL
+weectl database add-column lightning_last_det_time --type=INTEGER
+
+weectl database add-column lightning_first_distance --type=REAL
+weectl database add-column lightning_first_det_time --type=INTEGER
+
+weectl database add-column lightning_min_distance --type=REAL
+weectl database add-column lightning_min_det_time --type=INTEGER
 
 '''
 
