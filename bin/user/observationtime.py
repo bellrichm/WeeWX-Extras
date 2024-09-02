@@ -37,17 +37,20 @@ class ObservationTime(weewx.engine.StdService):
     def new_loop_packet(self, event):
         ''' Handle the WeeWX POST_LOOP event.'''
         date_time = event.packet['dateTime']
+        log.info("checking: %s", event.packet)
         for observation, observation_data in self.observations.items():
             if observation not in event.packet:
                 continue
 
-            log.info("processing observation: %s", observation)
-            log.info(event.packet)
+            log.info("processing observation: %s %s", observation, observation_data)
+            log.info("processing: %s", event.packet)
+            observation_value = event.packet[observation]
             for observation_type in observation_data:
-                observation_value = event.packet[observation]
-                log.info(observation_type)
-                log.info(observation_data[observation_type]['observation'])
-                log.info(observation_data[observation_type]['observation_time'])
+                log.info("processing type: %s", observation_type)
+                log.info("processing prev value: %s", observation_data[observation_type]['observation'])
+                log.info("processing prev time: %s", observation_data[observation_type]['observation_time'])
+                log.info("processing curr value: %s", observation_value)
+                log.info("processing curr time: %s", date_time)
 
                 if observation_type == 'last':
                     self._set_values(observation_data, observation_type, observation_value, date_time)
@@ -70,10 +73,7 @@ class ObservationTime(weewx.engine.StdService):
                       observation_data[observation_type]['observation_time']
 
     def _set_values(self, observation_data, observation_type, observation_value, date_time):
-        log.info(observation_data[observation_type]['observation'])
-        log.info(observation_data[observation_type]['observation_time'])
-        log.info("Setting %s observation %s and time %s", observation_type, observation_value, date_time)
-
+        log.info("processing Setting %s observation %s and time %s", observation_type, observation_value, date_time)
         observation_data[observation_type]['observation'] = observation_value
         observation_data[observation_type]['observation_time'] = date_time
     
