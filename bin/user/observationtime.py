@@ -134,10 +134,15 @@ class ObservationTime(weewx.engine.StdService):
             date_time = event.packet['dateTime']
 
             for observation_type in observation_data:
+                observation_name = observation_data[observation_type]['observation_name']
+                observation_time_name = observation_data[observation_type]['observation_time_name']
                 previous_value = observation_data[observation_type]['observation']
                 previous_time = observation_data[observation_type]['observation_time']
 
-                log.debug("Processing type: %s", observation_type)
+                log.debug("Processing type: %s with observation name: %s and observation time name: %s",
+                          observation_type,
+                          observation_name,
+                          observation_time_name)
                 log.debug("Processing previous value: %s and previous time: %s", previous_value, previous_time)
                 log.debug("Processing current value: %s and current time: %s", observation_value, date_time)
 
@@ -153,9 +158,8 @@ class ObservationTime(weewx.engine.StdService):
                 if observation_type == 'max' and (previous_value is None or observation_value >= previous_value):
                     self._set_values(observation_data, observation, observation_type, observation_value, date_time)
 
-                event.packet[observation_data[observation_type]['observation_name']] = observation_data[observation_type]['observation']
-                event.packet[observation_data[observation_type]['observation_time_name']] =\
-                      observation_data[observation_type]['observation_time']
+                event.packet[observation_name] = observation_data[observation_type]['observation']
+                event.packet[observation_time_name] = observation_data[observation_type]['observation_time']
 
     def _set_values(self, observation_data, observation, observation_type, observation_value, date_time):
         log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, date_time)
