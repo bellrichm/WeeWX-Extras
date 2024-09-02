@@ -29,31 +29,31 @@ Configuration:
             [[[[last]]]]
                 # The name of the WeeWX to store the last observation's value.
                 # For example: lightning_last_distance, windGust_last, etc.
-                observation_name
+                observation_name =
                 # The name of the WeeWX to store the last observation's time.
                 # For example: lightning_last_det_time, windGust_last_time, etc.                
-                observation_time
+                observation_time_name =
             [[[[first]]]]
             # The name of the WeeWX to store the first observation's value.
                 # For example: lightning_first_distance, windGust_first, etc.            
-                observation_name
+                observation_name =
                 # The name of the WeeWX to store the first observation's time.
                 # For example: lightning_first_det_time, windGust_first_time, etc.                                
-                observation_time
+                observation_time_name =
             [[[[min]]]]
                 # The name of the WeeWX to store the min observation's value.
                 # For example: lightning_min_distance, windGust_min, etc.            
                 observation_name
                 # The name of the WeeWX to store the min observation's time.
                 # For example: lightning_min_det_time, windGust_min_time, etc.                                
-                observation_time
+                observation_time_name =
             [[[[max]]]]
                 # The name of the WeeWX to store the max observation's value.
                 # For example: lightning_max_distance, windGust_max, etc.            
-                observation_name
+                observation_name =
                 # The name of the WeeWX to store the max observation's time.
                 # For example: lightning_max_det_time, windGust_max_time, etc.                                
-                observation_time =
+                observation_time_name =
         # The next observation whose 'event' value and time will be captured.
         [[[REPLACE_ME_TOO]]]
                 
