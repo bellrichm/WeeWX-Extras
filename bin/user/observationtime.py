@@ -181,6 +181,9 @@ class ObservationTime(weewx.engine.StdService):
                     observation_data[observation_type]['observation_time'] = date_time
 
                 event.packet[observation_name] = observation_data[observation_type]['observation']
-                event.packet[observation_time_name] = observation_data[observation_type]['observation_time']
+                if observation_data[observation_type]['observation'] is not None:
+                    event.packet[observation_time_name] = observation_data[observation_type]['observation_time']
+                else:
+                    event.packet[observation_time_name] = None
 
         log.debug("Outgoing packet is: %s", event.packet)
