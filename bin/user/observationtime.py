@@ -110,7 +110,7 @@ class ObservationTime(weewx.engine.StdService):
 
         # ToDo: perform a deep copy
         self.observations = config_dict.get('ObservationTime', {}).get('observations', {})
-        log.info(self.observations)
+        log.debug("The configuration is: %s", self.observations)
 
         self.bind(weewx.PRE_LOOP, self.pre_loop)
         self.bind(weewx.NEW_LOOP_PACKET, self.new_loop_packet)
