@@ -147,22 +147,26 @@ class ObservationTime(weewx.engine.StdService):
                 log.debug("Processing current value: %s and current time: %s", observation_value, date_time)
 
                 if observation_type == 'last':
-                    self._set_values(observation_data, observation, observation_type, observation_value, date_time)
+                    log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, date_time)
+                    observation_data[observation_type]['observation'] = observation_value
+                    observation_data[observation_type]['observation_time'] = date_time
 
                 if observation_type == 'first' and previous_value is None:
-                    self._set_values(observation_data, observation, observation_type, observation_value, date_time)
+                    log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, date_time)
+                    observation_data[observation_type]['observation'] = observation_value
+                    observation_data[observation_type]['observation_time'] = date_time
 
                 if observation_type == 'min' and (previous_value is None or observation_value <= previous_value):
-                    self._set_values(observation_data, observation, observation_type, observation_value, date_time)
+                    log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, date_time)
+                    observation_data[observation_type]['observation'] = observation_value
+                    observation_data[observation_type]['observation_time'] = date_time
 
                 if observation_type == 'max' and (previous_value is None or observation_value >= previous_value):
-                    self._set_values(observation_data, observation, observation_type, observation_value, date_time)
+                    log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, date_time)
+                    observation_data[observation_type]['observation'] = observation_value
+                    observation_data[observation_type]['observation_time'] = date_time
 
                 event.packet[observation_name] = observation_data[observation_type]['observation']
                 event.packet[observation_time_name] = observation_data[observation_type]['observation_time']
 
-    def _set_values(self, observation_data, observation, observation_type, observation_value, date_time):
-        log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, date_time)
-        observation_data[observation_type]['observation'] = observation_value
-        observation_data[observation_type]['observation_time'] = date_time
     
