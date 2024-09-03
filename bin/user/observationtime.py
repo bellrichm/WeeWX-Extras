@@ -95,7 +95,7 @@ This assumes that in the WeeWX loop packet, the 'lightning_distance' field captu
                 observation_name = lightning_min_distance
                 observation_time = lightning_min_det_time
 
-Add the additional fields to the database:
+Add the additional fields to the database.
 weectl database add-column lightning_last_distance --type=REAL
 weectl database add-column lightning_last_det_time --type=INTEGER
 
@@ -104,6 +104,15 @@ weectl database add-column lightning_first_det_time --type=INTEGER
 
 weectl database add-column lightning_min_distance --type=REAL
 weectl database add-column lightning_min_det_time --type=INTEGER
+
+Update bin/user/extensions.py with the units for the new fields.
+import weewx.units
+weewx.units.obs_group_dict['lightning_last_distance'] = 'group_distance'
+weewx.units.obs_group_dict['lightning_last_det_time'] = 'group_time'
+weewx.units.obs_group_dict['lightning_first_distance'] = 'group_distance'
+weewx.units.obs_group_dict['lightning_first_det_time'] = 'group_time'
+weewx.units.obs_group_dict['lightning_min_distance'] = 'group_distance'
+weewx.units.obs_group_dict['lightning_min_det_time'] = 'group_time'
 
 '''
 
