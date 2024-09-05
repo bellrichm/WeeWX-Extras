@@ -154,7 +154,7 @@ class ObservationTime(weewx.engine.StdService):
 
             log.debug("Processing observation: %s %s", observation, observation_data)
             observation_value = event.packet[observation]
-            date_time = event.packet['dateTime']
+            observation_time = event.packet['dateTime']
 
             for observation_type in observation_data:
                 observation_name = observation_data[observation_type]['observation_name']
@@ -169,27 +169,27 @@ class ObservationTime(weewx.engine.StdService):
                           observation_name,
                           observation_time_name)
                 log.debug("Processing previous value: %s and previous time: %s", previous_value, previous_time)
-                log.debug("Processing current value: %s and current time: %s", observation_value, date_time)
+                log.debug("Processing current value: %s and current time: %s", observation_value, observation_time)
 
                 if observation_type == 'last' and observation_value is not None:
-                    log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, date_time)
+                    log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, observation_time)
                     observation_data[observation_type]['observation'] = observation_value
-                    observation_data[observation_type]['observation_time'] = date_time
+                    observation_data[observation_type]['observation_time'] = observation_time
 
                 if observation_type == 'first' and observation_value is not None and previous_value is None:
-                    log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, date_time)
+                    log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, observation_time)
                     observation_data[observation_type]['observation'] = observation_value
-                    observation_data[observation_type]['observation_time'] = date_time
+                    observation_data[observation_type]['observation_time'] = observation_time
 
                 if observation_type == 'min' and observation_value is not None and (previous_value is None or observation_value <= previous_value):
-                    log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, date_time)
+                    log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, observation_time)
                     observation_data[observation_type]['observation'] = observation_value
-                    observation_data[observation_type]['observation_time'] = date_time
+                    observation_data[observation_type]['observation_time'] = observation_time
 
                 if observation_type == 'max' and observation_value is not None and (previous_value is None or observation_value >= previous_value):
-                    log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, date_time)
+                    log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, observation_time)
                     observation_data[observation_type]['observation'] = observation_value
-                    observation_data[observation_type]['observation_time'] = date_time
+                    observation_data[observation_type]['observation_time'] = observation_time
 
                 event.packet[observation_name] = observation_data[observation_type]['observation']
                 event.packet[observation_time_name] = observation_data[observation_type]['observation_time']
