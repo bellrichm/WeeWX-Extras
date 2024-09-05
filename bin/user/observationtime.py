@@ -171,37 +171,25 @@ class ObservationTime(weewx.engine.StdService):
                 log.debug("Processing previous value: %s and previous time: %s", previous_value, previous_time)
                 log.debug("Processing current value: %s and current time: %s", observation_value, date_time)
 
-                if observation_type == 'last':
+                if observation_type == 'last' and observation_value is not None:
                     log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, date_time)
                     observation_data[observation_type]['observation'] = observation_value
-                    if observation_value is not None:
-                        observation_data[observation_type]['observation_time'] = date_time
-                    else:
-                        observation_data[observation_type]['observation_time'] = None
+                    observation_data[observation_type]['observation_time'] = date_time
 
-                if observation_type == 'first' and previous_value is None:
+                if observation_type == 'first' and observation_value is not None and previous_value is None:
                     log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, date_time)
                     observation_data[observation_type]['observation'] = observation_value
-                    if observation_value is not None:
-                        observation_data[observation_type]['observation_time'] = date_time
-                    else:
-                        observation_data[observation_type]['observation_time'] = None
+                    observation_data[observation_type]['observation_time'] = date_time
 
-                if observation_type == 'min' and (previous_value is None or observation_value <= previous_value):
+                if observation_type == 'min' and observation_value is not None and (previous_value is None or observation_value <= previous_value):
                     log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, date_time)
                     observation_data[observation_type]['observation'] = observation_value
-                    if observation_value is not None:
-                        observation_data[observation_type]['observation_time'] = date_time
-                    else:
-                        observation_data[observation_type]['observation_time'] = None
+                    observation_data[observation_type]['observation_time'] = date_time
 
-                if observation_type == 'max' and (previous_value is None or observation_value >= previous_value):
+                if observation_type == 'max' and observation_value is not None and (previous_value is None or observation_value >= previous_value):
                     log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, date_time)
                     observation_data[observation_type]['observation'] = observation_value
-                    if observation_value is not None:
-                        observation_data[observation_type]['observation_time'] = date_time
-                    else:
-                        observation_data[observation_type]['observation_time'] = None
+                    observation_data[observation_type]['observation_time'] = date_time
 
                 event.packet[observation_name] = observation_data[observation_type]['observation']
                 event.packet[observation_time_name] = observation_data[observation_type]['observation_time']
