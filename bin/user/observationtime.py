@@ -116,10 +116,15 @@ weewx.units.obs_group_dict['lightning_min_det_time'] = 'group_time'
 
 '''
 
+# ToDo: Decide if the aggregate types should be new/unique, or to continue to override WeeWX's existing types.
+
 import logging
 
 import weewx
 import weewx.engine
+import weedb
+
+from weeutil.weeutil import to_bool
 
 VERSION = '0.1.0'
 
@@ -132,11 +137,20 @@ class ObservationTime(weewx.engine.StdService):
         super(ObservationTime, self).__init__(engine, config_dict)
 
         # ToDo: perform a deep copy
-        self.observations = config_dict.get('ObservationTime', {}).get('observations', {})
+        service_dict = config_dict.get('ObservationTime', {})
+        self.observations = service_dict.get('observations', {})
         log.debug("The configuration is: %s", self.observations)
 
-        self.bind(weewx.PRE_LOOP, self.pre_loop)
-        self.bind(weewx.NEW_LOOP_PACKET, self.new_loop_packet)
+        if to_bool(service_dict.get('augment_loop', True)):
+            self.bind(weewx.PRE_LOOP, self.pre_loop)
+            self.bind(weewx.NEW_LOOP_PACKET, self.new_loop_packet)
+
+        self.observation_time_xtype = ObservationTimeXtype(self.observations)
+        weewx.xtypes.xtypes.insert(0, self.observation_time_xtype)
+
+    def shutDown(self):
+        """Run when an engine shutdown is requested."""
+        weewx.xtypes.xtypes.remove(self.observation_time_xtype)
 
     def pre_loop(self, _event):
         ''' Handle the WeeWX PRE_LOOP event. '''
@@ -181,12 +195,14 @@ class ObservationTime(weewx.engine.StdService):
                     observation_data[observation_type]['observation'] = observation_value
                     observation_data[observation_type]['observation_time'] = observation_time
 
-                if observation_type == 'min' and observation_value is not None and (previous_value is None or observation_value <= previous_value):
+                if observation_type == 'min' and observation_value is not None and \
+                    (previous_value is None or observation_value <= previous_value):
                     log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, observation_time)
                     observation_data[observation_type]['observation'] = observation_value
                     observation_data[observation_type]['observation_time'] = observation_time
 
-                if observation_type == 'max' and observation_value is not None and (previous_value is None or observation_value >= previous_value):
+                if observation_type == 'max' and observation_value is not None and \
+                    (previous_value is None or observation_value >= previous_value):
                     log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, observation_time)
                     observation_data[observation_type]['observation'] = observation_value
                     observation_data[observation_type]['observation_time'] = observation_time
@@ -195,3 +211,60 @@ class ObservationTime(weewx.engine.StdService):
                 event.packet[observation_time_name] = observation_data[observation_type]['observation_time']
 
         log.debug("Outgoing packet is: %s", event.packet)
+
+class ObservationTimeXtype(weewx.xtypes.XType):
+    ''' XType to add the aggregate types to get the dependent time observation's data.'''
+    def __init__(self, observations):
+        self.observation_time_names = {}
+        for _observation, observation_data in observations.items():
+            for observation_type, observation_type_data in observation_data.items():
+                observation_time_name = observation_type_data['observation_time_name']
+                self.observation_time_names[observation_time_name] = {}
+                self.observation_time_names[observation_time_name]['observation_name'] = observation_type_data['observation_name']
+                self.observation_time_names[observation_time_name]['observation_type'] = observation_type
+
+        self.sql_stmts = {
+            'first': "SELECT {input} FROM {table_name} "
+                "WHERE dateTime > {start} AND dateTime <= {stop} AND {primary_observation} IS NOT NULL "
+                "ORDER BY dateTime ASC LIMIT 1;",
+            'last': "SELECT {input} FROM {table_name} "
+                "WHERE dateTime > {start} AND dateTime <= {stop} AND {primary_observation} IS NOT NULL "
+                "ORDER BY dateTime DESC LIMIT 1;",
+            'min': "SELECT {input} FROM {table_name} "
+                "WHERE dateTime > {start} AND dateTime <= {stop} AND {primary_observation} IS NOT NULL "
+                "ORDER BY {primary_observation} ASC, dateTime DESC LIMIT 1;",
+            'max': "SELECT {input} FROM {table_name} "
+                "WHERE dateTime > {start} AND dateTime <= {stop} AND {primary_observation} IS NOT NULL "
+                "ORDER BY {primary_observation} DESC, dateTime DESC LIMIT 1;",
+        }
+
+    def get_aggregate(self, obs_type, timespan, aggregate_type, db_manager, **option_dict):
+        if obs_type not in self.observation_time_names:
+            raise weewx.UnknownType(obs_type)
+
+        if aggregate_type != self.observation_time_names[obs_type]['observation_type']:
+            raise weewx.UnknownAggregation(aggregate_type)
+
+        interpolation_dict = {
+            'start': timespan.start,
+            'stop': timespan.stop,
+            'table_name': db_manager.table_name,
+            'input': obs_type,
+            'primary_observation': self.observation_time_names[obs_type]['observation_name']
+        }
+
+        sql_stmt = self.sql_stmts[aggregate_type].format(**interpolation_dict)
+
+        try:
+            row = db_manager.getSql(sql_stmt)
+        except weedb.NoColumnError:
+            raise weewx.UnknownType(obs_type) from weedb.NoColumnError
+
+        if not row or None in row:
+            aggregate_value = None
+        else:
+            aggregate_value = row[0]
+
+        unit_type, group = weewx.units.getStandardUnitType(db_manager.std_unit_system, obs_type, aggregate_type)
+        return weewx.units.ValueTuple(aggregate_value, unit_type, group)
+        
