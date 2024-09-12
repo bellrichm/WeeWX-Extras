@@ -24,6 +24,10 @@ In addition to capturing the value, the time that the value was observed is also
 These values and times are added to the loop packet.
 The WeeWX accumulator function is used to populate the archive record with these values.
 
+Important:
+The daily summaries cannot be used to get the time (observation_time_name) of the value.
+This is because the daily summary will have the min/max of the time, not the time of the min/max value.
+
 Configuration:
 [ObservationTime]
     [[observations]]
