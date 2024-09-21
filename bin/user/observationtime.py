@@ -173,7 +173,11 @@ class ObservationTime(weewx.engine.StdService):
             log.debug("Processing observation: %s %s", observation, observation_data)
             observation_value = event.packet[observation]
             observation_time = event.packet['dateTime']
-
+            
+            log.debug("Processing current value: %s and current time: %s", observation_value, observation_time)
+            if observation_value is None:
+                continue
+            
             for observation_type in observation_data:
                 observation_name = observation_data[observation_type]['observation_name']
                 observation_time_name = observation_data[observation_type]['observation_time_name']
@@ -187,7 +191,6 @@ class ObservationTime(weewx.engine.StdService):
                           observation_name,
                           observation_time_name)
                 log.debug("Processing previous value: %s and previous time: %s", previous_value, previous_time)
-                log.debug("Processing current value: %s and current time: %s", observation_value, observation_time)
 
                 if observation_type == 'last' and observation_value is not None:
                     log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, observation_time)
@@ -271,4 +274,3 @@ class ObservationTimeXtype(weewx.xtypes.XType):
 
         unit_type, group = weewx.units.getStandardUnitType(db_manager.std_unit_system, obs_type, aggregate_type)
         return weewx.units.ValueTuple(aggregate_value, unit_type, group)
-        
