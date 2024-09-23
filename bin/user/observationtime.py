@@ -25,8 +25,8 @@ These values and times are added to the loop packet.
 The WeeWX accumulator function is used to populate the archive record with these values.
 
 Important:
-The daily summaries cannot be used to get the time (observation_time_name) of the value.
-This is because the daily summary will have the min/max of the time, not the time of the min/max value.
+- The daily summaries cannot be used to get the time (observation_time_name) of the value.
+  This is because the daily summary will have the min/max of the time, not the time of the min/max value.
 
 Configuration:
 [ObservationTime]
@@ -76,7 +76,6 @@ This assumes that in the WeeWX loop packet, the 'lightning_distance' field captu
         extractor = last
     [[lightning_last_det_time]]
         extractor = last
-    # Note, extractor = last would work because the first detection is added to every loop by the ObservationTime service.
     [[lightning_first_distance]]
         extractor = first
     [[lightning_first_det_time]]
@@ -146,22 +145,30 @@ class ObservationTime(weewx.engine.StdService):
         log.debug("The configuration is: %s", self.observations)
 
         if to_bool(service_dict.get('augment_loop', True)):
-            self.bind(weewx.PRE_LOOP, self.pre_loop)
             self.bind(weewx.NEW_LOOP_PACKET, self.new_loop_packet)
+            self.bind(weewx.STARTUP, self.startup)
+            self.bind(weewx.END_ARCHIVE_PERIOD, self.end_archive_period)
 
         self.observation_time_xtype = ObservationTimeXtype(self.observations)
         weewx.xtypes.xtypes.insert(0, self.observation_time_xtype)
+
+    def _reset_observations(self):
+        for _observation, observation_data in self.observations.items():
+            for observation_type in observation_data:
+                observation_data[observation_type]['observation'] = None
+                observation_data[observation_type]['observation_time'] = None
 
     def shutDown(self):
         """Run when an engine shutdown is requested."""
         weewx.xtypes.xtypes.remove(self.observation_time_xtype)
 
-    def pre_loop(self, _event):
-        ''' Handle the WeeWX PRE_LOOP event. '''
-        for _observation, observation_data in self.observations.items():
-            for observation_type in observation_data:
-                observation_data[observation_type]['observation'] = None
-                observation_data[observation_type]['observation_time'] = None
+    def startup(self, _event):
+        ''' Handle the WeeWX STARTUP event. '''
+        self._reset_observations()
+
+    def end_archive_period(self, _event):
+        ''' Handle the WeeWX END_ARCHIVE_PERIOD event. '''
+        self._reset_observations()
 
     def new_loop_packet(self, event):
         ''' Handle the WeeWX POST_LOOP event.'''
@@ -173,11 +180,11 @@ class ObservationTime(weewx.engine.StdService):
             log.debug("Processing observation: %s %s", observation, observation_data)
             observation_value = event.packet[observation]
             observation_time = event.packet['dateTime']
-            
+
             log.debug("Processing current value: %s and current time: %s", observation_value, observation_time)
             if observation_value is None:
                 continue
-            
+
             for observation_type in observation_data:
                 observation_name = observation_data[observation_type]['observation_name']
                 observation_time_name = observation_data[observation_type]['observation_time_name']
