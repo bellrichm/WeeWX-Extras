@@ -21,8 +21,6 @@ Installation:
 Overview:
 For a configured WeeWX observation, capture any of the last, first, min, or max values in an archive period. 
 In addition to capturing the value, the time that the value was observed is also captured.
-These values and times are added to the loop packet.
-The WeeWX accumulator function is used to populate the archive record with these values.
 
 Important:
 - The daily summaries cannot be used to get the time (observation_time_name) of the value.
@@ -129,7 +127,7 @@ import weedb
 
 from weeutil.weeutil import to_bool
 
-VERSION = '0.1.0'
+VERSION = '0.2.0'
 
 log = logging.getLogger(__name__)
 
@@ -143,88 +141,102 @@ class ObservationTime(weewx.engine.StdService):
         service_dict = config_dict.get('ObservationTime', {})
         self.observations = service_dict.get('observations', {})
         log.debug("The configuration is: %s", self.observations)
+        for _observation, observation_data in self.observations.items():
+            observation_data['data'] = {}
 
         if to_bool(service_dict.get('augment_loop', True)):
             self.bind(weewx.NEW_LOOP_PACKET, self.new_loop_packet)
-            self.bind(weewx.STARTUP, self.startup)
-            self.bind(weewx.END_ARCHIVE_PERIOD, self.end_archive_period)
+            self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
 
         self.observation_time_xtype = ObservationTimeXtype(self.observations)
         weewx.xtypes.xtypes.insert(0, self.observation_time_xtype)
-
-    def _reset_observations(self):
-        for _observation, observation_data in self.observations.items():
-            for observation_type in observation_data:
-                observation_data[observation_type]['observation'] = None
-                observation_data[observation_type]['observation_time'] = None
 
     def shutDown(self):
         """Run when an engine shutdown is requested."""
         weewx.xtypes.xtypes.remove(self.observation_time_xtype)
 
-    def startup(self, _event):
-        ''' Handle the WeeWX STARTUP event. '''
-        self._reset_observations()
-
-    def end_archive_period(self, _event):
-        ''' Handle the WeeWX END_ARCHIVE_PERIOD event. '''
-        self._reset_observations()
-
     def new_loop_packet(self, event):
         ''' Handle the WeeWX POST_LOOP event.'''
-        log.debug("Incoming packet is: %s", event.packet)
+        #log.debug("Processing packet is: %s", event.packet)
         for observation, observation_data in self.observations.items():
             if observation not in event.packet:
                 continue
 
-            log.debug("Processing observation: %s %s", observation, observation_data)
+            #log.debug("Processing observation: %s %s", observation, observation_data)
             observation_value = event.packet[observation]
             observation_time = event.packet['dateTime']
 
-            log.debug("Processing current value: %s and current time: %s", observation_value, observation_time)
+            #log.debug("Processing observation: %s current value: %s and current time: %s", observation, observation_value, observation_time)
             if observation_value is None:
                 continue
 
+            observation_data['data'][str(observation_time)] = {}
+            observation_data['data'][str(observation_time)]['value'] = observation_value
+            observation_data['data'][str(observation_time)]['time'] = observation_time
+
+    def new_archive_record(self, event):
+        '''Handle the WeeWX NEW_ARCHIVE_RECORD event. '''
+        log.debug("Incoming record is: %s", event.record)
+        value_types = ['first', 'last', 'min', 'max']
+
+        end_time_stamp = event.record['dateTime']
+        interval = event.record['interval']
+        start_timestamp = end_time_stamp - interval * 60
+
+        for observation, observation_data in self.observations.items():
+            #log.debug("Processing observation: %s %s", observation, observation_data)
+            log.debug("Processing observation: %s", observation)
+            values = {}
+            for value_type in value_types:
+                values[value_type] = None
+
+            #log.debug("Incoming raw archive data is: %s", observation_data['data'])
+            for key, value in observation_data['data'].items():
+                observation_time =  value['time']
+                observation_value =  value['value']
+                if observation_time <= start_timestamp:
+                    del observation_data['data'][key]
+                    continue
+
+                if observation_time > end_time_stamp:
+                    break
+
+                if values['first'] is None:
+                    values['first'] = {}
+                    values['first']['timestamp'] = observation_time
+                    values['first']['data_value'] = observation_value
+
+                if values['last'] is None:
+                    values['last'] = {}
+                values['last']['timestamp'] = observation_time
+                values['last']['data_value'] = observation_value
+
+                if values['min'] is None or observation_value <= values['min']['data_value']:
+                    values['min'] = {}
+                    values['min']['timestamp'] = observation_time
+                    values['min']['data_value'] = observation_value
+
+                if values['max'] is None or observation_value >= values['max']['data_value']:
+                    values['max'] = {}
+                    values['max']['timestamp'] = observation_time
+                    values['max']['data_value'] = observation_value
+
+                del observation_data['data'][key]
+
+            #log.debug("Outgoing raw archive data is: %s", observation_data['data'])
+            log.debug("Data values are: %s", values)
+
             for observation_type in observation_data:
+                if observation_type == 'data':
+                    continue
                 observation_name = observation_data[observation_type]['observation_name']
                 observation_time_name = observation_data[observation_type]['observation_time_name']
-                previous_value = observation_data[observation_type]['observation']
-                previous_time = observation_data[observation_type]['observation_time']
-                observation_data[observation_type]['observation'] = previous_value
-                observation_data[observation_type]['observation_time'] = previous_time
+                if values[observation_type] is not None:
+                    event.record[observation_name] = values[observation_type]['data_value']
+                    event.record[observation_time_name] = values[observation_type]['timestamp']
 
-                log.debug("Processing type: %s with observation name: %s and observation time name: %s",
-                          observation_type,
-                          observation_name,
-                          observation_time_name)
-                log.debug("Processing previous value: %s and previous time: %s", previous_value, previous_time)
+        log.debug("Outgoing record is: %s", event.record)
 
-                if observation_type == 'last' and observation_value is not None:
-                    log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, observation_time)
-                    observation_data[observation_type]['observation'] = observation_value
-                    observation_data[observation_type]['observation_time'] = observation_time
-
-                if observation_type == 'first' and observation_value is not None and previous_value is None:
-                    log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, observation_time)
-                    observation_data[observation_type]['observation'] = observation_value
-                    observation_data[observation_type]['observation_time'] = observation_time
-
-                if observation_type == 'min' and observation_value is not None and \
-                    (previous_value is None or observation_value <= previous_value):
-                    log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, observation_time)
-                    observation_data[observation_type]['observation'] = observation_value
-                    observation_data[observation_type]['observation_time'] = observation_time
-
-                if observation_type == 'max' and observation_value is not None and \
-                    (previous_value is None or observation_value >= previous_value):
-                    log.debug("Setting %s of %s value %s and time %s", observation_type, observation, observation_value, observation_time)
-                    observation_data[observation_type]['observation'] = observation_value
-                    observation_data[observation_type]['observation_time'] = observation_time
-
-                event.packet[observation_name] = observation_data[observation_type]['observation']
-                event.packet[observation_time_name] = observation_data[observation_type]['observation_time']
-
-        log.debug("Outgoing packet is: %s", event.packet)
 
 class ObservationTimeXtype(weewx.xtypes.XType):
     ''' XType to add the aggregate types to get the dependent time observation's data.'''
@@ -232,6 +244,8 @@ class ObservationTimeXtype(weewx.xtypes.XType):
         self.observation_time_names = {}
         for _observation, observation_data in observations.items():
             for observation_type, observation_type_data in observation_data.items():
+                if observation_type == 'data':
+                    continue
                 observation_time_name = observation_type_data['observation_time_name']
                 self.observation_time_names[observation_time_name] = {}
                 self.observation_time_names[observation_time_name]['observation_name'] = observation_type_data['observation_name']
