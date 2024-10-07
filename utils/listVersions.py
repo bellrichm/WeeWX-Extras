@@ -1,4 +1,5 @@
-#
+#!/usr/bin/env python
+
 import subprocess
 repos_dir = '/home/richbell/weewx_code/'
 weewx_dir = '/home/richbell/weewx'
