@@ -24,6 +24,7 @@ for repo in repos:
         print(f'{repo} does not exist')
 
 command = ['git', 'status', '--branch', '-uno', '--null']
+#command = ['git', 'log', 'HEAD..origin/master']
 print(f'\nRunning command: {" ".join(command)}')
 try:
     process = subprocess.Popen(command, stdout=subprocess.PIPE, cwd=weewx_dir)
@@ -42,6 +43,7 @@ for repo in repos:
         print(f'{repo} does not exist')
 
 command = ['git', 'log', '--format=format:"%ci %h %d %s"', '-n 1']
+#command = ['git', 'log', 'HEAD..origin', '--format=format:"%ci %h %d %s"']
 print(f'\nRunning command: {" ".join(command)}')
 try:
     process = subprocess.Popen(command, stdout=subprocess.PIPE, cwd=weewx_dir)
@@ -59,3 +61,6 @@ for repo in repos:
     except FileNotFoundError:
         print(f'{repo} does not exist')
 
+print("\nFor more information run the following commands from the repository directory.")
+print('  git log HEAD..origin --format="format:%ci %h %d %s"')
+print('  git diff HEAD...origin/master')
