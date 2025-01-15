@@ -194,8 +194,8 @@ class ObservationTime(weewx.engine.StdService):
             for key, value in observation_data['data'].items():
                 observation_time =  value['time']
                 observation_value =  value['value']
-                
-                # Observation value belongs to previous archive record, 
+
+                # Observation value belongs to previous archive record,
                 if observation_time <= start_timestamp:
                     del observation_data['data'][key]
                     continue
