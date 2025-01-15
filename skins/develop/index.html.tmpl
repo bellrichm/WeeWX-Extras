@@ -3,12 +3,16 @@
 #encoding UTF-8
 <!DOCTYPE html>
 Develop
+#*
+$day.lightning_strike_count.sum
 
- week.pm2_5.series(aggregate_interval='day', aggregate_type='min')
-$week.pm2_5.series(aggregate_interval='day', aggregate_type='min')
+$day.lightning_min_distance.min
+$day.lightning_min_det_time.min
 
- week.pm2_5_nowcast.series(aggregate_interval='day', aggregate_type='min')
-$week.pm2_5_nowcast.series(aggregate_interval='day', aggregate_type='min')
-
+$day.lightning_last_distance.last
+$day.lightning_last_det_time.last
+*#
+$alltime.lightning_min_distance.min
+$alltime.lightning_min_det_time.min
 
 The End
