@@ -15,8 +15,11 @@
     $latest.pm2_5<br>
     $latest.pm2_5_aqi<br>
 
-    Day average: 
-    $day.pm2_5_aqi.avg
+    Day Minimum: 
+    $day.pm2_5_aqi.min
+
+    ##Day average: 
+    ##$day.pm2_5_aqi.avg
 
     <pre>
 $day.pm2_5.series
@@ -24,6 +27,10 @@ $day.pm2_5.series
 
     <pre>
 ##$day.pm2_5_aqi.series
+    </pre>
+
+    <pre>
+$day.pm2_5_aqi.series(aggregate_type='min', aggregate_interval=3600)
     </pre>
 
     <br>
