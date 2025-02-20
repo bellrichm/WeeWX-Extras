@@ -12,26 +12,51 @@
 
     Develop<br>
 
-    $latest.pm2_5<br>
-    $latest.pm2_5_aqi<br>
+    pm2_5: $latest.pm2_5<br>
+    aqi: $latest.pm2_5_aqi<br>
+    nowcast: $latest.pm2_5_aqi_nowcast<br>
+    <br>
 
-    Day Minimum: 
-    $day.pm2_5_aqi.min
+    Day Minimum:<br> 
+    aqi: $day.pm2_5_aqi.min<br>
+    nowcast: $day.pm2_5_aqi_nowcast.min<br>
+    <br>
 
-    ##Day average: 
-    ##$day.pm2_5_aqi.avg
+    Day average:<br>
+    aqi: $day.pm2_5_aqi.avg<br>
+    nowcast: $day.pm2_5_aqi_nowcast.avg<br>
+    <br>
 
+day pm2_5 (series)
     <pre>
 $day.pm2_5.series
     </pre>
+<br>
 
+
+day aqi (series)
     <pre>
-##$day.pm2_5_aqi.series
+$day.pm2_5_aqi.series
     </pre>
+<br>
 
+day aqi (min aggregate series)
     <pre>
 $day.pm2_5_aqi.series(aggregate_type='min', aggregate_interval=3600)
     </pre>
+<br>
+
+day nowcast (series)
+    <pre>
+$day.pm2_5_aqi_nowcast.series
+    </pre>
+<br>
+
+day nowcast (min aggregate series)
+    <pre>
+$day.pm2_5_aqi_nowcast.series(aggregate_type='min', aggregate_interval=3600)
+    </pre>
+<br>
 
     <br>
     #*
