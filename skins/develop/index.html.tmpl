@@ -4,74 +4,33 @@
 #errorCatcher Echo
 #encoding UTF-8
 
+##########################################################
+## Control variables:
+
+#set $aqi_inc = True
+#set $nowcast_inc = True
+#set $lightning_inc = True
+
+###########################################################
+
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8">
   </head>
   <body>
 
-    Develop<br>
+    #if $aqi_inc
+      #include "aqi.inc"
+    #end if
 
-    pm2_5: $latest.pm2_5<br>
-    aqi: $latest.pm2_5_aqi<br>
-    nowcast: $latest.pm2_5_aqi_nowcast<br>
-    <br>
+    #if $nowcast_inc
+      #include "nowcast.inc"
+    #end if
 
-    Day Minimum:<br> 
-    aqi: $day.pm2_5_aqi.min<br>
-    nowcast: $day.pm2_5_aqi_nowcast.min<br>
-    <br>
-
-    Day average:<br>
-    aqi: $day.pm2_5_aqi.avg<br>
-    nowcast: $day.pm2_5_aqi_nowcast.avg<br>
-    <br>
-
-day pm2_5 (series)
-    <pre>
-$day.pm2_5.series
-    </pre>
-<br>
-
-
-day aqi (series)
-    <pre>
-$day.pm2_5_aqi.series
-    </pre>
-<br>
-
-day aqi (min aggregate series)
-    <pre>
-$day.pm2_5_aqi.series(aggregate_type='min', aggregate_interval=3600)
-    </pre>
-<br>
-
-day nowcast (series)
-    <pre>
-$day.pm2_5_aqi_nowcast.series
-    </pre>
-<br>
-
-day nowcast (min aggregate series)
-    <pre>
-$day.pm2_5_aqi_nowcast.series(aggregate_type='min', aggregate_interval=3600)
-    </pre>
-<br>
-
-    <br>
-    #*
-    $day.lightning_strike_count.sum
-
-    $day.lightning_min_distance.min
-    $day.lightning_min_det_time.min
-
-    $day.lightning_last_distance.last
-    $day.lightning_last_det_time.last
-    *#
-    $alltime.lightning_min_distance.min<br>
-    $alltime.lightning_min_det_time.min<br>
-
-    The End
+    #if $lightning_inc
+      #include "lightning.inc"
+    #end if
 
   </body>
 </html>
