@@ -7,7 +7,13 @@
 ##########################################################
 ## Control variables:
 
-#set $aqi_inc = True
+## Default to False, do not change these
+#set $aqi_inc = False
+#set $nowcast_inc = False
+#set $lightning_inc = False
+
+## If one of these is not desired, comment it out
+##set $aqi_inc = True
 #set $nowcast_inc = True
 #set $lightning_inc = True
 
@@ -20,6 +26,8 @@
   </head>
   <body>
 
+  <h2>Generated for archive: $latest.dateTime</h2>
+ 
     #if $aqi_inc
       #include "aqi.inc"
     #end if

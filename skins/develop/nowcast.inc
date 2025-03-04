@@ -30,7 +30,7 @@ nowcast: $day($days_ago=$ago).pm2_5_aqi_nowcast.avg<br>
 
 pm2_5 data for $test_date
 <pre>
-$day($days_ago=$ago).pm2_5.series
+##$day($days_ago=$ago).pm2_5.series
 </pre>
 <br>
 
@@ -42,6 +42,6 @@ $day($days_ago=$ago).pm2_5_aqi_nowcast.series
 
 day nowcast (min aggregate series) - not yet supported
     <pre>
-$day($days_ago=$ago).pm2_5_aqi_nowcast.series(aggregate_type='min', aggregate_interval=3600)
+##$day($days_ago=$ago).pm2_5_aqi_nowcast.series(aggregate_type='min', aggregate_interval=3600)
     </pre>
 <br>
