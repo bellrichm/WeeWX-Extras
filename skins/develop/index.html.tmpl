@@ -4,20 +4,18 @@
 #errorCatcher Echo
 #encoding UTF-8
 
+#set includes = []
 ##########################################################
 ## Control variables:
+## Comment out any that you do not want to include in the generated HTML.
 
-## Default to False, do not change these
-#set $aqi_inc = False
-#set $nowcast_inc = False
-#set $lightning_inc = False
+## Note, the files are included in the order of being appended.
+$includes.append('develop.inc')
+##$includes.append('aqi.inc')
+##$includes.append('nowcast.inc')
+##$includes.append('lightning.inc')
 
-## If one of these is not desired, comment it out
-##set $aqi_inc = True
-#set $nowcast_inc = True
-#set $lightning_inc = True
-
-###########################################################
+##########################################################
 
 <!DOCTYPE html>
 <html>
@@ -27,18 +25,10 @@
   <body>
 
   <h2>Generated for archive: $latest.dateTime</h2>
- 
-    #if $aqi_inc
-      #include "aqi.inc"
-    #end if
 
-    #if $nowcast_inc
-      #include "nowcast.inc"
-    #end if
-
-    #if $lightning_inc
-      #include "lightning.inc"
-    #end if
+  #for $include in $includes
+    #include $include
+  #end for
 
   </body>
 </html>
