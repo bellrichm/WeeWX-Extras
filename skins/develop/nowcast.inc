@@ -18,17 +18,22 @@ current pm2_5:   $current(timestamp=$timestamp).pm2_5<br>
 current nowcast: $current(timestamp=$timestamp).pm2_5_aqi_nowcast<br>
 <br>
 
-Day Minimum:<br> 
 NOWCAST aggregation is not yet supported<br>
-nowcast: $day($days_ago=$ago).pm2_5_aqi_nowcast.min<br>
+nowcast not_null:  $day($days_ago=$ago).pm2_5_aqi_nowcast.not_null
+nowcast count:     $day($days_ago=$ago).pm2_5_aqi_nowcast.count
+nowcast sum:       $day($days_ago=$ago).pm2_5_aqi_nowcast.sum
+nowcast avg:       $day($days_ago=$ago).pm2_5_aqi_nowcast.avg
+nowcast min:       $day($days_ago=$ago).pm2_5_aqi_nowcast.min
+nowcast max:       $day($days_ago=$ago).pm2_5_aqi_nowcast.max
+nowcast mintime:   $day($days_ago=$ago).pm2_5_aqi_nowcast.mintime
+nowcast maxtime:   $day($days_ago=$ago).pm2_5_aqi_nowcast.maxtime
+nowcast first:     $day($days_ago=$ago).pm2_5_aqi_nowcast.first
+nowcast last:      $day($days_ago=$ago).pm2_5_aqi_nowcast.last
+nowcast firsttime: $day($days_ago=$ago).pm2_5_aqi_nowcast.firsttime
+nowcast lasttime:  $day($days_ago=$ago).pm2_5_aqi_nowcast.lasttime
 <br>
 
-Day average:<br>
-NOWCAST aggregation is not yet supported<br>
-nowcast: $day($days_ago=$ago).pm2_5_aqi_nowcast.avg<br>
-<br>
-
-pm2_5 data for $test_date
+pm2_5 series data for $test_date
 <pre>
 ##$day($days_ago=$ago).pm2_5.series
 </pre>
