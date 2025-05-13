@@ -18,10 +18,11 @@
             "program": "utils/buildConfig.py",
             "console": "integratedTerminal",
             "args": [
-                "--template", "/home/fork.weewx/fork.template.conf",
-                "--secrets", "/home/fork.weewx/fork.secrets.conf",
-                "--no-backup",
-                "test.conf"
+                "--template", "/home/richbell/weewx_dev/weewx-data/develop.weewx-data/weewx.conf",
+                "--add",  "/home/richbell/weewx_dev/configs/weather/report.template.conf",
+                "--secrets", "//home/richbell/weewx_dev/secrets/rmbellv01/develop.secrets.conf",
+                "/home/richbell/weewx_dev/weewx-data/develop.weewx-data/run/weewx.conf",
+                //"--no-backup",
             ],                                    
         },                
         {
