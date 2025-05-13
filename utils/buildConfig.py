@@ -60,9 +60,8 @@ if __name__ == '__main__': # pragma: no cover
         parser.add_argument("--secrets", dest="secrets_config_file",
                             nargs="?", const="secrets.conf", default="secrets.conf", type=str,
                             help="The secrets file (password, API keys, etc).")
-        parser.add_argument("--template", dest="template_config_file",
-                            nargs="?", const="secrets.conf", default="secrets.conf", type=str,
-                            help="The template file.")
+        parser.add_argument("--template", type=str, dest="template_config_file",
+                            help="The base WeeWX configuration file.")
         parser.add_argument("--add", dest="customization_file",
                             help="Additional customizations.")
         parser.add_argument("--no-backup", action="store_true", default=False,
@@ -70,6 +69,9 @@ if __name__ == '__main__': # pragma: no cover
         parser.add_argument("config_file")
 
         options = parser.parse_args()
+        if not options.template_config_file:
+            print("The base WeeWX configuration file (--template) is required.")
+            return 4
 
         template_config = configobj.ConfigObj(options.template_config_file, encoding='utf-8', interpolation=False, file_error=True)
 
@@ -86,8 +88,10 @@ if __name__ == '__main__': # pragma: no cover
         merge_config(customization_config, secrets_config)
 
         first_key = list(customization_config)[1]
-        customization_config.comments[first_key].insert(0, f"Built with {' '.join(sys.argv)}")
-        customization_config.comments[first_key].insert(0, f"Built on {datetime.date.today()} at {datetime.datetime.now().strftime('%H:%M:%S')}.")
+        customization_config.comments[first_key].insert(0,
+                                                        f"Built with {' '.join(sys.argv)}")
+        customization_config.comments[first_key].insert(0,
+                                                        f"Built on {datetime.date.today()} at {datetime.datetime.now().strftime('%H:%M:%S')}.")
         customization_config.comments[first_key].insert(0, '')
 
 
