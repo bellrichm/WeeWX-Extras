@@ -57,13 +57,19 @@ if __name__ == '__main__': # pragma: no cover
         """ Run it."""
         print("start")
         parser = argparse.ArgumentParser(usage=USAGE)
-        parser.add_argument("--secrets", dest="secrets_config_file",
-                            nargs="?", const="secrets.conf", default="secrets.conf", type=str,
-                            help="The secrets file (password, API keys, etc).")
+
         parser.add_argument("--template", type=str, dest="template_config_file",
                             help="The base WeeWX configuration file.")
         parser.add_argument("--add", dest="customization_file",
                             help="Additional customizations.")
+        parser.add_argument("--dir", type=str, dest="customizations_dir",
+                            default="",
+                            help="The directory containing the customizations.")
+                                   
+        parser.add_argument("--secrets", dest="secrets_config_file",
+                            nargs="?", const="secrets.conf", default="secrets.conf", type=str,
+                            help="The secrets file (password, API keys, etc).")
+
         parser.add_argument("--no-backup", action="store_true", default=False,
                             help="When updating the WeeWX configuration (--conf), do not back it up.")
         parser.add_argument("config_file")
@@ -76,7 +82,8 @@ if __name__ == '__main__': # pragma: no cover
         template_config = configobj.ConfigObj(options.template_config_file, encoding='utf-8', interpolation=False, file_error=True)
 
         if options.customization_file:
-            customization_config = configobj.ConfigObj(options.customization_file, encoding='utf-8', interpolation=False, file_error=True)
+            customization_file = options.customizations_dir + '/' + options.customization_file
+            customization_config = configobj.ConfigObj(customization_file, encoding='utf-8', interpolation=False, file_error=True)
             # Merging into the customization config provides more control over the order of keys
             # By default any keys only in template_config will be at the end.
             # If the need to be earlier, placeholders can be added to template_config
