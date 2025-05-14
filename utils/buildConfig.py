@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#    Copyright (c) 2023 Rich Bell <bellrichm@gmail.com>
+#    Copyright (c) 2023-2025 Rich Bell <bellrichm@gmail.com>
 #
 #    See the file LICENSE.txt for your full rights.
 #
@@ -15,12 +15,17 @@ import time
 
 import configobj
 
+VERSION = '2.0.0'
+
+def config_list(arg):
+    ''' An argparse user defined type. '''
+    return arg.split(',')
+
 def merge_config(self_config, indict):
     """Merge and patch a config file"""
 
     self_config.merge(indict)
     patch_config(self_config, indict)
-
 
 def patch_config(self_config, indict):
     """Transfer over parentage and comments."""
@@ -60,12 +65,12 @@ if __name__ == '__main__': # pragma: no cover
 
         parser.add_argument("--template", type=str, dest="template_config_file",
                             help="The base WeeWX configuration file.")
-        parser.add_argument("--add", dest="customization_file",
+        parser.add_argument("--add", type=config_list, dest="configs",
                             help="Additional customizations.")
         parser.add_argument("--dir", type=str, dest="customizations_dir",
                             default="",
                             help="The directory containing the customizations.")
-                                   
+
         parser.add_argument("--secrets", dest="secrets_config_file",
                             nargs="?", const="secrets.conf", default="secrets.conf", type=str,
                             help="The secrets file (password, API keys, etc).")
@@ -81,9 +86,14 @@ if __name__ == '__main__': # pragma: no cover
 
         template_config = configobj.ConfigObj(options.template_config_file, encoding='utf-8', interpolation=False, file_error=True)
 
-        if options.customization_file:
-            customization_file = options.customizations_dir + '/' + options.customization_file
-            customization_config = configobj.ConfigObj(customization_file, encoding='utf-8', interpolation=False, file_error=True)
+        if options.configs:
+            customization_config = configobj.ConfigObj({}, indent_type='    ', encoding='utf-8', interpolation=False)
+
+            for config in options.configs:
+                section_file = options.customizations_dir + '/' + config
+                section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
+                merge_config(customization_config, section_config)
+
             # Merging into the customization config provides more control over the order of keys
             # By default any keys only in template_config will be at the end.
             # If the need to be earlier, placeholders can be added to template_config
@@ -100,7 +110,6 @@ if __name__ == '__main__': # pragma: no cover
         customization_config.comments[first_key].insert(0,
                                                         f"Built on {datetime.date.today()} at {datetime.datetime.now().strftime('%H:%M:%S')}.")
         customization_config.comments[first_key].insert(0, '')
-
 
         if not options.no_backup:
             if os.path.exists(options.config_file + ".bkup"):
