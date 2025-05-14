@@ -70,11 +70,8 @@ if __name__ == '__main__': # pragma: no cover
         parser.add_argument("--dir", type=str, dest="customizations_dir",
                             default="",
                             help="The directory containing the customizations.")
-
         parser.add_argument("--secrets", dest="secrets_config_file",
-                            nargs="?", const="secrets.conf", default="secrets.conf", type=str,
                             help="The secrets file (password, API keys, etc).")
-
         parser.add_argument("--no-backup", action="store_true", default=False,
                             help="When updating the WeeWX configuration (--conf), do not back it up.")
         parser.add_argument("config_file")
@@ -101,8 +98,9 @@ if __name__ == '__main__': # pragma: no cover
         customization_config.initial_comment = template_config.initial_comment
         patch_config(customization_config, template_config)
 
-        secrets_config = configobj.ConfigObj(options.secrets_config_file, encoding='utf-8', interpolation=False, file_error=True)
-        merge_config(customization_config, secrets_config)
+        if options.secrets_config_file:
+            secrets_config = configobj.ConfigObj(options.secrets_config_file, encoding='utf-8', interpolation=False, file_error=True)
+            merge_config(customization_config, secrets_config)
 
         first_key = list(customization_config)[1]
         customization_config.comments[first_key].insert(0,
