@@ -84,22 +84,22 @@ if __name__ == '__main__': # pragma: no cover
             print("The base WeeWX configuration file (--template) is required.")
             return 4
 
+        customization_config = configobj.ConfigObj({}, indent_type='    ', encoding='utf-8', interpolation=False)
         template_config = configobj.ConfigObj(options.template_config_file, encoding='utf-8', interpolation=False, file_error=True)
 
         if options.configs:
-            customization_config = configobj.ConfigObj({}, indent_type='    ', encoding='utf-8', interpolation=False)
 
             for config in options.configs:
                 section_file = options.customizations_dir + '/' + config
                 section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
                 merge_config(customization_config, section_config)
 
-            # Merging into the customization config provides more control over the order of keys
-            # By default any keys only in template_config will be at the end.
-            # If the need to be earlier, placeholders can be added to template_config
-            conditional_merge(customization_config, template_config)
-            customization_config.initial_comment = template_config.initial_comment
-            patch_config(customization_config, template_config)
+        # Merging into the customization config provides more control over the order of keys
+        # By default any keys only in template_config will be at the end.
+        # If the need to be earlier, placeholders can be added to template_config
+        conditional_merge(customization_config, template_config)
+        customization_config.initial_comment = template_config.initial_comment
+        patch_config(customization_config, template_config)
 
         secrets_config = configobj.ConfigObj(options.secrets_config_file, encoding='utf-8', interpolation=False, file_error=True)
         merge_config(customization_config, secrets_config)
