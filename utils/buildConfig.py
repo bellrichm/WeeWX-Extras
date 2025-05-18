@@ -93,15 +93,15 @@ if __name__ == '__main__': # pragma: no cover
 
         customization_config = configobj.ConfigObj({}, indent_type='    ', encoding='utf-8', interpolation=False)
 
-        if options.stdreport_configs:
-            for config in options.stdreport_configs:
-                section_file = options.stdreport_dir + '/' + config
-                section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
-                merge_config(customization_config, section_config)
-
         if options.configs:
             for config in options.configs:
                 section_file = options.customizations_dir + '/' + config
+                section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
+                merge_config(customization_config, section_config)
+
+        if options.stdreport_configs:
+            for config in options.stdreport_configs:
+                section_file = options.stdreport_dir + '/' + config
                 section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
                 merge_config(customization_config, section_config)
 
