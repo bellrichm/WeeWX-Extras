@@ -41,6 +41,8 @@ def patch_config(self_config, indict):
             patch_config(self_config[key], indict[key])
         elif not self_config.comments[key] and key in indict.comments and indict.comments[key]:
             self_config.comments[key] = indict.comments[key]
+        elif not self_config.inline_comments[key] and key in indict.inline_comments and indict.inline_comments[key]:
+            self_config.inline_comments[key] = indict.inline_comments[key]
 
 def conditional_merge(a_dict, b_dict):
     """Merge fields from b_dict into a_dict, but only if they do not yet
