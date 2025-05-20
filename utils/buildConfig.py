@@ -139,6 +139,8 @@ if __name__ == '__main__': # pragma: no cover
         customization_config.comments[first_key].insert(0,
                                                         f"Built with {' '.join(sys.argv)}")
         customization_config.comments[first_key].insert(0,
+                                                        f"Built {options.config_file}")        
+        customization_config.comments[first_key].insert(0,
                                                         f"Built on {datetime.date.today()} at {datetime.datetime.now().strftime('%H:%M:%S')}.")
         customization_config.comments[first_key].insert(0, '')
 
