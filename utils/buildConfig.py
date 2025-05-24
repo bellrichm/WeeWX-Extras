@@ -63,7 +63,13 @@ if __name__ == '__main__': # pragma: no cover
     def main():
         """ Run it."""
         print("start")
+        service_dir = '/service/'
+        stdreport_dir = '/stdreport/'
+
         parser = argparse.ArgumentParser(usage=USAGE)
+
+        parser.add_argument("--server", type=str, dest="server",
+                            help="The server this configuration is for")
 
         parser.add_argument("--template", type=str, dest="template_config_file",
                             help="The base WeeWX configuration file.")
@@ -74,15 +80,9 @@ if __name__ == '__main__': # pragma: no cover
         parser.add_argument("--add", type=config_list, dest="configs",
                             help="Additional customizations.")
 
-        parser.add_argument("--service-dir", type=str, dest="service_dir",
-                            default="",
-                            help="The directory containing the services.")
         parser.add_argument("--add-service", type=config_list, dest="services_configs",
                             help="Services customizations.")
 
-        parser.add_argument("--stdreport-dir", type=str, dest="stdreport_dir",
-                            default="",
-                            help="The directory containing the customizations.")
         parser.add_argument("--add-stdreport", type=config_list, dest="stdreport_configs",
                             help="StdReport customizations.")
 
@@ -109,13 +109,13 @@ if __name__ == '__main__': # pragma: no cover
 
         if options.services_configs:
             for config in options.services_configs:
-                section_file = options.service_dir + '/' + config
+                section_file = options.customizations_dir + service_dir + config
                 section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
                 merge_config(customization_config, section_config)
 
         if options.stdreport_configs:
             for config in options.stdreport_configs:
-                section_file = options.stdreport_dir + '/' + config
+                section_file = options.customizations_dir + stdreport_dir + config
                 section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
                 merge_config(customization_config, section_config)
 
