@@ -65,18 +65,18 @@ if __name__ == '__main__': # pragma: no cover
         print("start")
         service_dir = '/service/'
         stdreport_dir = '/stdreport/'
+        server_dir = '/server/'
 
         parser = argparse.ArgumentParser(usage=USAGE)
 
         parser.add_argument("--server", type=str, dest="server",
                             help="The server this configuration is for")
-
         parser.add_argument("--template", type=str, dest="template_config_file",
                             help="The base WeeWX configuration file.")
-
         parser.add_argument("--dir", type=str, dest="customizations_dir",
                             default="",
                             help="The directory containing the customizations.")
+    
         parser.add_argument("--add", type=config_list, dest="configs",
                             help="Additional customizations.")
 
@@ -99,6 +99,11 @@ if __name__ == '__main__': # pragma: no cover
             print("The base WeeWX configuration file (--template) is required.")
             return 4
 
+        options = parser.parse_args()
+        if not options.server:
+            print("The server (--server) is required.")
+            return 4
+
         customization_config = configobj.ConfigObj({}, indent_type='    ', encoding='utf-8', interpolation=False)
 
         if options.configs:
@@ -118,6 +123,13 @@ if __name__ == '__main__': # pragma: no cover
                 section_file = options.customizations_dir + stdreport_dir + config
                 section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
                 merge_config(customization_config, section_config)
+
+        server_config_dir = options.customizations_dir + server_dir + options.server
+        server_config_files = os.listdir(server_config_dir)
+        for server_config_file in server_config_files:
+            server_config = configobj.ConfigObj(server_config_dir + '/' + server_config_file, encoding='utf-8', interpolation=False, file_error=True)
+            merge_config(customization_config, server_config)
+
 
         template_config = configobj.ConfigObj(options.template_config_file, encoding='utf-8', interpolation=False, file_error=True)
         # Merging into the customization config provides more control over the order of keys
