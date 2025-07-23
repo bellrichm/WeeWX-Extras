@@ -145,14 +145,6 @@ if __name__ == '__main__': # pragma: no cover
         parser.add_argument("config_file")
 
         options = parser.parse_args()
-        #if not options.template_config_file:
-        #    print("The base WeeWX configuration file (--template) is required.")
-        #    return 4
-
-        #options = parser.parse_args()
-        #if not options.server:
-        #    print("The server (--server) is required.")
-        #    return 4
 
         customization_config = configobj.ConfigObj({}, indent_type='    ', encoding='utf-8', interpolation=False)
 
