@@ -62,49 +62,6 @@ if __name__ == '__main__': # pragma: no cover
     USAGE = "usage"
     DESCRIPTION = "--add, --add-services, --add-stdreport, --server, --template, --config, --secrets"
     EPILOG=""
-    '''
-    # Built with /home/richbell/bin/buildConfig.py 
-      --server development 
-      --template /home/richbell/weewx/src/weewx_data/weewx.conf 
-      --dir /home/richbell/weewx_dev/configs/extensions/ 
-      --add report.template.conf,
-            logging.conf,
-            drivers/mqttreplicate.conf,
-            drivers/mqttsubscribedriver.conf,
-            drivers/vantage.bkup.conf 
-      --add-service mqttsubscribeservice.conf,
-                    mqttpublish.conf,
-                    replicatedb.conf,
-                    backup.conf,
-                    computermonitor.conf,
-                    memorymonitor.conf,
-                    aqitype.conf,
-                    observationtime.conf,
-                    pushover.conf 
-      --add-stdreport develop.conf,
-                      healthchecks.conf,
-                      local_cmon.conf,
-                      cmon.conf,
-                      local_mem.conf,
-                      mem.conf,
-                      jas.conf,
-                      jas-mem.conf,
-                      jas-monitor.conf,
-                      aws.conf,
-                      production.conf,
-                      seasonsreport.conf,
-                      smartphonereport.conf,
-                      mobilereport.conf,
-                      standardreport.conf,
-                      bootstrap.conf,
-                      wdcreport.conf,
-                      belchertown.conf,
-                      aqi.conf 
-      --config /home/richbell/weewx_dev/configs/extensions/rmbell-v01.conf 
-      --secrets /home/richbell/weewx_dev/secrets/rmbellv01/mqttreplicate.secrets.conf 
-      /home/richbell/weewx-data/run/weewx.conf 
-      --no-backup
-    '''
     def main():
         """ Run it."""
         #print("start")
