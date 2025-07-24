@@ -105,6 +105,12 @@ if __name__ == '__main__': # pragma: no cover
 
         customization_config = configobj.ConfigObj({}, indent_type='    ', encoding='utf-8', interpolation=False)
 
+        template_config = configobj.ConfigObj(options.template_config_file, encoding='utf-8', interpolation=False, file_error=True)
+        
+        conditional_merge(customization_config, template_config)
+        customization_config.initial_comment = template_config.initial_comment
+        patch_config(customization_config, template_config)        
+        
         if options.configs:
             for config in options.configs:
                 section_file = options.customizations_dir + '/' + config
@@ -130,15 +136,6 @@ if __name__ == '__main__': # pragma: no cover
                                                 '/' +
                                                 server_config_file, encoding='utf-8', interpolation=False, file_error=True)
             merge_config(customization_config, server_config)
-
-
-        template_config = configobj.ConfigObj(options.template_config_file, encoding='utf-8', interpolation=False, file_error=True)
-        # Merging into the customization config provides more control over the order of keys
-        # By default any keys only in template_config will be at the end.
-        # If the need to be earlier, placeholders can be added to template_config
-        conditional_merge(customization_config, template_config)
-        customization_config.initial_comment = template_config.initial_comment
-        patch_config(customization_config, template_config)
 
         if options.server_config_file:
             server_config = configobj.ConfigObj(options.server_config_file, encoding='utf-8', interpolation=False, file_error=True)
