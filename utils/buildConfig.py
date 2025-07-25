@@ -17,6 +17,10 @@ import configobj
 
 VERSION = '2.0.0'
 
+USAGE = "usage"
+DESCRIPTION = "--add, --add-services, --add-stdreport, --server, --template, --config, --secrets"
+EPILOG=""
+
 def config_list(arg):
     ''' An argparse user defined type. '''
     return arg.split(',')
@@ -58,10 +62,43 @@ def conditional_merge(a_dict, b_dict):
             # It's a scalar. Transfer over the value...
             a_dict[k] = b_dict[k]
 
+def get_options():
+    """Get the program options."""
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description=DESCRIPTION, epilog=EPILOG)
+
+    parser.add_argument('--version', action='version', version=f'%(prog)s {VERSION}')
+
+    parser.add_argument("--dir", type=str, dest="customizations_dir",
+                        default="",
+                        help="The directory containing the customizations.")
+
+    parser.add_argument("--template", required=True, type=str, dest="template_config_file",
+                        help="The base WeeWX configuration file.")
+
+    parser.add_argument("--add", type=config_list, dest="configs",
+                        help="Additional customizations.")
+
+    parser.add_argument("--add-service", type=config_list, dest="services_configs",
+                        help="Services customizations.")
+
+    parser.add_argument("--add-stdreport", type=config_list, dest="stdreport_configs",
+                        help="StdReport customizations.")
+
+    parser.add_argument("--server", required=True, type=str, dest="server",
+                        help=("The server this configuration is for.\n"
+                                "test2")
+                        )
+
+    parser.add_argument("--secrets", dest="secrets_config_file",
+                        help="The secrets file (password, API keys, etc).")
+
+    parser.add_argument("--no-backup", action="store_true", default=False,
+                        help="When updating the WeeWX configuration (--conf), do not back it up.")
+    parser.add_argument("config_file")
+
+    return parser.parse_args()
+
 if __name__ == '__main__': # pragma: no cover
-    USAGE = "usage"
-    DESCRIPTION = "--add, --add-services, --add-stdreport, --server, --template, --config, --secrets"
-    EPILOG=""
     def main():
         """ Run it."""
         #print("start")
@@ -69,48 +106,16 @@ if __name__ == '__main__': # pragma: no cover
         stdreport_dir = '/stdreport/'
         server_dir = '/server/'
 
-        parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description=DESCRIPTION, epilog=EPILOG)
-
-        parser.add_argument('--version', action='version', version=f'%(prog)s {VERSION}')
-
-        parser.add_argument("--server", required=True, type=str, dest="server",
-                            help=("The server this configuration is for.\n"
-                                  "test2")
-                           )
-        parser.add_argument("--template", required=True, type=str, dest="template_config_file",
-                            help="The base WeeWX configuration file.")
-        parser.add_argument("--dir", type=str, dest="customizations_dir",
-                            default="",
-                            help="The directory containing the customizations.")
-
-        parser.add_argument("--add", type=config_list, dest="configs",
-                            help="Additional customizations.")
-
-        parser.add_argument("--add-service", type=config_list, dest="services_configs",
-                            help="Services customizations.")
-
-        parser.add_argument("--add-stdreport", type=config_list, dest="stdreport_configs",
-                            help="StdReport customizations.")
-
-        parser.add_argument("--config", dest="server_config_file",
-                            help="The configuration file for a server.")
-        parser.add_argument("--secrets", dest="secrets_config_file",
-                            help="The secrets file (password, API keys, etc).")
-
-        parser.add_argument("--no-backup", action="store_true", default=False,
-                            help="When updating the WeeWX configuration (--conf), do not back it up.")
-        parser.add_argument("config_file")
-
-        options = parser.parse_args()
+        options = get_options()
 
         customization_config = configobj.ConfigObj({}, indent_type='    ', encoding='utf-8', interpolation=False)
 
         template_config = configobj.ConfigObj(options.template_config_file, encoding='utf-8', interpolation=False, file_error=True)
-        
+
         conditional_merge(customization_config, template_config)
         customization_config.initial_comment = template_config.initial_comment
-        patch_config(customization_config, template_config)        
-        
+        patch_config(customization_config, template_config)
+
         if options.configs:
             for config in options.configs:
                 section_file = options.customizations_dir + '/' + config
@@ -135,10 +140,6 @@ if __name__ == '__main__': # pragma: no cover
             server_config = configobj.ConfigObj(server_config_dir +
                                                 '/' +
                                                 server_config_file, encoding='utf-8', interpolation=False, file_error=True)
-            merge_config(customization_config, server_config)
-
-        if options.server_config_file:
-            server_config = configobj.ConfigObj(options.server_config_file, encoding='utf-8', interpolation=False, file_error=True)
             merge_config(customization_config, server_config)
 
         if options.secrets_config_file:
