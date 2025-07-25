@@ -81,6 +81,9 @@ def get_options():
     parser.add_argument("--add-service", type=config_list, dest="services_configs",
                         help="Services customizations.")
 
+    parser.add_argument("--add-driver", type=config_list, dest="drivers_configs",
+                        help="Drivers customizations.")
+
     parser.add_argument("--add-stdreport", type=config_list, dest="stdreport_configs",
                         help="StdReport customizations.")
 
@@ -101,6 +104,7 @@ def get_options():
 
 def main():
     """ Run it."""
+    driver_dir = '/driver/'
     service_dir = '/service/'
     stdreport_dir = '/stdreport/'
     server_dir = '/server/'
@@ -118,6 +122,12 @@ def main():
     if options.configs:
         for config in options.configs:
             section_file = options.customizations_dir + '/' + config
+            section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
+            merge_config(customization_config, section_config)
+
+    if options.drivers_configs:
+        for config in options.drivers_configs:
+            section_file = options.customizations_dir + driver_dir + config
             section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
             merge_config(customization_config, section_config)
 
