@@ -78,11 +78,14 @@ def get_options():
     parser.add_argument("--add", type=config_list, dest="configs",
                         help="Additional customizations.")
 
-    parser.add_argument("--add-service", type=config_list, dest="services_configs",
-                        help="Services customizations.")
+    parser.add_argument("--add-weewx", type=config_list, dest="weewx_configs",
+                        help="WeeWX customizations.")
 
     parser.add_argument("--add-driver", type=config_list, dest="drivers_configs",
                         help="Drivers customizations.")
+
+    parser.add_argument("--add-service", type=config_list, dest="services_configs",
+                        help="Services customizations.")
 
     parser.add_argument("--add-stdreport", type=config_list, dest="stdreport_configs",
                         help="StdReport customizations.")
@@ -104,6 +107,7 @@ def get_options():
 
 def main():
     """ Run it."""
+    weewx_dir = '/weewx/'
     driver_dir = '/driver/'
     service_dir = '/service/'
     stdreport_dir = '/stdreport/'
@@ -124,6 +128,13 @@ def main():
             section_file = options.customizations_dir + '/' + config
             section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
             merge_config(customization_config, section_config)
+
+    if options.weewx_configs:
+        for config in options.weewx_configs:
+            section_file = options.customizations_dir + weewx_dir + config
+            section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
+            merge_config(customization_config, section_config)
+
 
     if options.drivers_configs:
         for config in options.drivers_configs:
