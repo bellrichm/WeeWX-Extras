@@ -108,13 +108,13 @@ if __name__ == '__main__': # pragma: no cover
 
         options = get_options()
 
-        customization_config = configobj.ConfigObj({}, indent_type='    ', encoding='utf-8', interpolation=False)
+        #customization_config = configobj.ConfigObj({}, indent_type='    ', encoding='utf-8', interpolation=False)
 
-        template_config = configobj.ConfigObj(options.template_config_file, encoding='utf-8', interpolation=False, file_error=True)
+        customization_config = configobj.ConfigObj(options.template_config_file, encoding='utf-8', interpolation=False, file_error=True)
 
-        conditional_merge(customization_config, template_config)
-        customization_config.initial_comment = template_config.initial_comment
-        patch_config(customization_config, template_config)
+        #conditional_merge(customization_config, template_config)
+        #customization_config.initial_comment = template_config.initial_comment
+        #patch_config(customization_config, template_config)
 
         if options.configs:
             for config in options.configs:
