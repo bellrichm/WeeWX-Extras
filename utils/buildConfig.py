@@ -98,73 +98,74 @@ def get_options():
 
     return parser.parse_args()
 
-if __name__ == '__main__': # pragma: no cover
-    def main():
-        """ Run it."""
-        #print("start")
-        service_dir = '/service/'
-        stdreport_dir = '/stdreport/'
-        server_dir = '/server/'
 
-        options = get_options()
+def main():
+    """ Run it."""
+    service_dir = '/service/'
+    stdreport_dir = '/stdreport/'
+    server_dir = '/server/'
 
-        #customization_config = configobj.ConfigObj({}, indent_type='    ', encoding='utf-8', interpolation=False)
+    options = get_options()
 
-        customization_config = configobj.ConfigObj(options.template_config_file, encoding='utf-8', interpolation=False, file_error=True)
+    #customization_config = configobj.ConfigObj({}, indent_type='    ', encoding='utf-8', interpolation=False)
 
-        #conditional_merge(customization_config, template_config)
-        #customization_config.initial_comment = template_config.initial_comment
-        #patch_config(customization_config, template_config)
+    customization_config = configobj.ConfigObj(options.template_config_file, encoding='utf-8', interpolation=False, file_error=True)
 
-        if options.configs:
-            for config in options.configs:
-                section_file = options.customizations_dir + '/' + config
-                section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
-                merge_config(customization_config, section_config)
+    #conditional_merge(customization_config, template_config)
+    #customization_config.initial_comment = template_config.initial_comment
+    #patch_config(customization_config, template_config)
 
-        if options.services_configs:
-            for config in options.services_configs:
-                section_file = options.customizations_dir + service_dir + config
-                section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
-                merge_config(customization_config, section_config)
+    if options.configs:
+        for config in options.configs:
+            section_file = options.customizations_dir + '/' + config
+            section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
+            merge_config(customization_config, section_config)
 
-        if options.stdreport_configs:
-            for config in options.stdreport_configs:
-                section_file = options.customizations_dir + stdreport_dir + config
-                section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
-                merge_config(customization_config, section_config)
+    if options.services_configs:
+        for config in options.services_configs:
+            section_file = options.customizations_dir + service_dir + config
+            section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
+            merge_config(customization_config, section_config)
 
-        server_config_dir = options.customizations_dir + server_dir + options.server
-        server_config_files = os.listdir(server_config_dir)
-        for server_config_file in server_config_files:
-            server_config = configobj.ConfigObj(server_config_dir +
-                                                '/' +
-                                                server_config_file, encoding='utf-8', interpolation=False, file_error=True)
-            merge_config(customization_config, server_config)
+    if options.stdreport_configs:
+        for config in options.stdreport_configs:
+            section_file = options.customizations_dir + stdreport_dir + config
+            section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
+            merge_config(customization_config, section_config)
 
-        if options.secrets_config_file:
-            secrets_config = configobj.ConfigObj(options.secrets_config_file, encoding='utf-8', interpolation=False, file_error=True)
-            merge_config(customization_config, secrets_config)
+    server_config_dir = options.customizations_dir + server_dir + options.server
+    server_config_files = os.listdir(server_config_dir)
+    for server_config_file in server_config_files:
+        server_config = configobj.ConfigObj(server_config_dir +
+                                            '/' +
+                                            server_config_file, encoding='utf-8', interpolation=False, file_error=True)
+        merge_config(customization_config, server_config)
 
-        first_key = list(customization_config)[1]
-        customization_config.comments[first_key].insert(0,
-                                                        f"Built with {' '.join(sys.argv)}")
-        customization_config.comments[first_key].insert(0,
-                                                        f"Built {options.config_file}")        
-        customization_config.comments[first_key].insert(0,
-                                                        f"Built on {datetime.date.today()} at {datetime.datetime.now().strftime('%H:%M:%S')}.")
-        customization_config.comments[first_key].insert(0, '')
+    if options.secrets_config_file:
+        secrets_config = configobj.ConfigObj(options.secrets_config_file, encoding='utf-8', interpolation=False, file_error=True)
+        merge_config(customization_config, secrets_config)
 
-        if not options.no_backup:
-            if os.path.exists(options.config_file + ".bkup"):
-                shutil.move(options.config_file + ".bkup", options.config_file + time.strftime(".bkup%Y%m%d%H%M%S"))
+    first_key = list(customization_config)[1]
+    customization_config.comments[first_key].insert(0,
+                                                    f"Built with {' '.join(sys.argv)}")
+    customization_config.comments[first_key].insert(0,
+                                                    f"Built {options.config_file}")        
+    customization_config.comments[first_key].insert(0,
+                                                    (f"Built with version {VERSION} "
+                                                     f"on {datetime.date.today()} "
+                                                     f"at {datetime.datetime.now().strftime('%H:%M:%S')}."
+                                                    ))
+    customization_config.comments[first_key].insert(0, '')
 
-            if os.path.exists(options.config_file):
-                shutil.move(options.config_file, options.config_file + ".bkup")
+    if not options.no_backup:
+        if os.path.exists(options.config_file + ".bkup"):
+            shutil.move(options.config_file + ".bkup", options.config_file + time.strftime(".bkup%Y%m%d%H%M%S"))
 
-        customization_config.filename = options.config_file
-        customization_config.write()
+        if os.path.exists(options.config_file):
+            shutil.move(options.config_file, options.config_file + ".bkup")
 
-        #print("done")
+    customization_config.filename = options.config_file
+    customization_config.write()
 
+if __name__ == '__main__':
     main()
