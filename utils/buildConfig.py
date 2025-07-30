@@ -154,13 +154,19 @@ def main():
             section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
             merge_config(customization_config, section_config)
 
-    server_config_dir = options.customizations_dir + server_dir + options.server
-    server_config_files = os.listdir(server_config_dir)
-    for server_config_file in server_config_files:
-        server_config = configobj.ConfigObj(server_config_dir +
-                                            '/' +
-                                            server_config_file, encoding='utf-8', interpolation=False, file_error=True)
-        merge_config(customization_config, server_config)
+    #server_config_dir = options.customizations_dir + server_dir + options.server
+    #server_config_files = os.listdir(server_config_dir)
+    #for server_config_file in server_config_files:
+    #    server_config = configobj.ConfigObj(server_config_dir +
+    #                                        '/' +
+    #                                        server_config_file, encoding='utf-8', interpolation=False, file_error=True)
+    #    merge_config(customization_config, server_config)
+
+    server_config = configobj.ConfigObj(options.customizations_dir + server_dir + options.server + '.conf',
+                                        encoding='utf-8',
+                                        interpolation=False,
+                                        file_error=True)
+    merge_config(customization_config, server_config)
 
     if options.secrets_config_file:
         secrets_config = configobj.ConfigObj(options.secrets_config_file, encoding='utf-8', interpolation=False, file_error=True)
