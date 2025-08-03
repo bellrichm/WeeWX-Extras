@@ -115,13 +115,7 @@ def main():
 
     options = get_options()
 
-    #customization_config = configobj.ConfigObj({}, indent_type='    ', encoding='utf-8', interpolation=False)
-
     customization_config = configobj.ConfigObj(options.template_config_file, encoding='utf-8', interpolation=False, file_error=True)
-
-    #conditional_merge(customization_config, template_config)
-    #customization_config.initial_comment = template_config.initial_comment
-    #patch_config(customization_config, template_config)
 
     if options.configs:
         for config in options.configs:
@@ -134,7 +128,6 @@ def main():
             section_file = options.customizations_dir + weewx_dir + config
             section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
             merge_config(customization_config, section_config)
-
 
     if options.drivers_configs:
         for config in options.drivers_configs:
@@ -153,14 +146,6 @@ def main():
             section_file = options.customizations_dir + stdreport_dir + config
             section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
             merge_config(customization_config, section_config)
-
-    #server_config_dir = options.customizations_dir + server_dir + options.server
-    #server_config_files = os.listdir(server_config_dir)
-    #for server_config_file in server_config_files:
-    #    server_config = configobj.ConfigObj(server_config_dir +
-    #                                        '/' +
-    #                                        server_config_file, encoding='utf-8', interpolation=False, file_error=True)
-    #    merge_config(customization_config, server_config)
 
     server_config = configobj.ConfigObj(options.customizations_dir + server_dir + options.server + '.conf',
                                         encoding='utf-8',
