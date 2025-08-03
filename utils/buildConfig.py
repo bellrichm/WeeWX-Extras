@@ -98,12 +98,15 @@ def get_options():
     parser.add_argument("--secrets", dest="secrets_config_file",
                         help="The secrets file (password, API keys, etc).")
 
+    parser.add_argument("--overrides", dest="overrides_config_file",
+                        help="The overrides file.\n"
+                                "Useful for overriding options when debugging.")
+
     parser.add_argument("--no-backup", action="store_true", default=False,
                         help="When updating the WeeWX configuration (--conf), do not back it up.")
     parser.add_argument("config_file")
 
     return parser.parse_args()
-
 
 def main():
     """ Run it."""
@@ -156,6 +159,13 @@ def main():
     if options.secrets_config_file:
         secrets_config = configobj.ConfigObj(options.secrets_config_file, encoding='utf-8', interpolation=False, file_error=True)
         merge_config(customization_config, secrets_config)
+
+    if options.overrides_config_file:
+        overrides_config = configobj.ConfigObj(options.customizations_dir + options.overrides_config_file,
+                                               encoding='utf-8',
+                                               interpolation=False,
+                                               file_error=True)
+        merge_config(customization_config, overrides_config)
 
     first_key = list(customization_config)[1]
     customization_config.comments[first_key].insert(0,
