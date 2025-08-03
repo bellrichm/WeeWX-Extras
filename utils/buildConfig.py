@@ -167,17 +167,14 @@ def main():
                                                file_error=True)
         merge_config(customization_config, overrides_config)
 
-    first_key = list(customization_config)[1]
-    customization_config.comments[first_key].insert(0,
-                                                    f"Built with {' '.join(sys.argv)}")
-    customization_config.comments[first_key].insert(0,
-                                                    f"Built {options.config_file}")        
-    customization_config.comments[first_key].insert(0,
-                                                    (f"Built with version {VERSION} "
-                                                     f"on {datetime.date.today()} "
-                                                     f"at {datetime.datetime.now().strftime('%H:%M:%S')}."
-                                                    ))
-    customization_config.comments[first_key].insert(0, '')
+    customization_config.initial_comment.insert(0, '#')
+    customization_config.initial_comment.insert(0,f"Built with {' '.join(sys.argv)}")
+    customization_config.initial_comment.insert(0,f"Built {options.config_file}")
+    customization_config.initial_comment.insert(0,(f"Built with version {VERSION} "
+                                                   f"on {datetime.date.today()} "
+                                                   f"at {datetime.datetime.now().strftime('%H:%M:%S')}."
+                                                ))
+    customization_config.initial_comment.insert(0, '#')
 
     if not options.no_backup:
         if os.path.exists(options.config_file + ".bkup"):
