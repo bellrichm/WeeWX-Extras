@@ -27,7 +27,8 @@ def config_list(arg):
 
 def merge_config(self_config, indict):
     """Merge and patch a config file"""
-
+    first_key = list(indict)[0]
+    indict.comments[first_key].insert(0, '#')
     self_config.merge(indict)
     patch_config(self_config, indict)
 
