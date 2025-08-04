@@ -25,8 +25,39 @@ def config_list(arg):
     ''' An argparse user defined type. '''
     return arg.split(',')
 
+def to_list(option):
+    if option is None:
+        return None
+    return [option] if not isinstance(option, list) else option
+
+def merge_engine(base_section, config_section):
+    #print(base_section)
+    #print(config_section)
+    if 'Services' in config_section:
+        #print(config_section['Services'])
+        for service_group in config_section['Services']:
+            if service_group in base_section['Services']:
+                #print(service_group)
+                #print(config_section['Services'][service_group])
+                for service in to_list(config_section['Services'][service_group]):
+                    #print('  ' + service)
+                    base_section['Services'][service_group] = to_list(base_section['Services'][service_group])
+                    if service in base_section['Services'][service_group]:
+                        base_section['Services'][service_group].remove(service)
+                    base_section['Services'][service_group].append(service)
+            else:
+                print("ERROR 02")
+    else:
+        print("ERROR 01")
+
 def merge_config(self_config, indict):
     """Merge and patch a config file"""
+
+    #print(self_config.sections)
+    if 'Engine' in indict.sections:
+        merge_engine(self_config.get('Engine', {}), indict['Engine'])
+        indict.sections.remove('Engine')
+
     first_key = list(indict)[0]
     indict.comments[first_key].insert(0, '#')
     self_config.merge(indict)
