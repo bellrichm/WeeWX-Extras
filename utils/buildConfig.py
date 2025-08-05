@@ -47,6 +47,17 @@ def merge_engine(base_section, config_section):
                     base_section['Services'][service_group].append(service)
             else:
                 print("ERROR 02")
+    elif 'Services-Replace' in config_section:
+        #print(config_section['Services-Replace'])
+        for service_group in config_section['Services-Replace']:
+            if service_group in base_section['Services']:
+                #print(service_group)
+                #print(config_section['Services-Replace'][service_group])
+                for service in to_list(config_section['Services-Replace'][service_group]):
+                    #print('  ' + service)
+                    base_section['Services'][service_group] = config_section['Services-Replace'][service_group]
+            else:
+                print("ERROR 03")
     else:
         print("ERROR 01")
 
