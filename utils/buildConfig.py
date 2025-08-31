@@ -157,7 +157,6 @@ def main():
     driver_dir = '/driver/'
     service_dir = '/service/'
     stdreport_dir = '/stdreport/'
-    server_dir = '/server/'
 
     options = get_options()
 
@@ -193,10 +192,7 @@ def main():
             section_config = configobj.ConfigObj(section_file, encoding='utf-8', interpolation=False, file_error=True)
             merge_config(customization_config, section_config)
 
-    server_config = configobj.ConfigObj(options.customizations_dir + server_dir + options.server + '.conf',
-                                        encoding='utf-8',
-                                        interpolation=False,
-                                        file_error=True)
+    server_config = configobj.ConfigObj(options.server, encoding='utf-8', interpolation=False, file_error=True)
     merge_config(customization_config, server_config)
 
     if options.secrets_config_file:
