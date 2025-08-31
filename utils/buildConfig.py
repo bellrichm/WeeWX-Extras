@@ -204,10 +204,7 @@ def main():
         merge_config(customization_config, secrets_config)
 
     if options.overrides_config_file:
-        overrides_config = configobj.ConfigObj(options.customizations_dir + options.overrides_config_file,
-                                               encoding='utf-8',
-                                               interpolation=False,
-                                               file_error=True)
+        overrides_config = configobj.ConfigObj(options.overrides_config_file, encoding='utf-8', interpolation=False, file_error=True)
         merge_config(customization_config, overrides_config)
 
     customization_config.initial_comment.insert(0, '#')
