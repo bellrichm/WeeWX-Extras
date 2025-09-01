@@ -69,8 +69,9 @@ def merge_config(self_config, indict):
         merge_engine(self_config.get('Engine', {}), indict['Engine'])
         indict.sections.remove('Engine')
 
-    first_key = list(indict)[0]
-    indict.comments[first_key].insert(0, '#')
+    if indict:
+        first_key = list(indict)[0]
+        indict.comments[first_key].insert(0, '#')
     self_config.merge(indict)
     patch_config(self_config, indict)
 
