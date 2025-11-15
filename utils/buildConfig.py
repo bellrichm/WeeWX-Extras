@@ -19,7 +19,12 @@ VERSION = '2.0.0'
 
 USAGE = "usage"
 DESCRIPTION = "--add, --add-services, --add-stdreport, --server, --template, --config, --secrets"
-EPILOG=""
+EPILOG = ""
+
+verbose = False
+def printit(msg):
+    if verbose:
+        print(msg)
 
 def config_list(arg):
     ''' An argparse user defined type. '''
@@ -31,16 +36,16 @@ def to_list(option):
     return [option] if not isinstance(option, list) else option
 
 def merge_engine(base_section, config_section):
-    #print(base_section)
-    #print(config_section)
+    printit(base_section)
+    printit(config_section)
     if 'Services' in config_section:
-        #print(config_section['Services'])
+        printit(config_section['Services'])
         for service_group in config_section['Services']:
             if service_group in base_section['Services']:
-                #print(service_group)
-                #print(config_section['Services'][service_group])
+                printit(service_group)
+                printit(config_section['Services'][service_group])
                 for service in to_list(config_section['Services'][service_group]):
-                    #print('  ' + service)
+                    printit('  ' + service)
                     base_section['Services'][service_group] = to_list(base_section['Services'][service_group])
                     if service in base_section['Services'][service_group]:
                         base_section['Services'][service_group].remove(service)
@@ -48,13 +53,13 @@ def merge_engine(base_section, config_section):
             else:
                 print("ERROR 02")
     elif 'Services-Replace' in config_section:
-        #print(config_section['Services-Replace'])
+        printit(config_section['Services-Replace'])
         for service_group in config_section['Services-Replace']:
             if service_group in base_section['Services']:
-                #print(service_group)
-                #print(config_section['Services-Replace'][service_group])
+                printit(service_group)
+                printit(config_section['Services-Replace'][service_group])
                 for service in to_list(config_section['Services-Replace'][service_group]):
-                    #print('  ' + service)
+                    printit('  ' + service)
                     base_section['Services'][service_group] = config_section['Services-Replace'][service_group]
             else:
                 print("ERROR 03")
@@ -64,7 +69,7 @@ def merge_engine(base_section, config_section):
 def merge_config(self_config, indict):
     """Merge and patch a config file"""
 
-    #print(self_config.sections)
+    printit(self_config.sections)
     if 'Engine' in indict.sections:
         merge_engine(self_config.get('Engine', {}), indict['Engine'])
         indict.sections.remove('Engine')
@@ -136,7 +141,7 @@ def get_options():
 
     parser.add_argument("--server", required=True, type=str, dest="server",
                         help=("The server this configuration is for.\n"
-                                "test2")
+                              "test2")
                         )
 
     parser.add_argument("--secrets", dest="secrets_config_file",
@@ -144,7 +149,7 @@ def get_options():
 
     parser.add_argument("--overrides", dest="overrides_config_file",
                         help="The overrides file.\n"
-                                "Useful for overriding options when debugging.")
+                             "Useful for overriding options when debugging.")
 
     parser.add_argument("--no-backup", action="store_true", default=False,
                         help="When updating the WeeWX configuration (--conf), do not back it up.")
@@ -205,12 +210,12 @@ def main():
         merge_config(customization_config, overrides_config)
 
     customization_config.initial_comment.insert(0, '#')
-    customization_config.initial_comment.insert(0,f"Built with {' '.join(sys.argv)}")
-    customization_config.initial_comment.insert(0,f"Built {options.config_file}")
-    customization_config.initial_comment.insert(0,(f"Built with version {VERSION} "
-                                                   f"on {datetime.date.today()} "
-                                                   f"at {datetime.datetime.now().strftime('%H:%M:%S')}."
-                                                ))
+    customization_config.initial_comment.insert(0, f"Built with {' '.join(sys.argv)}")
+    customization_config.initial_comment.insert(0, f"Built {options.config_file}")
+    customization_config.initial_comment.insert(0, (f"Built with version {VERSION} "
+                                                    f"on {datetime.date.today()} "
+                                                    f"at {datetime.datetime.now().strftime('%H:%M:%S')}."
+                                                    ))
     customization_config.initial_comment.insert(0, '#')
 
     if not options.no_backup:
