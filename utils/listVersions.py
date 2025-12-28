@@ -3,7 +3,7 @@
 import subprocess
 repos_dir = '/home/richbell/weewx_code/'
 weewx_dir = '/home/richbell/weewx'
-repos = ['weewx-gw1000',  'weewx-extensions/aqi-xtype', 'WeeWX-Extras', 'weewx-extensions/healthchecks', 'weewx-extensions/jas', 'weewx-mqtt/publish', 'WeeWX-MQTTSubscribe', 'weewx-extensions/pushover', 'vds-weewx-v3-mem-extension', 'weewx-cmon', 'configs', 'secrets']
+repos = ['weewx-gw1000',  'weewx-extensions/aqi-xtype', 'WeeWX-Extras', 'weewx-extensions/healthchecks', 'weewx-extensions/jas', 'weewx-mqtt/publish', 'weewx-mqtt/subscribe', 'weewx-extensions/pushover', 'vds-weewx-v3-mem-extension', 'weewx-cmon', 'configs', 'secrets']
 
 command = ['git', 'fetch', '--quiet']
 print(f'\nRunning command: {" ".join(command)}')
