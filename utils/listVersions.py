@@ -4,15 +4,19 @@ import subprocess
 REPOS_DIR = '/home/richbell/weewx_code/'
 WEEWX_DIR = '/home/richbell/weewx'
 repos = ['weewx-gw1000',
-         'weewx-extensions/aqi-xtype',
          'WeeWX-Extras',
-         'weewx-extensions/healthchecks',
-         'weewx-extensions/jas',
-         'weewx-mqtt/publish',
-         'weewx-mqtt/subscribe',
-         'weewx-extensions/pushover',
          'vds-weewx-v3-mem-extension',
          'weewx-cmon',
+
+         'weewx-extensions/aqi-xtype',
+         'weewx-extensions/healthchecks',
+         'weewx-extensions/jas',
+         'weewx-extensions/pushover',
+
+         'weewx-mqtt/publish',
+         'weewx-mqtt/replicate',
+         'weewx-mqtt/subscribe',
+
          'configs',
          'secrets']
 
