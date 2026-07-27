@@ -147,7 +147,7 @@ def get_options():
     parser.add_argument("--secrets", dest="secrets_config_file",
                         help="The secrets file (password, API keys, etc).")
 
-    parser.add_argument("--overrides", dest="overrides_config_file",
+    parser.add_argument("--overrides", type=config_list, dest="overrides_configs",
                         help="The overrides file.\n"
                              "Useful for overriding options when debugging.")
 
@@ -205,9 +205,10 @@ def main():
         secrets_config = configobj.ConfigObj(options.secrets_config_file, encoding='utf-8', interpolation=False, file_error=True)
         merge_config(customization_config, secrets_config)
 
-    if options.overrides_config_file:
-        overrides_config = configobj.ConfigObj(options.overrides_config_file, encoding='utf-8', interpolation=False, file_error=True)
-        merge_config(customization_config, overrides_config)
+    if options.overrides_configs:
+        for override_file in options.overrides_configs:
+            overrides_config = configobj.ConfigObj(override_file, encoding='utf-8', interpolation=False, file_error=True)
+            merge_config(customization_config, overrides_config)
 
     customization_config.initial_comment.insert(0, '#')
     customization_config.initial_comment.insert(0, f"Built with {' '.join(sys.argv)}")
