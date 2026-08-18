@@ -7,12 +7,17 @@ repos = ['weewx-gw1000',
          'WeeWX-Extras',
          'vds-weewx-v3-mem-extension',
          'weewx-cmon',
+         
+         'weewx-celestial',
+         'weewx-loopdata',
+         'weewx-skyfield',
 
          'weewx-extensions/aqi-xtype',
          'weewx-extensions/healthchecks',
          'weewx-extensions/jas',
          'weewx-extensions/pushover',
 
+         'weewx-mqtt/plugin-loopdata',
          'weewx-mqtt/publish',
          'weewx-mqtt/replicate',
          'weewx-mqtt/subscribe',
