@@ -59,7 +59,8 @@ for repo in repos:
         output, unused_err = process.communicate()
         print(f'{repo}: {output.decode("utf-8")}')
     except FileNotFoundError:
-        print(f'{repo} does not exist')
+        # print(f'{repo} does not exist')
+        continue
 
 command = ['git', 'log', '--format=format:"%ci %h %d %s"', '-n 1']
 print(f'\nRunning command: {" ".join(command)}')
@@ -77,7 +78,8 @@ for repo in repos:
         output, unused_err = process.communicate()
         print(f'{repo}: {output.decode("utf-8")}')
     except FileNotFoundError:
-        print(f'{repo} does not exist')
+        # print(f'{repo} does not exist')
+        continue
 
 print("\nFor more information run the following commands from the repository directory.")
 print('  git log HEAD..origin --format="format:%ci %h %d %s"')
