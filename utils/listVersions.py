@@ -18,6 +18,7 @@ repos = ['weewx-gw1000',
          'weewx-extensions/jas',
          'weewx-extensions/pushover',
 
+         'weewx-mqtt/mqttcommon',
          'weewx-mqtt/plugin-loopdata',
          'weewx-mqtt/publish',
          'weewx-mqtt/replicate',
