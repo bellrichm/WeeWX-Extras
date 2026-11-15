@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 
+import os
 import subprocess
-REPOS_DIR = '/home/richbell/weewx_code/'
-WEEWX_DIR = '/home/richbell/weewx'
+
+home = os.environ['HOME']
+REPOS_DIR=f'{home}/weewx_code/'
+WEEWX_DIR=f'{home}/weewx/'
+
 repos = ['weewx-gw1000',
          'WeeWX-Extras',
          'vds-weewx-v3-mem-extension',
