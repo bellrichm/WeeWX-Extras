@@ -9,13 +9,13 @@ WEEWX_DIR=f'{home}/weewx/'
 
 repos = ['weewx-gw1000',
          'WeeWX-Extras',
-         'vds-weewx-v3-mem-extension',
-         'weewx-cmon',
          
-         'weewx-celestial',
-         'weewx-loopdata',
-         'weewx-nws',
-         'weewx-skyfield',
+         'forks/vds-weewx-v3-mem-extension',
+         'forks/weewx-cmon',
+         'forks/weewx-celestial',
+         'forks/weewx-loopdata',
+         'forks/weewx-nws',
+         'forks/weewx-skyfield',
 
          'weewx-extensions/aqi-xtype',
          'weewx-extensions/healthchecks',
