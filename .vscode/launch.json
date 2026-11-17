@@ -34,7 +34,7 @@
             "program": "bin/user/pushover.py",
             "console": "integratedTerminal",
             "args": [
-                "--conf", "/home/fork.weewx/weewx.debug.conf",
+                "--conf", "${userHome}/weewx-data/weewx.conf",
             ],                                    
         },        
     ]
