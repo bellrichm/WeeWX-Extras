@@ -97,26 +97,36 @@ class ReplicateDB(StdArchive):
         """ WeeWX new archive record event. """
         print("replicatedb new_archive_record")
 
+        # WeeWX 5.6 carries the accumulator of the archive period on the event as
+        # 'accumulator'. Older versions keep the ended period's accumulator in
+        # self.old_accumulator.
+        accumulator = getattr(event, 'accumulator', None)
+        if accumulator is None:
+            accumulator = getattr(self, 'old_accumulator', None)
+            if accumulator is not None \
+                    and event.record['dateTime'] != accumulator.timespan.stop:
+                # The old accumulator is for a different period.
+                accumulator = None
+
         # If requested, extract any extra information we can out of the accumulator and put it in
         # the record. Not necessary in the case of software record generation because it has
         # already been done.
         if self.record_augmentation \
-                and self.old_accumulator \
-                and event.record['dateTime'] == self.old_accumulator.timespan.stop \
+                and accumulator \
                 and event.origin != 'software':
-            self.old_accumulator.augmentRecord(event.record)
+            accumulator.augmentRecord(event.record)
 
         if self.store_archive_event_record:
             dbmanager = self.engine.db_binder.get_manager(self.data_binding)
             dbmanager.addRecord(event.record,
-                                accumulator=self.old_accumulator,
+                                accumulator=accumulator,
                                 log_success=self.log_success,
                                 log_failure=self.log_failure)
 
         for database in self.databases:
             if database['event_catchup']:
                 database['secondary_dbm'].addRecord(event.record,
-                                accumulator=self.old_accumulator,
+                                accumulator=accumulator,
                                 log_success=self.log_success,
                                 log_failure=self.log_failure)
             else:
